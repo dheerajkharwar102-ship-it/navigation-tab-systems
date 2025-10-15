@@ -291,18 +291,70 @@
       box-shadow: 0 2px 6px rgba(67, 97, 238, 0.3);
    }
 
-   .product-header-section {
+   .compact-product-details {
       background: white;
       border-radius: 6px;
-      padding: 16px;
+      padding: 12px 16px;
       border: 1px solid #e0e0e0;
       margin-bottom: 16px;
    }
 
-   .product-header-grid {
+   .compact-details-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 16px;
+      align-items: end;
+   }
+
+   .compact-detail-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+   }
+
+   .compact-detail-group label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 0;
+   }
+
+   .compact-detail-group input {
+      height: 28px;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      width: 100%;
+   }
+
+   .compact-detail-group input:focus {
+      border-color: #4361ee;
+      box-shadow: 0 0 0 0.1rem rgba(67, 97, 238, 0.15);
+   }
+
+   .compact-detail-group input[readonly] {
+      background-color: #f8f9fa;
+      cursor: not-allowed;
+   }
+
+   .compact-section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f8f9fa;
+   }
+
+   .compact-section-header h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .product-header-section {
+      display: none;
    }
 
    .complex-product-layout {
@@ -311,6 +363,43 @@
       gap: 16px;
       height: 100%;
       min-height: 500px;
+   }
+
+   .item-details-content {
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+   }
+
+   .item-details-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      border-radius: 6px 6px 0 0;
+   }
+
+   .item-details-header h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .item-details-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+   }
+
+   .product-header-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
    }
 
    .items-tabs-sidebar {
@@ -403,14 +492,6 @@
       border-radius: 0 0 6px 0;
    }
 
-   .item-details-content {
-      background: white;
-      border-radius: 6px;
-      border: 1px solid #e0e0e0;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-   }
 
    .item-details-header {
       padding: 12px 16px;
@@ -424,12 +505,6 @@
       color: #495057;
       font-weight: 600;
       font-size: 0.9rem;
-   }
-
-   .item-details-body {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
    }
 
    .empty-item-selection {
@@ -712,6 +787,7 @@
 
    .product-empty-state {
       text-align: center;
+      margin: auto;
       padding: 20px 16px;
       color: #6c757d;
    }
@@ -1201,6 +1277,11 @@
          grid-template-columns: 1fr;
       }
 
+      .compact-details-grid {
+         grid-template-columns: 1fr;
+         gap: 12px;
+      }
+
       .complex-product-layout {
          grid-template-columns: 1fr;
          gap: 12px;
@@ -1274,7 +1355,8 @@
 <div class="order-product-wrapper">
    <ul class="nav nav-tabs" id="roomTabs" role="tablist">
       <li class="nav-item">
-         <a class="nav-link active room-tab" id="room1-tab" data-toggle="tab" href="#room1" role="tab" aria-controls="room1" aria-selected="true" data-room="1">
+         <a class="nav-link active room-tab" id="room1-tab" data-toggle="tab" href="#room1" role="tab"
+            aria-controls="room1" aria-selected="true" data-room="1">
             <div class="room-header">
                <span class="status-indicator status-empty"></span>
                <span class="room-title">Room 1</span>
@@ -1314,22 +1396,20 @@
                            <button type="button" class="btn btn-sm btn-outline-primary">
                               <i class="fa fa-upload mr-1"></i> Upload
                            </button>
-                           <input type="file" class="room-image-input" id="roomImage-room1" accept="image/*" data-room="1">
+                           <input type="file" class="room-image-input" id="roomImage-room1" accept="image/*"
+                              data-room="1">
                         </div>
                      </div>
                   </div>
                </div>
                <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="1">
-                  <i class="fa fa-plus mr-1"></i> Add Item To Room
+                  <i class="fa fa-plus mr-1"></i> Add Item To Room 1
                </button>
             </div>
             <div class="product-tabs-container" id="productTabs-room1">
                <div class="product-empty-state">
                   <i class="fa fa-cube"></i>
                   <p>No products added yet</p>
-                  <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="1">
-                     Add Your First Item
-                  </button>
                </div>
             </div>
             <div class="product-content-area" id="productContent-room1">
@@ -1405,17 +1485,17 @@
 </div>
 
 <script>
-jQuery(function($) {
-   // State management
-   const state = {
-      rooms: [], // Track all rooms to maintain proper numbering
-      currentRoom: null,
-      selectedQualification: null,
-      selectedProducts: []
-   };
+   jQuery(function ($) {
+      // State management
+      const state = {
+         rooms: [], // Track all rooms to maintain proper numbering
+         currentRoom: null,
+         selectedQualification: null,
+         selectedProducts: []
+      };
 
-   // Product data
-   const productOptions = [{
+      // Product data
+      const productOptions = [{
          id: 'fitout',
          name: 'Fitout',
          description: 'Interior construction, walls, ceilings, and flooring',
@@ -1447,11 +1527,10 @@ jQuery(function($) {
          color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
          type: 'simple'
       }
-   ];
+      ];
 
-   // Fitout products (Wall, Ceiling, Ground)
-   const fitoutProducts = [
-      {
+      // Fitout products (Wall, Ceiling, Ground)
+      const fitoutProducts = [{
          id: 'wall',
          name: 'Wall',
          description: 'Wall construction and finishing',
@@ -1475,16 +1554,16 @@ jQuery(function($) {
          color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
          type: 'complex'
       }
-   ];
+      ];
 
-   // Item data for complex products
-   const itemData = {
-      'wall': {
-         name: 'Wall Items',
-         categories: {
-            'construction': {
-               name: 'Construction',
-               items: [{
+      // Item data for complex products
+      const itemData = {
+         'wall': {
+            name: 'Wall Items',
+            categories: {
+               'construction': {
+                  name: 'Construction',
+                  items: [{
                      id: 'drywall',
                      name: 'Drywall',
                      description: 'Standard drywall panels',
@@ -1498,11 +1577,11 @@ jQuery(function($) {
                      icon: 'fa-grip-lines',
                      color: '#ee5a52'
                   }
-               ]
-            },
-            'finishing': {
-               name: 'Finishing',
-               items: [{
+                  ]
+               },
+               'finishing': {
+                  name: 'Finishing',
+                  items: [{
                      id: 'paint',
                      name: 'Wall Paint',
                      description: 'Interior wall paint',
@@ -1516,16 +1595,16 @@ jQuery(function($) {
                      icon: 'fa-scroll',
                      color: '#3a0ca3'
                   }
-               ]
+                  ]
+               }
             }
-         }
-      },
-      'ceiling': {
-         name: 'Ceiling Items',
-         categories: {
-            'materials': {
-               name: 'Materials',
-               items: [{
+         },
+         'ceiling': {
+            name: 'Ceiling Items',
+            categories: {
+               'materials': {
+                  name: 'Materials',
+                  items: [{
                      id: 'ceiling_tiles',
                      name: 'Ceiling Tiles',
                      description: 'Acoustic ceiling tiles',
@@ -1539,16 +1618,16 @@ jQuery(function($) {
                      icon: 'fa-square',
                      color: '#44a08d'
                   }
-               ]
+                  ]
+               }
             }
-         }
-      },
-      'ground': {
-         name: 'Ground Items',
-         categories: {
-            'flooring': {
-               name: 'Flooring',
-               items: [{
+         },
+         'ground': {
+            name: 'Ground Items',
+            categories: {
+               'flooring': {
+                  name: 'Flooring',
+                  items: [{
                      id: 'tiles',
                      name: 'Floor Tiles',
                      description: 'Ceramic or porcelain tiles',
@@ -1562,16 +1641,16 @@ jQuery(function($) {
                      icon: 'fa-tree',
                      color: '#8b4513'
                   }
-               ]
+                  ]
+               }
             }
-         }
-      },
-      'electrical': {
-         name: 'Electrical Items',
-         categories: {
-            'fixtures': {
-               name: 'Fixtures',
-               items: [{
+         },
+         'electrical': {
+            name: 'Electrical Items',
+            categories: {
+               'fixtures': {
+                  name: 'Fixtures',
+                  items: [{
                      id: 'switches',
                      name: 'Switches',
                      description: 'Electrical switches',
@@ -1592,16 +1671,16 @@ jQuery(function($) {
                      icon: 'fa-lightbulb',
                      color: '#ffd166'
                   }
-               ]
+                  ]
+               }
             }
-         }
-      },
-      'plumbing': {
-         name: 'Plumbing Items',
-         categories: {
-            'fixtures': {
-               name: 'Fixtures',
-               items: [{
+         },
+         'plumbing': {
+            name: 'Plumbing Items',
+            categories: {
+               'fixtures': {
+                  name: 'Fixtures',
+                  items: [{
                      id: 'faucet',
                      name: 'Faucet',
                      description: 'Water faucet',
@@ -1622,11 +1701,11 @@ jQuery(function($) {
                      icon: 'fa-toggle-off',
                      color: '#4361ee'
                   }
-               ]
-            },
-            'drainage': {
-               name: 'Drainage',
-               items: [{
+                  ]
+               },
+               'drainage': {
+                  name: 'Drainage',
+                  items: [{
                      id: 'drain',
                      name: 'Drain',
                      description: 'Drain pipe',
@@ -1640,16 +1719,16 @@ jQuery(function($) {
                      icon: 'fa-undo',
                      color: '#7209b7'
                   }
-               ]
+                  ]
+               }
             }
-         }
-      },
-      'painting': {
-         name: 'Painting Items',
-         categories: {
-            'materials': {
-               name: 'Materials',
-               items: [{
+         },
+         'painting': {
+            name: 'Painting Items',
+            categories: {
+               'materials': {
+                  name: 'Materials',
+                  items: [{
                      id: 'paint_bucket',
                      name: 'Paint Bucket',
                      description: 'Paint container',
@@ -1670,19 +1749,19 @@ jQuery(function($) {
                      icon: 'fa-paint-roller',
                      color: '#a8e6cf'
                   }
-               ]
+                  ]
+               }
             }
          }
-      }
-   };
+      };
 
-   // Initialize qualification modal
-   function initializeQualificationModal() {
-      const $optionsContainer = $('#qualificationOptions');
-      $optionsContainer.empty();
+      // Initialize qualification modal
+      function initializeQualificationModal() {
+         const $optionsContainer = $('#qualificationOptions');
+         $optionsContainer.empty();
 
-      productOptions.forEach(qual => {
-         const $option = $(`
+         productOptions.forEach(qual => {
+            const $option = $(`
             <div class="qualification-option" data-qualification="${qual.id}">
                <div class="qualification-option-header">
                   <div class="qualification-option-icon" style="background: ${qual.color};">
@@ -1693,28 +1772,28 @@ jQuery(function($) {
                <div class="qualification-option-description">${qual.description}</div>
             </div>
          `);
-         $optionsContainer.append($option);
-      });
-   }
-
-   // Initialize multi-select modal
-   function initializeMultiSelectModal(qualification) {
-      const $optionsContainer = $('#multiSelectOptions');
-      $optionsContainer.empty();
-      state.selectedProducts = [];
-
-      let productsToShow = [];
-
-      if (qualification.id === 'fitout') {
-         // For fitout, show wall, ceiling, and ground as products
-         productsToShow = fitoutProducts;
-      } else {
-         // For other qualifications, show the qualification itself as a product
-         productsToShow = [qualification];
+            $optionsContainer.append($option);
+         });
       }
 
-      productsToShow.forEach(product => {
-         const $option = $(`
+      // Initialize multi-select modal
+      function initializeMultiSelectModal(qualification) {
+         const $optionsContainer = $('#multiSelectOptions');
+         $optionsContainer.empty();
+         state.selectedProducts = [];
+
+         let productsToShow = [];
+
+         if (qualification.id === 'fitout') {
+            // For fitout, show wall, ceiling, and ground as products
+            productsToShow = fitoutProducts;
+         } else {
+            // For other qualifications, show the qualification itself as a product
+            productsToShow = [qualification];
+         }
+
+         productsToShow.forEach(product => {
+            const $option = $(`
             <div class="multi-select-option" data-product-id="${product.id}">
                <div class="multi-select-option-header">
                   <div class="multi-select-option-icon" style="background: ${product.color};">
@@ -1725,236 +1804,236 @@ jQuery(function($) {
                <div class="multi-select-option-description">${product.description}</div>
             </div>
          `);
-         $optionsContainer.append($option);
-      });
-   }
+            $optionsContainer.append($option);
+         });
+      }
 
-   // Search functionality for qualification modal
-   function setupQualificationSearch() {
-      $('#qualificationSearch').on('input', function() {
-         const searchTerm = $(this).val().toLowerCase();
-         $('.qualification-option').each(function() {
-            const $option = $(this);
-            const name = $option.find('.qualification-option-name').text().toLowerCase();
-            const description = $option.find('.qualification-option-description').text().toLowerCase();
-            
-            if (name.includes(searchTerm) || description.includes(searchTerm)) {
-               $option.show();
-            } else {
-               $option.hide();
+      // Search functionality for qualification modal
+      function setupQualificationSearch() {
+         $('#qualificationSearch').on('input', function () {
+            const searchTerm = $(this).val().toLowerCase();
+            $('.qualification-option').each(function () {
+               const $option = $(this);
+               const name = $option.find('.qualification-option-name').text().toLowerCase();
+               const description = $option.find('.qualification-option-description').text().toLowerCase();
+
+               if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                  $option.show();
+               } else {
+                  $option.hide();
+               }
+            });
+         });
+      }
+
+      // Search functionality for product modal
+      function setupProductSearch() {
+         $('#productSearch').on('input', function () {
+            const searchTerm = $(this).val().toLowerCase();
+            $('.multi-select-option').each(function () {
+               const $option = $(this);
+               const name = $option.find('.multi-select-option-name').text().toLowerCase();
+               const description = $option.find('.multi-select-option-description').text().toLowerCase();
+
+               if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                  $option.show();
+               } else {
+                  $option.hide();
+               }
+            });
+         });
+      }
+
+      // Image upload functionality
+      function setupImageUpload() {
+         $(document).on('change', '.room-image-input', function () {
+            const file = this.files[0];
+            const roomId = $(this).data('room');
+            const $preview = $(`#imagePreview-room${roomId}`);
+
+            if (file) {
+               const reader = new FileReader();
+
+               reader.onload = function (e) {
+                  $preview.html(`<img src="${e.target.result}" alt="Room image">`);
+               }
+
+               reader.readAsDataURL(file);
             }
          });
-      });
-   }
+      }
 
-   // Search functionality for product modal
-   function setupProductSearch() {
-      $('#productSearch').on('input', function() {
-         const searchTerm = $(this).val().toLowerCase();
-         $('.multi-select-option').each(function() {
-            const $option = $(this);
-            const name = $option.find('.multi-select-option-name').text().toLowerCase();
-            const description = $option.find('.multi-select-option-description').text().toLowerCase();
-            
-            if (name.includes(searchTerm) || description.includes(searchTerm)) {
-               $option.show();
-            } else {
-               $option.hide();
-            }
+      // Get next room number
+      function getNextRoomNumber() {
+         if (state.rooms.length === 0) return 1;
+         return Math.max(...state.rooms) + 1;
+      }
+
+      // Add room to state
+      function addRoomToState(roomNumber) {
+         state.rooms.push(roomNumber);
+         state.rooms.sort((a, b) => a - b);
+      }
+
+      // Remove room from state
+      function removeRoomFromState(roomNumber) {
+         state.rooms = state.rooms.filter(num => num !== roomNumber);
+      }
+
+      // Renumber all rooms
+      function renumberRooms() {
+         const $roomTabs = $('#roomTabs .room-tab').get();
+
+         $roomTabs.forEach((tab, index) => {
+            const roomNumber = index + 1;
+            const $tab = $(tab);
+            const oldRoomId = $tab.attr('id').replace('-tab', '');
+            const newRoomId = `room${roomNumber}`;
+
+            // Update tab
+            $tab.attr('id', `${newRoomId}-tab`);
+            $tab.attr('href', `#${newRoomId}`);
+            $tab.attr('aria-controls', newRoomId);
+            $tab.data('room', roomNumber);
+            $tab.find('.room-title').text(`Room ${roomNumber}`);
+
+            // Update pane
+            const $pane = $(`#${oldRoomId}`);
+            $pane.attr('id', newRoomId);
+            $pane.attr('aria-labelledby', `${newRoomId}-tab`);
+            $pane.data('room', roomNumber);
+
+            // Update product containers
+            $pane.find('.product-tabs-container').attr('id', `productTabs-room${roomNumber}`);
+            $pane.find('.product-content-area').attr('id', `productContent-room${roomNumber}`);
+
+            // Update form fields
+            $pane.find('#floorName-' + oldRoomId).attr('id', 'floorName-' + newRoomId);
+            $pane.find('#roomName-' + oldRoomId).attr('id', 'roomName-' + newRoomId);
+            $pane.find('#roomImage-' + oldRoomId).attr('id', 'roomImage-' + newRoomId).data('room', roomNumber);
+            $pane.find('#imagePreview-' + oldRoomId).attr('id', 'imagePreview-' + newRoomId);
+
+            // Update buttons
+            $pane.find('.add-item-to-room-btn').data('room', roomNumber);
+
+            // Update product tabs
+            $pane.find('.product-tab').each(function () {
+               const $productTab = $(this);
+               const productId = $productTab.data('product');
+               const newTabId = `product-${productId}-room${roomNumber}`;
+
+               $productTab.attr('id', `${newTabId}-tab`);
+
+               const $productContent = $(`#product-${productId}-${oldRoomId}`);
+               if ($productContent.length) {
+                  $productContent.attr('id', newTabId);
+               }
+            });
          });
-      });
-   }
 
-   // Image upload functionality
-   function setupImageUpload() {
-      $(document).on('change', '.room-image-input', function() {
-         const file = this.files[0];
-         const roomId = $(this).data('room');
-         const $preview = $(`#imagePreview-room${roomId}`);
-         
-         if (file) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-               $preview.html(`<img src="${e.target.result}" alt="Room image">`);
-            }
-            
-            reader.readAsDataURL(file);
-         }
-      });
-   }
+         // Update state
+         state.rooms = $roomTabs.map((tab, index) => index + 1);
+      }
 
-   // Get next room number
-   function getNextRoomNumber() {
-      if (state.rooms.length === 0) return 1;
-      return Math.max(...state.rooms) + 1;
-   }
+      // Modal management functions
+      function showQualificationModal(roomId) {
+         console.log('Opening qualification modal for room:', roomId);
+         state.currentRoom = roomId;
+         state.selectedQualification = null;
+         $('#qualificationModal').fadeIn(300);
+         $('#qualificationOptions .qualification-option').removeClass('selected');
+         $('#confirmAddQualification').prop('disabled', true);
+         $('#qualificationSearch').val(''); // Clear search
+         $('.qualification-option').show(); // Show all options
+      }
 
-   // Add room to state
-   function addRoomToState(roomNumber) {
-      state.rooms.push(roomNumber);
-      state.rooms.sort((a, b) => a - b);
-   }
+      function hideQualificationModal() {
+         $('#qualificationModal').fadeOut(300);
+         state.selectedQualification = null;
+      }
 
-   // Remove room from state
-   function removeRoomFromState(roomNumber) {
-      state.rooms = state.rooms.filter(num => num !== roomNumber);
-   }
+      function showMultiSelectModal(qualification, roomId) {
+         console.log('Opening multi-select modal for:', qualification.name, 'room:', roomId);
 
-   // Renumber all rooms
-   function renumberRooms() {
-      const $roomTabs = $('#roomTabs .room-tab').get();
+         // Store data in modal
+         $('#multiSelectModal')
+            .data('qualification', qualification)
+            .data('roomId', roomId);
 
-      $roomTabs.forEach((tab, index) => {
-         const roomNumber = index + 1;
-         const $tab = $(tab);
-         const oldRoomId = $tab.attr('id').replace('-tab', '');
-         const newRoomId = `room${roomNumber}`;
+         // Also update state
+         state.currentRoom = roomId;
 
-         // Update tab
-         $tab.attr('id', `${newRoomId}-tab`);
-         $tab.attr('href', `#${newRoomId}`);
-         $tab.attr('aria-controls', newRoomId);
-         $tab.data('room', roomNumber);
-         $tab.find('.room-title').text(`Room ${roomNumber}`);
+         // Initialize the modal with products
+         initializeMultiSelectModal(qualification);
 
-         // Update pane
-         const $pane = $(`#${oldRoomId}`);
-         $pane.attr('id', newRoomId);
-         $pane.attr('aria-labelledby', `${newRoomId}-tab`);
-         $pane.data('room', roomNumber);
+         $('#multiSelectModal').fadeIn(300);
+         $('#multiSelectOptions .multi-select-option').removeClass('selected');
+         $('#confirmMultiSelect').prop('disabled', true);
+         $('#productSearch').val(''); // Clear search
+         $('.multi-select-option').show(); // Show all options
+      }
 
-         // Update product containers
-         $pane.find('.product-tabs-container').attr('id', `productTabs-room${roomNumber}`);
-         $pane.find('.product-content-area').attr('id', `productContent-room${roomNumber}`);
+      function hideMultiSelectModal() {
+         $('#multiSelectModal').fadeOut(300);
+         state.selectedProducts = [];
+         $('#multiSelectModal').removeData('qualification');
+         $('#multiSelectModal').removeData('roomId');
+      }
 
-         // Update form fields
-         $pane.find('#floorName-' + oldRoomId).attr('id', 'floorName-' + newRoomId);
-         $pane.find('#roomName-' + oldRoomId).attr('id', 'roomName-' + newRoomId);
-         $pane.find('#roomImage-' + oldRoomId).attr('id', 'roomImage-' + newRoomId).data('room', roomNumber);
-         $pane.find('#imagePreview-' + oldRoomId).attr('id', 'imagePreview-' + newRoomId);
+      function showItemSelectionModal(productType) {
+         console.log('Opening item selection modal for product:', productType);
+         state.currentProductType = productType;
 
-         // Update buttons
-         $pane.find('.add-item-to-room-btn').data('room', roomNumber);
+         const $modal = $('#itemSelectionModal');
+         const $categoryTabs = $('#itemCategoryTabs');
+         const $itemOptions = $('#itemOptions');
 
-         // Update product tabs
-         $pane.find('.product-tab').each(function() {
-            const $productTab = $(this);
-            const productId = $productTab.data('product');
-            const newTabId = `product-${productId}-room${roomNumber}`;
+         // Clear previous content
+         $categoryTabs.empty();
+         $itemOptions.empty();
 
-            $productTab.attr('id', `${newTabId}-tab`);
+         // Get item data for the product type
+         const productData = itemData[productType] || itemData.electrical;
+         const categories = productData.categories;
 
-            const $productContent = $(`#product-${productId}-${oldRoomId}`);
-            if ($productContent.length) {
-               $productContent.attr('id', newTabId);
-            }
-         });
-      });
+         // Create category tabs only if there are multiple categories
+         let firstCategory = null;
+         const categoryKeys = Object.keys(categories);
 
-      // Update state
-      state.rooms = $roomTabs.map((tab, index) => index + 1);
-   }
+         if (categoryKeys.length > 1) {
+            categoryKeys.forEach((catKey, index) => {
+               const categoryInfo = categories[catKey];
+               if (index === 0) firstCategory = catKey;
 
-   // Modal management functions
-   function showQualificationModal(roomId) {
-      console.log('Opening qualification modal for room:', roomId);
-      state.currentRoom = roomId;
-      state.selectedQualification = null;
-      $('#qualificationModal').fadeIn(300);
-      $('#qualificationOptions .qualification-option').removeClass('selected');
-      $('#confirmAddQualification').prop('disabled', true);
-      $('#qualificationSearch').val(''); // Clear search
-      $('.qualification-option').show(); // Show all options
-   }
-
-   function hideQualificationModal() {
-      $('#qualificationModal').fadeOut(300);
-      state.selectedQualification = null;
-   }
-
-   function showMultiSelectModal(qualification, roomId) {
-      console.log('Opening multi-select modal for:', qualification.name, 'room:', roomId);
-      
-      // Store data in modal
-      $('#multiSelectModal')
-         .data('qualification', qualification)
-         .data('roomId', roomId);
-
-      // Also update state
-      state.currentRoom = roomId;
-      
-      // Initialize the modal with products
-      initializeMultiSelectModal(qualification);
-      
-      $('#multiSelectModal').fadeIn(300);
-      $('#multiSelectOptions .multi-select-option').removeClass('selected');
-      $('#confirmMultiSelect').prop('disabled', true);
-      $('#productSearch').val(''); // Clear search
-      $('.multi-select-option').show(); // Show all options
-   }
-
-   function hideMultiSelectModal() {
-      $('#multiSelectModal').fadeOut(300);
-      state.selectedProducts = [];
-      $('#multiSelectModal').removeData('qualification');
-      $('#multiSelectModal').removeData('roomId');
-   }
-
-   function showItemSelectionModal(productType) {
-      console.log('Opening item selection modal for product:', productType);
-      state.currentProductType = productType;
-
-      const $modal = $('#itemSelectionModal');
-      const $categoryTabs = $('#itemCategoryTabs');
-      const $itemOptions = $('#itemOptions');
-
-      // Clear previous content
-      $categoryTabs.empty();
-      $itemOptions.empty();
-
-      // Get item data for the product type
-      const productData = itemData[productType] || itemData.electrical;
-      const categories = productData.categories;
-
-      // Create category tabs only if there are multiple categories
-      let firstCategory = null;
-      const categoryKeys = Object.keys(categories);
-
-      if (categoryKeys.length > 1) {
-         categoryKeys.forEach((catKey, index) => {
-            const categoryInfo = categories[catKey];
-            if (index === 0) firstCategory = catKey;
-
-            const $tab = $(`
+               const $tab = $(`
                <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
                   ${categoryInfo.name}
                </div>
             `);
-            $categoryTabs.append($tab);
-         });
-      } else {
-         // Hide tabs if only one category
-         $categoryTabs.hide();
-         firstCategory = categoryKeys[0];
+               $categoryTabs.append($tab);
+            });
+         } else {
+            // Hide tabs if only one category
+            $categoryTabs.hide();
+            firstCategory = categoryKeys[0];
+         }
+
+         // Load items for first category
+         if (firstCategory) {
+            loadItemCategory(firstCategory, categories[firstCategory]);
+         }
+
+         // Show modal
+         $modal.fadeIn(300);
+         $('#confirmSelectItem').prop('disabled', true);
       }
 
-      // Load items for first category
-      if (firstCategory) {
-         loadItemCategory(firstCategory, categories[firstCategory]);
-      }
+      function loadItemCategory(categoryKey, categoryInfo) {
+         const $itemOptions = $('#itemOptions');
+         $itemOptions.empty();
 
-      // Show modal
-      $modal.fadeIn(300);
-      $('#confirmSelectItem').prop('disabled', true);
-   }
-
-   function loadItemCategory(categoryKey, categoryInfo) {
-      const $itemOptions = $('#itemOptions');
-      $itemOptions.empty();
-
-      categoryInfo.items.forEach(item => {
-         const $option = $(`
+         categoryInfo.items.forEach(item => {
+            const $option = $(`
             <div class="item-option" data-item-id="${item.id}">
                <div class="item-option-icon" style="background: ${item.color};">
                   <i class="fa ${item.icon}"></i>
@@ -1963,38 +2042,38 @@ jQuery(function($) {
                <div class="item-option-description">${item.description}</div>
             </div>
          `);
-         $itemOptions.append($option);
-      });
-   }
-
-   function hideItemSelectionModal() {
-      $('#itemSelectionModal').fadeOut(300);
-      state.currentProductType = null;
-      state.selectedItem = null;
-   }
-
-   // Add product tab
-   function addProductTab(roomId, product) {
-      console.log('Adding product:', product.name, 'to room:', roomId);
-
-      const $tabsContainer = $(`#productTabs-room${roomId}`);
-      const $emptyState = $tabsContainer.find('.product-empty-state');
-
-      // Remove empty state if it exists
-      if ($emptyState.length) {
-         $emptyState.remove();
+            $itemOptions.append($option);
+         });
       }
 
-      const productId = `product-${product.id}-room${roomId}`;
-      const tabId = `${productId}-tab`;
-
-      // Check if product already exists
-      if ($tabsContainer.find(`[data-product="${product.id}"]`).length) {
-         alert('This product has already been added to this room.');
-         return;
+      function hideItemSelectionModal() {
+         $('#itemSelectionModal').fadeOut(300);
+         state.currentProductType = null;
+         state.selectedItem = null;
       }
 
-      const $tab = $(`
+      // Add product tab
+      function addProductTab(roomId, product) {
+         console.log('Adding product:', product.name, 'to room:', roomId);
+
+         const $tabsContainer = $(`#productTabs-room${roomId}`);
+         const $emptyState = $tabsContainer.find('.product-empty-state');
+
+         // Remove empty state if it exists
+         if ($emptyState.length) {
+            $emptyState.remove();
+         }
+
+         const productId = `product-${product.id}-room${roomId}`;
+         const tabId = `${productId}-tab`;
+
+         // Check if product already exists
+         if ($tabsContainer.find(`[data-product="${product.id}"]`).length) {
+            alert('This product has already been added to this room.');
+            return;
+         }
+
+         const $tab = $(`
          <div class="product-tab" data-product="${product.id}" id="${tabId}">
             <div class="product-tab-icon" style="background: ${product.color};">
                <i class="fa ${product.icon}"></i>
@@ -2006,18 +2085,18 @@ jQuery(function($) {
          </div>
       `);
 
-      $tabsContainer.append($tab);
+         $tabsContainer.append($tab);
 
-      // Create content area for this product
-      const $contentArea = $(`#productContent-room${roomId}`);
-      const $emptyContent = $contentArea.find('.product-empty-state');
+         // Create content area for this product
+         const $contentArea = $(`#productContent-room${roomId}`);
+         const $emptyContent = $contentArea.find('.product-empty-state');
 
-      // Remove empty content if it exists
-      if ($emptyContent.length) {
-         $emptyContent.remove();
-      }
+         // Remove empty content if it exists
+         if ($emptyContent.length) {
+            $emptyContent.remove();
+         }
 
-      const $content = $(`
+         const $content = $(`
          <div class="product-content" id="${productId}" style="display: none;">
             <div class="loading-state">
                <i class="fa fa-spinner fa-spin fa-2x"></i>
@@ -2026,81 +2105,47 @@ jQuery(function($) {
          </div>
       `);
 
-      $contentArea.append($content);
+         $contentArea.append($content);
 
-      // Activate the new tab
-      activateProductTab($tab);
+         // Activate the new tab
+         activateProductTab($tab);
 
-      // Load product content after a delay
-      setTimeout(() => {
-         loadProductContent(productId, product);
-      }, 500);
-   }
-
-   function activateProductTab($tab) {
-      const productId = $tab.data('product');
-      const roomId = $tab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
-
-      // Deactivate all tabs and hide all content
-      $(`#productTabs-room${roomId} .product-tab`).removeClass('active');
-      $(`#productContent-room${roomId} .product-content`).hide();
-
-      // Activate current tab and show content
-      $tab.addClass('active');
-      $(`#product-${productId}-room${roomId}`).show();
-   }
-
-   function loadProductContent(contentId, product) {
-      const $content = $(`#${contentId}`);
-
-      if (product.type === 'complex') {
-         // For complex products (Wall, Ceiling, Ground)
-         loadComplexProductContent($content, product);
-      } else {
-         // For simple products
-         loadSimpleProductContent($content, product);
+         // Load product content after a delay
+         setTimeout(() => {
+            loadProductContent(productId, product);
+         }, 500);
       }
-   }
 
-   function loadComplexProductContent($content, product) {
-      const buttonText = `Add Item to ${product.name}`;
-      
-      const $wrapper = $(`
+      function activateProductTab($tab) {
+         const productId = $tab.data('product');
+         const roomId = $tab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
+
+         // Deactivate all tabs and hide all content
+         $(`#productTabs-room${roomId} .product-tab`).removeClass('active');
+         $(`#productContent-room${roomId} .product-content`).hide();
+
+         // Activate current tab and show content
+         $tab.addClass('active');
+         $(`#product-${productId}-room${roomId}`).show();
+      }
+
+      function loadProductContent(contentId, product) {
+         const $content = $(`#${contentId}`);
+
+         if (product.type === 'complex') {
+            // For complex products (Wall, Ceiling, Ground)
+            loadComplexProductContent($content, product);
+         } else {
+            // For simple products
+            loadSimpleProductContent($content, product);
+         }
+      }
+
+      function loadComplexProductContent($content, product) {
+         const buttonText = `Add Item to ${product.name}`;
+
+         const $wrapper = $(`
          <div class="product-details-wrapper">
-            <div class="product-header-section">
-               <div class="product-header-grid">
-                  <div class="product-dimensions">
-                     <h6><i class="fa fa-ruler-combined mr-2"></i>${product.name} Dimensions</h6>
-                     <div class="dimensions-inputs">
-                        <div class="dimension-input">
-                           <label>Width (m)</label>
-                           <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="dimension-input">
-                           <label>Length (m)</label>
-                           <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="dimension-input">
-                           <label>Height (m)</label>
-                           <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                     </div>
-                  </div>
-                  <div class="product-price">
-                     <h6><i class="fa fa-tag mr-2"></i>${product.name} Pricing</h6>
-                     <div class="price-inputs">
-                        <div class="price-input">
-                           <label>Unit Price ($)</label>
-                           <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="price-input">
-                           <label>Total Price ($)</label>
-                           <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
             <div class="complex-product-layout">
                <div class="items-tabs-sidebar">
                   <div class="items-tabs-header">
@@ -2123,6 +2168,33 @@ jQuery(function($) {
                      <h6><i class="fa fa-info-circle mr-2"></i>Item Details</h6>
                   </div>
                   <div class="item-details-body">
+                     <div class="compact-product-details">
+                        <div class="compact-section-header">
+                           <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
+                        </div>
+                        <div class="compact-details-grid">
+                           <div class="compact-detail-group">
+                              <label>Width (m)</label>
+                              <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                           </div>
+                           <div class="compact-detail-group">
+                              <label>Length (m)</label>
+                              <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                           </div>
+                           <div class="compact-detail-group">
+                              <label>Height (m)</label>
+                              <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
+                           </div>
+                           <div class="compact-detail-group">
+                              <label>Unit Price ($)</label>
+                              <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                           </div>
+                           <div class="compact-detail-group">
+                              <label>Total Price ($)</label>
+                              <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                           </div>
+                        </div>
+                     </div>
                      <div class="empty-item-selection">
                         <i class="fa fa-hand-pointer"></i>
                         <p>Select an item to view and edit details</p>
@@ -2133,43 +2205,40 @@ jQuery(function($) {
          </div>
       `);
 
-      $content.html($wrapper);
+         $content.html($wrapper);
 
-      // Set up dimension calculations
-      setupDimensionCalculations(product.id);
+         // Set up dimension calculations
+         setupDimensionCalculations(product.id);
 
-      // Set up price calculations
-      setupPriceCalculations(product.id);
-   }
+         // Set up price calculations
+         setupPriceCalculations(product.id);
+      }
 
-   function loadSimpleProductContent($content, product) {
-      const $wrapper = $(`
+      function loadSimpleProductContent($content, product) {
+         const $wrapper = $(`
          <div class="simple-product-content">
-            <div class="product-dimensions">
-               <h6><i class="fa fa-ruler-combined mr-2"></i>${product.name} Dimensions</h6>
-               <div class="dimensions-inputs">
-                  <div class="dimension-input">
+            <div class="compact-product-details">
+               <div class="compact-section-header">
+                  <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
+               </div>
+               <div class="compact-details-grid">
+                  <div class="compact-detail-group">
                      <label>Width (m)</label>
                      <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
                   </div>
-                  <div class="dimension-input">
+                  <div class="compact-detail-group">
                      <label>Length (m)</label>
                      <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
                   </div>
-                  <div class="dimension-input">
+                  <div class="compact-detail-group">
                      <label>Height (m)</label>
                      <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
                   </div>
-               </div>
-            </div>
-            <div class="product-price">
-               <h6><i class="fa fa-tag mr-2"></i>${product.name} Pricing</h6>
-               <div class="price-inputs">
-                  <div class="price-input">
+                  <div class="compact-detail-group">
                      <label>Unit Price ($)</label>
                      <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
                   </div>
-                  <div class="price-input">
+                  <div class="compact-detail-group">
                      <label>Total Price ($)</label>
                      <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
                   </div>
@@ -2178,62 +2247,62 @@ jQuery(function($) {
          </div>
       `);
 
-      $content.html($wrapper);
+         $content.html($wrapper);
 
-      // Set up dimension calculations
-      setupDimensionCalculations(product.id);
+         // Set up dimension calculations
+         setupDimensionCalculations(product.id);
 
-      // Set up price calculations
-      setupPriceCalculations(product.id);
-   }
-
-   function setupDimensionCalculations(productId) {
-      $(`#product-${productId}-room${state.currentRoom} .dimension-width, #product-${productId}-room${state.currentRoom} .dimension-length`).on('input', function() {
-         const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
-         const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
-         const area = width * length;
-         // Update total price calculation
-         const unitPrice = parseFloat($(`#product-${productId}-room${state.currentRoom} .unit-price`).val()) || 0;
-         const totalPrice = unitPrice * area;
-         $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
-      });
-   }
-
-   function setupPriceCalculations(productId) {
-      $(`#product-${productId}-room${state.currentRoom} .unit-price`).on('input', function() {
-         const unitPrice = parseFloat($(this).val()) || 0;
-         const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
-         const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
-         const area = width * length;
-         const totalPrice = unitPrice * area;
-         $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
-      });
-   }
-
-   function addItemToProduct(roomId, productId, item) {
-      console.log('Adding item to product:', item.name, 'room:', roomId, 'product:', productId);
-
-      const $productContent = $(`#product-${productId}-room${roomId}`);
-      const $tabsContainer = $productContent.find('.items-tabs-container');
-      const $emptyState = $tabsContainer.find('.empty-items-tabs');
-      const $detailsBody = $productContent.find('.item-details-body');
-      const $emptyDetails = $detailsBody.find('.empty-item-selection');
-
-      // Remove empty states if they exist
-      if ($emptyState.length) {
-         $emptyState.remove();
+         // Set up price calculations
+         setupPriceCalculations(product.id);
       }
 
-      // Check if item already exists as a tab
-      const existingTab = $tabsContainer.find(`[data-item-id="${item.id}"]`);
-      if (existingTab.length) {
-         alert('This item has already been added.');
-         return;
+      function setupDimensionCalculations(productId) {
+         $(`#product-${productId}-room${state.currentRoom} .dimension-width, #product-${productId}-room${state.currentRoom} .dimension-length`).on('input', function () {
+            const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
+            const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
+            const area = width * length;
+            // Update total price calculation
+            const unitPrice = parseFloat($(`#product-${productId}-room${state.currentRoom} .unit-price`).val()) || 0;
+            const totalPrice = unitPrice * area;
+            $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
+         });
       }
 
-      // Create item tab
-      const tabId = `item-${item.id}-${productId}-room${roomId}`;
-      const $tab = $(`
+      function setupPriceCalculations(productId) {
+         $(`#product-${productId}-room${state.currentRoom} .unit-price`).on('input', function () {
+            const unitPrice = parseFloat($(this).val()) || 0;
+            const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
+            const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
+            const area = width * length;
+            const totalPrice = unitPrice * area;
+            $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
+         });
+      }
+
+      function addItemToProduct(roomId, productId, item) {
+         console.log('Adding item to product:', item.name, 'room:', roomId, 'product:', productId);
+
+         const $productContent = $(`#product-${productId}-room${roomId}`);
+         const $tabsContainer = $productContent.find('.items-tabs-container');
+         const $emptyState = $tabsContainer.find('.empty-items-tabs');
+         const $detailsBody = $productContent.find('.item-details-body');
+         const $emptyDetails = $detailsBody.find('.empty-item-selection');
+
+         // Remove empty states if they exist
+         if ($emptyState.length) {
+            $emptyState.remove();
+         }
+
+         // Check if item already exists as a tab
+         const existingTab = $tabsContainer.find(`[data-item-id="${item.id}"]`);
+         if (existingTab.length) {
+            alert('This item has already been added.');
+            return;
+         }
+
+         // Create item tab
+         const tabId = `item-${item.id}-${productId}-room${roomId}`;
+         const $tab = $(`
          <div class="items-tab" data-item-id="${item.id}" id="${tabId}-tab">
             <span class="items-tab-name">${item.name}</span>
             <div class="items-tab-close" title="Remove item">
@@ -2242,10 +2311,10 @@ jQuery(function($) {
          </div>
       `);
 
-      $tabsContainer.append($tab);
+         $tabsContainer.append($tab);
 
-      // Create item details content
-      const $detailsContent = $(`
+         // Create item details content
+         const $detailsContent = $(`
          <div class="item-details" id="${tabId}" style="display: none;">
             <div class="enhanced-category-item">
                <div class="enhanced-item-header">
@@ -2285,114 +2354,114 @@ jQuery(function($) {
          </div>
       `);
 
-      // Remove empty details if they exist
-      if ($emptyDetails.length) {
-         $emptyDetails.remove();
+         // Remove empty details if they exist
+         if ($emptyDetails.length) {
+            $emptyDetails.remove();
+         }
+
+         $detailsBody.append($detailsContent);
+
+         // Activate the new tab
+         activateItemTab($tab, roomId, productId);
+
+         // Add event listeners
+         $tab.find('.items-tab-close').on('click', function (e) {
+            e.stopPropagation();
+            removeItemFromProduct($tab, roomId, productId, item.id);
+         });
+
+         updateRoomStatus(`room${roomId}`);
       }
 
-      $detailsBody.append($detailsContent);
+      function activateItemTab($tab, roomId, productId) {
+         const itemId = $tab.data('item-id');
+         const $productContent = $(`#product-${productId}-room${roomId}`);
 
-      // Activate the new tab
-      activateItemTab($tab, roomId, productId);
+         // Deactivate all tabs and hide all content
+         $productContent.find('.items-tab').removeClass('active');
+         $productContent.find('.item-details').hide();
 
-      // Add event listeners
-      $tab.find('.items-tab-close').on('click', function(e) {
-         e.stopPropagation();
-         removeItemFromProduct($tab, roomId, productId, item.id);
-      });
+         // Activate current tab and show content
+         $tab.addClass('active');
+         $(`#item-${itemId}-${productId}-room${roomId}`).show();
+      }
 
-      updateRoomStatus(`room${roomId}`);
-   }
+      function removeItemFromProduct($tab, roomId, productId, itemId) {
+         console.log('Removing item from product');
 
-   function activateItemTab($tab, roomId, productId) {
-      const itemId = $tab.data('item-id');
-      const $productContent = $(`#product-${productId}-room${roomId}`);
+         // Remove tab and details
+         $tab.remove();
+         $(`#item-${itemId}-${productId}-room${roomId}`).remove();
 
-      // Deactivate all tabs and hide all content
-      $productContent.find('.items-tab').removeClass('active');
-      $productContent.find('.item-details').hide();
+         // Check if container is empty and show empty state
+         const $productContent = $(`#product-${productId}-room${roomId}`);
+         const $tabsContainer = $productContent.find('.items-tabs-container');
+         const $detailsBody = $productContent.find('.item-details-body');
+         const $tabs = $tabsContainer.find('.items-tab');
 
-      // Activate current tab and show content
-      $tab.addClass('active');
-      $(`#item-${itemId}-${productId}-room${roomId}`).show();
-   }
-
-   function removeItemFromProduct($tab, roomId, productId, itemId) {
-      console.log('Removing item from product');
-      
-      // Remove tab and details
-      $tab.remove();
-      $(`#item-${itemId}-${productId}-room${roomId}`).remove();
-      
-      // Check if container is empty and show empty state
-      const $productContent = $(`#product-${productId}-room${roomId}`);
-      const $tabsContainer = $productContent.find('.items-tabs-container');
-      const $detailsBody = $productContent.find('.item-details-body');
-      const $tabs = $tabsContainer.find('.items-tab');
-      
-      if ($tabs.length === 0) {
-         $tabsContainer.html(`
+         if ($tabs.length === 0) {
+            $tabsContainer.html(`
             <div class="empty-items-tabs">
                <i class="fa fa-cube"></i>
                <p>No items added yet</p>
             </div>
          `);
-         
-         $detailsBody.html(`
+
+            $detailsBody.html(`
             <div class="empty-item-selection">
                <i class="fa fa-hand-pointer"></i>
                <p>Select an item to view and edit details</p>
             </div>
          `);
-      } else {
-         // Activate the first remaining tab
-         const $firstTab = $tabs.first();
-         activateItemTab($firstTab, roomId, productId);
-      }
-      
-      updateRoomStatus(`room${roomId}`);
-   }
-
-   function updateRoomStatus(roomId) {
-      const $roomPane = $(`#${roomId}`);
-      const $statusIndicator = $(`#${roomId}-tab .status-indicator`);
-
-      let hasItems = false;
-      let allComplete = true;
-
-      $roomPane.find('.enhanced-category-item').each(function() {
-         hasItems = true;
-         const $qty = $(this).find('.item-qty');
-         const $itemLength = $(this).find('.item-length');
-         const $itemWidth = $(this).find('.item-width');
-         const $itemHeight = $(this).find('.item-height');
-         const $name = $(this).find('.enhanced-item-name');
-
-         if (!$qty.val() || !$itemLength.val() || !$itemWidth.val() || !$itemHeight.val() || !$name.val()) {
-            allComplete = false;
-            return false;
+         } else {
+            // Activate the first remaining tab
+            const $firstTab = $tabs.first();
+            activateItemTab($firstTab, roomId, productId);
          }
-      });
 
-      $statusIndicator.removeClass('status-empty status-incomplete status-complete');
-
-      if (!hasItems) {
-         $statusIndicator.addClass('status-empty');
-      } else if (allComplete) {
-         $statusIndicator.addClass('status-complete');
-      } else {
-         $statusIndicator.addClass('status-incomplete');
+         updateRoomStatus(`room${roomId}`);
       }
-   }
 
-   // EVENT HANDLERS
+      function updateRoomStatus(roomId) {
+         const $roomPane = $(`#${roomId}`);
+         const $statusIndicator = $(`#${roomId}-tab .status-indicator`);
 
-   // Add room button
-   $('#addRoomBtn').on('click', function() {
-      const roomNumber = getNextRoomNumber();
-      const roomId = 'room' + roomNumber;
+         let hasItems = false;
+         let allComplete = true;
 
-      const $tabLi = $(`
+         $roomPane.find('.enhanced-category-item').each(function () {
+            hasItems = true;
+            const $qty = $(this).find('.item-qty');
+            const $itemLength = $(this).find('.item-length');
+            const $itemWidth = $(this).find('.item-width');
+            const $itemHeight = $(this).find('.item-height');
+            const $name = $(this).find('.enhanced-item-name');
+
+            if (!$qty.val() || !$itemLength.val() || !$itemWidth.val() || !$itemHeight.val() || !$name.val()) {
+               allComplete = false;
+               return false;
+            }
+         });
+
+         $statusIndicator.removeClass('status-empty status-incomplete status-complete');
+
+         if (!hasItems) {
+            $statusIndicator.addClass('status-empty');
+         } else if (allComplete) {
+            $statusIndicator.addClass('status-complete');
+         } else {
+            $statusIndicator.addClass('status-incomplete');
+         }
+      }
+
+      // EVENT HANDLERS
+
+      // Add room button
+      $('#addRoomBtn').on('click', function () {
+         const roomNumber = getNextRoomNumber();
+         const roomId = 'room' + roomNumber;
+
+         const $tabLi = $(`
          <li class="nav-item">
             <a class="nav-link room-tab" id="${roomId}-tab" data-toggle="tab" href="#${roomId}" role="tab" aria-controls="${roomId}" data-room="${roomNumber}">
                <div class="room-header">
@@ -2405,9 +2474,9 @@ jQuery(function($) {
             </a>
          </li>
       `);
-      $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
+         $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
 
-      const $pane = $(`
+         const $pane = $(`
          <div class="tab-pane fade" id="${roomId}" role="tabpanel" aria-labelledby="${roomId}-tab" data-room="${roomNumber}">
             <div class="product-tabs-wrapper">
                <div class="product-tabs-header">
@@ -2436,16 +2505,13 @@ jQuery(function($) {
                      </div>
                   </div>
                   <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="${roomNumber}">
-                     <i class="fa fa-plus mr-1"></i> Add Item To Room
+                     <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
                   </button>
                </div>
                <div class="product-tabs-container" id="productTabs-room${roomNumber}">
                   <div class="product-empty-state">
                      <i class="fa fa-cube"></i>
                      <p>No products added yet</p>
-                     <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="${roomNumber}">
-                        Add Your First Item
-                     </button>
                   </div>
                </div>
                <div class="product-content-area" id="productContent-room${roomNumber}">
@@ -2458,294 +2524,294 @@ jQuery(function($) {
          </div>
       `);
 
-      $('#roomTabsContent').append($pane);
-      $(`#${roomId}-tab`).tab('show');
-      updateRoomStatus(roomId);
-      addRoomToState(roomNumber);
-   });
-
-   // Add item to room button
-   $(document).on('click', '.add-item-to-room-btn', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      let roomId = $(this).data('room');
-      console.log('Add item to room button clicked, roomId from data:', roomId);
-
-      if (!roomId) {
-         const $roomPane = $(this).closest('.tab-pane');
-         if ($roomPane.length) {
-            roomId = $roomPane.data('room');
-            console.log('RoomId from pane data:', roomId);
-         }
-      }
-
-      if (roomId) {
-         console.log('Final roomId for qualification modal:', roomId);
-         showQualificationModal(roomId);
-      } else {
-         console.error('Could not determine roomId for product');
-      }
-   });
-
-   // Qualification option selection
-   $(document).on('click', '.qualification-option', function() {
-      console.log('Qualification option clicked:', $(this).data('qualification'));
-      $('.qualification-option').removeClass('selected');
-      $(this).addClass('selected');
-      state.selectedQualification = $(this).data('qualification');
-      $('#confirmAddQualification').prop('disabled', false);
-   });
-
-   // Confirm add qualification
-   $('#confirmAddQualification').on('click', function() {
-      console.log('Confirm add qualification clicked');
-      console.log('Current state:', {
-         selectedQualification: state.selectedQualification,
-         currentRoom: state.currentRoom
+         $('#roomTabsContent').append($pane);
+         $(`#${roomId}-tab`).tab('show');
+         updateRoomStatus(roomId);
+         addRoomToState(roomNumber);
       });
 
-      if (state.selectedQualification && state.currentRoom) {
-         const qualification = productOptions.find(q => q.id === state.selectedQualification);
-         if (qualification) {
-            const roomId = state.currentRoom;
+      // Add item to room button
+      $(document).on('click', '.add-item-to-room-btn', function (e) {
+         e.preventDefault();
+         e.stopPropagation();
 
-            hideQualificationModal();
+         let roomId = $(this).data('room');
+         console.log('Add item to room button clicked, roomId from data:', roomId);
 
-            // Use setTimeout to ensure the modal is fully hidden before showing next
-            setTimeout(() => {
-               console.log('Showing multi-select modal with roomId:', roomId);
-               showMultiSelectModal(qualification, roomId);
-            }, 100);
+         if (!roomId) {
+            const $roomPane = $(this).closest('.tab-pane');
+            if ($roomPane.length) {
+               roomId = $roomPane.data('room');
+               console.log('RoomId from pane data:', roomId);
+            }
          }
-      }
-   });
 
-   // Multi-select option selection
-   $(document).on('click', '.multi-select-option', function() {
-      const productId = $(this).data('product-id');
-      console.log('Multi-select option clicked:', productId);
-      
-      $(this).toggleClass('selected');
-      
-      // Update selected products array
-      if ($(this).hasClass('selected')) {
-         if (!state.selectedProducts.includes(productId)) {
-            state.selectedProducts.push(productId);
-         }
-      } else {
-         state.selectedProducts = state.selectedProducts.filter(id => id !== productId);
-      }
-      
-      $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
-   });
-
-   // Confirm multi-select
-   $('#confirmMultiSelect').on('click', function() {
-      console.log('Confirm multi-select clicked');
-
-      // Get data directly from modal
-      const qualification = $('#multiSelectModal').data('qualification');
-      const roomId = $('#multiSelectModal').data('roomId');
-
-      console.log('Data for multi-select addition:', {
-         qualification: qualification,
-         roomId: roomId,
-         selectedProducts: state.selectedProducts
-      });
-
-      if (state.selectedProducts.length > 0 && roomId && qualification) {
-         // Create product objects from selected product IDs
-         let products = [];
-         
-         if (qualification.id === 'fitout') {
-            // For fitout, the selected products are wall, ceiling, ground
-            products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
+         if (roomId) {
+            console.log('Final roomId for qualification modal:', roomId);
+            showQualificationModal(roomId);
          } else {
-            // For other qualifications, use the qualification itself
-            products = [qualification];
-         }
-         
-         console.log('Adding products:', products);
-         products.forEach(product => {
-            addProductTab(roomId, product);
-         });
-         hideMultiSelectModal();
-      } else {
-         console.error('Missing data for multi-select addition');
-         alert('Please select at least one product to continue.');
-      }
-   });
-
-   // Item option selection
-   $(document).on('click', '.item-option', function() {
-      console.log('Item option clicked:', $(this).data('item-id'));
-      $('.item-option').removeClass('selected');
-      $(this).addClass('selected');
-
-      const itemId = $(this).data('item-id');
-      const productData = itemData[state.currentProductType] || itemData.electrical;
-
-      // Find the selected item
-      state.selectedItem = null;
-      Object.keys(productData.categories).forEach(catKey => {
-         const category = productData.categories[catKey];
-         const item = category.items.find(i => i.id === itemId);
-         if (item) {
-            state.selectedItem = item;
+            console.error('Could not determine roomId for product');
          }
       });
 
-      $('#confirmSelectItem').prop('disabled', false);
-   });
+      // Qualification option selection
+      $(document).on('click', '.qualification-option', function () {
+         console.log('Qualification option clicked:', $(this).data('qualification'));
+         $('.qualification-option').removeClass('selected');
+         $(this).addClass('selected');
+         state.selectedQualification = $(this).data('qualification');
+         $('#confirmAddQualification').prop('disabled', false);
+      });
 
-   // Confirm item selection
-   $('#confirmSelectItem').on('click', function() {
-      console.log('Confirm item selection clicked');
+      // Confirm add qualification
+      $('#confirmAddQualification').on('click', function () {
+         console.log('Confirm add qualification clicked');
+         console.log('Current state:', {
+            selectedQualification: state.selectedQualification,
+            currentRoom: state.currentRoom
+         });
 
-      if (state.selectedItem && state.currentProductType) {
-         // Get current active product tab
-         const $activeProductTab = $('.product-tab.active');
-         if ($activeProductTab.length === 0) {
-            console.error('No active product tab found');
+         if (state.selectedQualification && state.currentRoom) {
+            const qualification = productOptions.find(q => q.id === state.selectedQualification);
+            if (qualification) {
+               const roomId = state.currentRoom;
+
+               hideQualificationModal();
+
+               // Use setTimeout to ensure the modal is fully hidden before showing next
+               setTimeout(() => {
+                  console.log('Showing multi-select modal with roomId:', roomId);
+                  showMultiSelectModal(qualification, roomId);
+               }, 100);
+            }
+         }
+      });
+
+      // Multi-select option selection
+      $(document).on('click', '.multi-select-option', function () {
+         const productId = $(this).data('product-id');
+         console.log('Multi-select option clicked:', productId);
+
+         $(this).toggleClass('selected');
+
+         // Update selected products array
+         if ($(this).hasClass('selected')) {
+            if (!state.selectedProducts.includes(productId)) {
+               state.selectedProducts.push(productId);
+            }
+         } else {
+            state.selectedProducts = state.selectedProducts.filter(id => id !== productId);
+         }
+
+         $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
+      });
+
+      // Confirm multi-select
+      $('#confirmMultiSelect').on('click', function () {
+         console.log('Confirm multi-select clicked');
+
+         // Get data directly from modal
+         const qualification = $('#multiSelectModal').data('qualification');
+         const roomId = $('#multiSelectModal').data('roomId');
+
+         console.log('Data for multi-select addition:', {
+            qualification: qualification,
+            roomId: roomId,
+            selectedProducts: state.selectedProducts
+         });
+
+         if (state.selectedProducts.length > 0 && roomId && qualification) {
+            // Create product objects from selected product IDs
+            let products = [];
+
+            if (qualification.id === 'fitout') {
+               // For fitout, the selected products are wall, ceiling, ground
+               products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
+            } else {
+               // For other qualifications, use the qualification itself
+               products = [qualification];
+            }
+
+            console.log('Adding products:', products);
+            products.forEach(product => {
+               addProductTab(roomId, product);
+            });
+            hideMultiSelectModal();
+         } else {
+            console.error('Missing data for multi-select addition');
+            alert('Please select at least one product to continue.');
+         }
+      });
+
+      // Item option selection
+      $(document).on('click', '.item-option', function () {
+         console.log('Item option clicked:', $(this).data('item-id'));
+         $('.item-option').removeClass('selected');
+         $(this).addClass('selected');
+
+         const itemId = $(this).data('item-id');
+         const productData = itemData[state.currentProductType] || itemData.electrical;
+
+         // Find the selected item
+         state.selectedItem = null;
+         Object.keys(productData.categories).forEach(catKey => {
+            const category = productData.categories[catKey];
+            const item = category.items.find(i => i.id === itemId);
+            if (item) {
+               state.selectedItem = item;
+            }
+         });
+
+         $('#confirmSelectItem').prop('disabled', false);
+      });
+
+      // Confirm item selection
+      $('#confirmSelectItem').on('click', function () {
+         console.log('Confirm item selection clicked');
+
+         if (state.selectedItem && state.currentProductType) {
+            // Get current active product tab
+            const $activeProductTab = $('.product-tab.active');
+            if ($activeProductTab.length === 0) {
+               console.error('No active product tab found');
+               return;
+            }
+
+            const productId = $activeProductTab.data('product');
+            const roomId = $activeProductTab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
+
+            console.log('Adding item to:', {
+               productId,
+               roomId,
+               item: state.selectedItem
+            });
+
+            addItemToProduct(roomId, productId, state.selectedItem);
+            hideItemSelectionModal();
+         } else {
+            console.error('Missing item for selection');
+         }
+      });
+
+      // Item category tab click
+      $(document).on('click', '.item-category-tab', function () {
+         const categoryKey = $(this).data('category');
+         console.log('Item category tab clicked:', categoryKey);
+         $('.item-category-tab').removeClass('active');
+         $(this).addClass('active');
+
+         const productData = itemData[state.currentProductType] || itemData.electrical;
+         loadItemCategory(categoryKey, productData.categories[categoryKey]);
+      });
+
+      // Add item buttons
+      $(document).on('click', '.add-product-item-btn', function () {
+         const productId = $(this).data('product');
+         console.log('Add product item button clicked:', productId);
+         showItemSelectionModal(productId);
+      });
+
+      // Close room
+      $(document).on('click', '.close-room', function (e) {
+         e.stopPropagation();
+         const $tab = $(this).closest('a.room-tab');
+         const totalRooms = $('#roomTabs a.room-tab').length;
+
+         if (totalRooms <= 1) {
+            alert('At least one room must be present.');
             return;
          }
 
-         const productId = $activeProductTab.data('product');
-         const roomId = $activeProductTab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
+         const roomId = $tab.attr('href').replace('#', '');
+         const isActive = $tab.hasClass('active');
 
-         console.log('Adding item to:', {
-            productId,
-            roomId,
-            item: state.selectedItem
-         });
+         $tab.closest('.nav-item').remove();
+         $(`#${roomId}`).remove();
 
-         addItemToProduct(roomId, productId, state.selectedItem);
-         hideItemSelectionModal();
-      } else {
-         console.error('Missing item for selection');
-      }
-   });
+         // Renumber all rooms after deletion
+         renumberRooms();
 
-   // Item category tab click
-   $(document).on('click', '.item-category-tab', function() {
-      const categoryKey = $(this).data('category');
-      console.log('Item category tab clicked:', categoryKey);
-      $('.item-category-tab').removeClass('active');
-      $(this).addClass('active');
-
-      const productData = itemData[state.currentProductType] || itemData.electrical;
-      loadItemCategory(categoryKey, productData.categories[categoryKey]);
-   });
-
-   // Add item buttons
-   $(document).on('click', '.add-product-item-btn', function() {
-      const productId = $(this).data('product');
-      console.log('Add product item button clicked:', productId);
-      showItemSelectionModal(productId);
-   });
-
-   // Close room
-   $(document).on('click', '.close-room', function(e) {
-      e.stopPropagation();
-      const $tab = $(this).closest('a.room-tab');
-      const totalRooms = $('#roomTabs a.room-tab').length;
-
-      if (totalRooms <= 1) {
-         alert('At least one room must be present.');
-         return;
-      }
-
-      const roomId = $tab.attr('href').replace('#', '');
-      const isActive = $tab.hasClass('active');
-
-      $tab.closest('.nav-item').remove();
-      $(`#${roomId}`).remove();
-
-      // Renumber all rooms after deletion
-      renumberRooms();
-
-      if (isActive) {
-         const $remainingTabs = $('#roomTabs a.room-tab');
-         if ($remainingTabs.length > 0) {
-            const $firstTab = $remainingTabs.first();
-            $firstTab.tab('show');
+         if (isActive) {
+            const $remainingTabs = $('#roomTabs a.room-tab');
+            if ($remainingTabs.length > 0) {
+               const $firstTab = $remainingTabs.first();
+               $firstTab.tab('show');
+            }
          }
-      }
-   });
+      });
 
-   // Product tab click
-   $(document).on('click', '.product-tab', function(e) {
-      if (!$(e.target).closest('.product-tab-close').length) {
-         activateProductTab($(this));
-      }
-   });
-
-   // Product tab close
-   $(document).on('click', '.product-tab-close', function(e) {
-      e.stopPropagation();
-      const $tab = $(this).closest('.product-tab');
-      const $tabsContainer = $tab.closest('.product-tabs-container');
-
-      if ($tabsContainer.find('.product-tab').length <= 1) {
-         alert('At least one product must remain in the room.');
-         return;
-      }
-
-      // Remove product tab
-      const productId = $tab.data('product');
-      const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
-
-      // Remove content
-      $(`#product-${productId}-room${roomId}`).remove();
-      $tab.remove();
-
-      // Activate first remaining tab if this was active
-      if ($tab.hasClass('active')) {
-         const $firstTab = $tabsContainer.find('.product-tab').first();
-         if ($firstTab.length) {
-            activateProductTab($firstTab);
+      // Product tab click
+      $(document).on('click', '.product-tab', function (e) {
+         if (!$(e.target).closest('.product-tab-close').length) {
+            activateProductTab($(this));
          }
-      }
-   });
+      });
 
-   // Add event delegation for item tab clicks
-   $(document).on('click', '.items-tab', function() {
-      const $tab = $(this);
-      const $productContent = $tab.closest('.product-content');
-      const productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
-      const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
-      
-      if (!$tab.find('.items-tab-close').is(':hover')) {
-         activateItemTab($tab, roomId, productId);
-      }
-   });
+      // Product tab close
+      $(document).on('click', '.product-tab-close', function (e) {
+         e.stopPropagation();
+         const $tab = $(this).closest('.product-tab');
+         const $tabsContainer = $tab.closest('.product-tabs-container');
 
-   // Close modal buttons
-   $('#closeQualificationModal').on('click', hideQualificationModal);
-   $('#closeMultiSelectModal').on('click', hideMultiSelectModal);
-   $('#closeItemSelectionModal').on('click', hideItemSelectionModal);
+         if ($tabsContainer.find('.product-tab').length <= 1) {
+            alert('At least one product must remain in the room.');
+            return;
+         }
 
-   // Close modals on background click
-   $('#qualificationModal').on('click', function(e) {
-      if (e.target === this) hideQualificationModal();
-   });
-   $('#multiSelectModal').on('click', function(e) {
-      if (e.target === this) hideMultiSelectModal();
-   });
-   $('#itemSelectionModal').on('click', function(e) {
-      if (e.target === this) hideItemSelectionModal();
-   });
+         // Remove product tab
+         const productId = $tab.data('product');
+         const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
 
-   // Initialize
-   initializeQualificationModal();
-   setupQualificationSearch();
-   setupProductSearch();
-   setupImageUpload();
-   // Add initial room to state
-   addRoomToState(1);
-   updateRoomStatus('room1');
+         // Remove content
+         $(`#product-${productId}-room${roomId}`).remove();
+         $tab.remove();
 
-   console.log('System initialized successfully');
-});
+         // Activate first remaining tab if this was active
+         if ($tab.hasClass('active')) {
+            const $firstTab = $tabsContainer.find('.product-tab').first();
+            if ($firstTab.length) {
+               activateProductTab($firstTab);
+            }
+         }
+      });
+
+      // Add event delegation for item tab clicks
+      $(document).on('click', '.items-tab', function () {
+         const $tab = $(this);
+         const $productContent = $tab.closest('.product-content');
+         const productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
+         const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
+
+         if (!$tab.find('.items-tab-close').is(':hover')) {
+            activateItemTab($tab, roomId, productId);
+         }
+      });
+
+      // Close modal buttons
+      $('#closeQualificationModal').on('click', hideQualificationModal);
+      $('#closeMultiSelectModal').on('click', hideMultiSelectModal);
+      $('#closeItemSelectionModal').on('click', hideItemSelectionModal);
+
+      // Close modals on background click
+      $('#qualificationModal').on('click', function (e) {
+         if (e.target === this) hideQualificationModal();
+      });
+      $('#multiSelectModal').on('click', function (e) {
+         if (e.target === this) hideMultiSelectModal();
+      });
+      $('#itemSelectionModal').on('click', function (e) {
+         if (e.target === this) hideItemSelectionModal();
+      });
+
+      // Initialize
+      initializeQualificationModal();
+      setupQualificationSearch();
+      setupProductSearch();
+      setupImageUpload();
+      // Add initial room to state
+      addRoomToState(1);
+      updateRoomStatus('room1');
+
+      console.log('System initialized successfully');
+   });
 </script>
