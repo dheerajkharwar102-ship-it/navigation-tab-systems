@@ -442,12 +442,6 @@
       flex-direction: column;
    }
 
-   .product-header-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-   }
-
    .items-tabs-sidebar {
       background: #f8f9fa;
       border-radius: 6px;
@@ -462,6 +456,9 @@
       border-bottom: 1px solid #e0e0e0;
       background: white;
       border-radius: 6px 6px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
    }
 
    .items-tabs-header h6 {
@@ -868,10 +865,12 @@
       font-size: 0.9rem;
    }
 
-   .material-inputs {
+   /* Updated Material Layout - Image on left, details on right */
+   .material-inputs-compact {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      align-items: start;
    }
 
    .material-input {
@@ -887,8 +886,7 @@
    }
 
    .material-input input,
-   .material-input select,
-   .material-input textarea {
+   .material-input select {
       font-size: 0.8rem;
       padding: 6px 8px;
       border: 1px solid #e0e0e0;
@@ -896,29 +894,15 @@
    }
 
    .material-input input:focus,
-   .material-input select:focus,
-   .material-input textarea:focus {
+   .material-input select:focus {
       border-color: #4361ee;
       box-shadow: 0 0 0 0.1rem rgba(67, 97, 238, 0.15);
    }
 
-   /* Product image layout */
-   .product-image-layout {
-      display: grid;
-      grid-template-columns: 1fr 200px;
-      gap: 16px;
-      align-items: start;
-   }
-
-   .product-image-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-   }
-
-   .product-image-preview {
-      width: 100%;
-      height: 150px;
+   /* Product image layout - UPDATED SIZES */
+   .compact-image-preview {
+      width: 160px;
+      height: 160px;
       border-radius: 6px;
       border: 1px solid #e0e0e0;
       background: #f8f9fa;
@@ -928,39 +912,20 @@
       overflow: hidden;
    }
 
-   .product-image-preview img {
+   .compact-image-preview img {
       width: 100%;
       height: 100%;
       object-fit: cover;
    }
 
-   .product-image-preview i {
+   .compact-image-preview i {
       color: #6c757d;
       font-size: 2rem;
    }
 
-   .product-image-upload {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-   }
-
-   .material-image-layout {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      gap: 12px;
-      align-items: start;
-   }
-
-   .material-image-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-   }
-
-   .material-image-preview {
-      width: 100%;
-      height: 100px;
+   .material-compact-image {
+      width: 160px;
+      height: 160px;
       border-radius: 6px;
       border: 1px solid #e0e0e0;
       background: #f8f9fa;
@@ -970,144 +935,252 @@
       overflow: hidden;
    }
 
-   .material-image-preview img {
+   .material-compact-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
    }
 
-   .material-image-preview i {
+   .material-compact-image i {
       color: #6c757d;
-      font-size: 1.5rem;
+      font-size: 2rem;
    }
 
-   /* Multiple materials section */
-   .materials-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-   }
-
-   .material-item {
-      background: #f8f9fa;
-      border-radius: 6px;
-      padding: 12px;
-      border: 1px solid #e0e0e0;
-   }
-
-   .material-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-   }
-
-   .material-item-title {
-      font-weight: 600;
-      color: #495057;
-      font-size: 0.85rem;
-   }
-
-   .material-item-actions {
-      display: flex;
-      gap: 4px;
-   }
-
-   .add-material-btn {
-      margin-top: 8px;
-   }
-
-   /* Material categories */
-   .material-categories {
+   .material-compact-fields {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 16px;
    }
 
-   .material-category {
+   /* Enhanced item layout - UPDATED SIZES */
+   .enhanced-image-preview {
+      width: 200px;
+      height: 200px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+   }
+
+   .enhanced-image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+   }
+
+   .enhanced-image-preview i {
+      color: #6c757d;
+      font-size: 2.5rem;
+   }
+
+   /* Material tabs styling */
+   .material-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 12px;
+      overflow-x: auto;
+   }
+
+   .material-tab {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+   }
+
+   .material-tab:hover {
+      color: #4361ee;
+   }
+
+   .material-tab.active {
+      color: #4361ee;
+      border-bottom-color: #4361ee;
+      background: rgba(67, 97, 238, 0.05);
+   }
+
+   .material-tab-content {
+      padding: 16px;
+      display: none;
+   }
+
+   .material-tab-content.active {
+      display: block;
+   }
+
+   /* Pillow subcategories section with horizontal tabs */
+   .pillow-subcategories-section {
       background: white;
       border-radius: 6px;
       padding: 12px;
       border: 1px solid #e0e0e0;
+      margin-top: 12px;
+   }
+
+   .pillow-subcategories-section h6 {
+      margin: 0 0 12px 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .pillow-subcategories-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 8px;
+      gap: 4px;
+      margin-bottom: 16px;
+      border: 1px solid #e0e0e0;
+   }
+
+   .pillow-subcategory-tab {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: #6c757d;
+      font-size: 0.75rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
+      border-radius: 4px;
+      text-align: center;
+      white-space: nowrap;
    }
 
-   .material-category:hover {
-      border-color: #4361ee;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.15);
+   .pillow-subcategory-tab:hover {
+      background: #e9ecef;
+      color: #495057;
    }
 
-   .material-category.active {
-      border-color: #4361ee;
-      background: linear-gradient(135deg, #4361ee08 0%, #3a0ca308 100%);
-      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+   .pillow-subcategory-tab.active {
+      background: #4361ee;
+      color: white;
+      box-shadow: 0 1px 3px rgba(67, 97, 238, 0.3);
    }
 
-   .material-category-header {
+   .pillow-subcategory-content {
+      display: none;
+   }
+
+   .pillow-subcategory-content.active {
+      display: block;
+   }
+
+   .pillow-subcategory-details {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 16px;
+      border: 1px solid #e0e0e0;
+   }
+
+   /* Updated layouts to accommodate larger images */
+   .compact-details-with-image {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      align-items: start;
+   }
+
+   .enhanced-details-with-image {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 16px;
+      align-items: start;
+   }
+
+   .product-details-header {
+      padding: 8px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+   }
+
+   .product-details-header h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .item-details-subheader {
+      padding: 8px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+   }
+
+   .item-details-subheader h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .product-details-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+   }
+
+   .product-details-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+   }
+
+   .compact-details-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+   }
+
+   .enhanced-details-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+   }
+
+   .product-header-with-image {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 12px;
    }
 
-   .material-category-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
+   .header-image-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 0.9rem;
+      overflow: hidden;
    }
 
-   .material-category-name {
-      font-weight: 600;
-      color: #495057;
-      font-size: 0.9rem;
+   .header-image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
    }
 
-   .material-category-description {
+   .header-image-preview i {
       color: #6c757d;
-      font-size: 0.75rem;
-      line-height: 1.3;
-   }
-
-   /* Pillow subcategories */
-   .pillow-subcategories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 8px;
-      margin-top: 8px;
-   }
-
-   .pillow-subcategory {
-      background: #f8f9fa;
-      border-radius: 4px;
-      padding: 8px;
-      border: 1px solid #e0e0e0;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-   }
-
-   .pillow-subcategory:hover {
-      border-color: #4361ee;
-      background: #e9ecef;
-   }
-
-   .pillow-subcategory.active {
-      border-color: #4361ee;
-      background: linear-gradient(135deg, #4361ee08 0%, #3a0ca308 100%);
-   }
-
-   .pillow-subcategory-name {
-      font-weight: 500;
-      color: #495057;
-      font-size: 0.75rem;
+      font-size: 1rem;
    }
 
    /* Modal Styles */
@@ -1599,16 +1672,24 @@
          width: 60px;
       }
 
-      .product-image-layout {
+      .compact-details-with-image {
          grid-template-columns: 1fr;
       }
 
-      .material-image-layout {
+      .enhanced-details-with-image {
          grid-template-columns: 1fr;
       }
 
-      .material-categories {
+      .material-inputs-compact {
          grid-template-columns: 1fr;
+      }
+
+      .material-compact-fields {
+         grid-template-columns: 1fr;
+      }
+
+      .pillow-subcategories-tabs {
+         flex-direction: column;
       }
    }
 
@@ -1669,503 +1750,533 @@
 </style>
 
 <div class="order-product-wrapper">
-   <ul class="nav nav-tabs" id="roomTabs" role="tablist">
-      <li class="nav-item">
-         <a class="nav-link active room-tab" id="room1-tab" data-toggle="tab" href="#room1" role="tab"
-            aria-controls="room1" aria-selected="true" data-room="1">
-            <div class="room-header">
-               <span class="status-indicator status-empty"></span>
-               <span class="room-title">Room 1</span>
-               <span class="close-room ml-2" title="Remove room">
-                  <i class="fa fa-times"></i>
-               </span>
-            </div>
-         </a>
-      </li>
-      <li class="nav-item ml-auto pl-2">
-         <button type="button" class="btn btn-sm btn-primary add-room-btn" id="addRoomBtn">
-            <i class="fa fa-plus mr-1"></i> Add Room
-         </button>
-      </li>
-   </ul>
+    <ul class="nav nav-tabs" id="roomTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active room-tab" id="room1-tab" data-toggle="tab" href="#room1" role="tab"
+               aria-controls="room1" aria-selected="true" data-room="1">
+                <div class="room-header">
+                    <span class="status-indicator status-empty"></span>
+                    <span class="room-title">Room 1</span>
+                    <span class="close-room ml-2" title="Remove room">
+                        <i class="fa fa-times"></i>
+                    </span>
+                </div>
+            </a>
+        </li>
+        <li class="nav-item ml-auto pl-2">
+            <button type="button" class="btn btn-sm btn-primary add-room-btn" id="addRoomBtn">
+                <i class="fa fa-plus mr-1"></i> Add Room
+            </button>
+        </li>
+    </ul>
 
-   <div class="tab-content" id="roomTabsContent">
-      <div class="tab-pane fade show active" id="room1" role="tabpanel" aria-labelledby="room1-tab" data-room="1">
-         <div class="product-tabs-wrapper">
-            <div class="product-tabs-header">
-               <div class="room-info-form">
-                  <div class="form-group-small">
-                     <label for="floorName-room1">Floor Name</label>
-                     <input type="text" class="form-control-small" id="floorName-room1" placeholder="Enter floor name">
-                  </div>
-                  <div class="form-group-small">
-                     <label for="roomName-room1">Room Name</label>
-                     <input type="text" class="form-control-small" id="roomName-room1" placeholder="Enter room name">
-                  </div>
-                  <div class="form-group-small">
-                     <label>Room Image</label>
-                     <div class="image-upload-container">
-                        <div class="image-preview" id="imagePreview-room1">
-                           <i class="fa fa-image"></i>
+    <div class="tab-content" id="roomTabsContent">
+        <div class="tab-pane fade show active" id="room1" role="tabpanel" aria-labelledby="room1-tab" data-room="1">
+            <div class="product-tabs-wrapper">
+                <div class="product-tabs-header">
+                    <div class="room-info-form">
+                        <div class="form-group-small">
+                            <label for="floorName-room1">Floor Name</label>
+                            <input type="text" class="form-control-small" id="floorName-room1" placeholder="Enter floor name">
                         </div>
-                        <div class="file-input-wrapper">
-                           <button type="button" class="btn btn-sm btn-outline-primary">
-                              <i class="fa fa-upload mr-1"></i> Upload
-                           </button>
-                           <input type="file" class="room-image-input" id="roomImage-room1" data-file-type="image" data-room="1">
+                        <div class="form-group-small">
+                            <label for="roomName-room1">Room Name</label>
+                            <input type="text" class="form-control-small" id="roomName-room1" placeholder="Enter room name">
                         </div>
-                     </div>
-                  </div>
-               </div>
-               <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="1">
-                  <i class="fa fa-plus mr-1"></i> Add Item To Room 1
-               </button>
+                        <div class="form-group-small">
+                            <label>Room Image</label>
+                            <div class="image-upload-container">
+                                <div class="image-preview" id="imagePreview-room1">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <div class="file-input-wrapper">
+                                    <button type="button" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa fa-upload mr-1"></i> Upload
+                                    </button>
+                                    <input type="file" class="room-image-input" id="roomImage-room1" data-file-type="image" data-room="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="1">
+                        <i class="fa fa-plus mr-1"></i> Add Item To Room 1
+                    </button>
+                </div>
+                <div class="product-tabs-container" id="productTabs-room1">
+                    <div class="product-empty-state">
+                        <i class="fa fa-cube"></i>
+                        <p>No products added yet</p>
+                    </div>
+                </div>
+                <div class="product-content-area" id="productContent-room1">
+                    <div class="product-empty-state">
+                        <i class="fa fa-hand-pointer"></i>
+                        <p>Select a product to configure details</p>
+                    </div>
+                </div>
             </div>
-            <div class="product-tabs-container" id="productTabs-room1">
-               <div class="product-empty-state">
-                  <i class="fa fa-cube"></i>
-                  <p>No products added yet</p>
-               </div>
-            </div>
-            <div class="product-content-area" id="productContent-room1">
-               <div class="product-empty-state">
-                  <i class="fa fa-hand-pointer"></i>
-                  <p>Select a product to configure details</p>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
+        </div>
+    </div>
 </div>
 
 <!-- Qualification Modal -->
 <div class="qualification-modal" id="qualificationModal">
-   <div class="qualification-modal-content">
-      <div class="qualification-modal-header">
-         <h5><i class="fa fa-plus-circle mr-2"></i>Select Product Type</h5>
-      </div>
-      <div class="search-container">
-         <input type="text" class="search-input" id="qualificationSearch" placeholder="Search product types...">
-      </div>
-      <div class="qualification-modal-body">
-         <div class="qualification-options" id="qualificationOptions"></div>
-      </div>
-      <div class="qualification-modal-footer">
-         <button type="button" class="btn btn-secondary" id="closeQualificationModal">Cancel</button>
-         <button type="button" class="btn btn-primary" id="confirmAddQualification" disabled>Next</button>
-      </div>
-   </div>
+    <div class="qualification-modal-content">
+        <div class="qualification-modal-header">
+            <h5><i class="fa fa-plus-circle mr-2"></i>Select Product Type</h5>
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" id="qualificationSearch" placeholder="Search product types...">
+        </div>
+        <div class="qualification-modal-body">
+            <div class="qualification-options" id="qualificationOptions"></div>
+        </div>
+        <div class="qualification-modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeQualificationModal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmAddQualification" disabled>Next</button>
+        </div>
+    </div>
 </div>
 
 <!-- Multi-Select Products Modal -->
 <div class="multi-select-modal" id="multiSelectModal">
-   <div class="multi-select-modal-content">
-      <div class="multi-select-modal-header">
-         <h5><i class="fa fa-layer-group mr-2"></i>Select Products</h5>
-      </div>
-      <div class="search-container">
-         <input type="text" class="search-input" id="productSearch" placeholder="Search products...">
-      </div>
-      <div class="multi-select-modal-body">
-         <div class="multi-select-options" id="multiSelectOptions"></div>
-      </div>
-      <div class="multi-select-modal-footer">
-         <button type="button" class="btn btn-secondary" id="closeMultiSelectModal">Cancel</button>
-         <button type="button" class="btn btn-primary" id="confirmMultiSelect" disabled>Add Selected Products</button>
-      </div>
-   </div>
+    <div class="multi-select-modal-content">
+        <div class="multi-select-modal-header">
+            <h5><i class="fa fa-layer-group mr-2"></i>Select Products</h5>
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" id="productSearch" placeholder="Search products...">
+        </div>
+        <div class="multi-select-modal-body">
+            <div class="multi-select-options" id="multiSelectOptions"></div>
+        </div>
+        <div class="multi-select-modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeMultiSelectModal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmMultiSelect" disabled>Add Selected Products</button>
+        </div>
+    </div>
 </div>
 
 <!-- Item Selection Modal -->
 <div class="item-selection-modal" id="itemSelectionModal">
-   <div class="item-selection-modal-content">
-      <div class="item-selection-modal-header">
-         <h5><i class="fa fa-cube mr-2"></i>Select Item</h5>
-      </div>
-      <div class="item-selection-modal-body">
-         <div class="item-categories">
-            <div class="item-categories-sidebar">
-               <div class="item-category-tabs" id="itemCategoryTabs"></div>
+    <div class="item-selection-modal-content">
+        <div class="item-selection-modal-header">
+            <h5><i class="fa fa-cube mr-2"></i>Select Item</h5>
+        </div>
+        <div class="item-selection-modal-body">
+            <div class="item-categories">
+                <div class="item-categories-sidebar">
+                    <div class="item-category-tabs" id="itemCategoryTabs"></div>
+                </div>
+                <div class="item-category-content">
+                    <div class="item-options" id="itemOptions"></div>
+                </div>
             </div>
-            <div class="item-category-content">
-               <div class="item-options" id="itemOptions"></div>
-            </div>
-         </div>
-      </div>
-      <div class="item-selection-modal-footer">
-         <button type="button" class="btn btn-secondary" id="closeItemSelectionModal">Cancel</button>
-         <button type="button" class="btn btn-primary" id="confirmSelectItem" disabled>Add Item</button>
-      </div>
-   </div>
+        </div>
+        <div class="item-selection-modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeItemSelectionModal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmSelectItem" disabled>Add Item</button>
+        </div>
+    </div>
 </div>
 
 <script>
-   jQuery(function ($) {
-      // State management
-      const state = {
-         rooms: [], // Track all rooms to maintain proper numbering
-         currentRoom: null,
-         selectedQualification: null,
-         selectedProducts: [],
-         selectedMaterialCategory: null,
-         selectedPillowSubcategory: null
-      };
+jQuery(function($) {
+    // State management
+    const state = {
+        rooms: [],
+        currentRoom: null,
+        selectedQualification: null,
+        selectedProducts: [],
+        selectedMaterialCategory: null,
+        selectedPillowSubcategory: null
+    };
 
-      // Material categories data
-      const materialCategories = [
-         {
+    // Updated material categories data with pillow subcategories
+    const materialCategories = [
+        {
             id: 'metal',
             name: 'Metal',
             description: 'Steel, aluminum, brass, and other metal materials',
             icon: 'fa-hammer',
             color: 'linear-gradient(135deg, #6c757d, #495057)',
             defaultMaterials: [
-               { id: 'steel', name: 'Steel', description: 'Carbon steel material' },
-               { id: 'aluminum', name: 'Aluminum', description: 'Lightweight aluminum' },
-               { id: 'brass', name: 'Brass', description: 'Brass alloy material' },
-               { id: 'copper', name: 'Copper', description: 'Copper material' }
+                { id: 'steel', name: 'Steel', description: 'Carbon steel material' },
+                { id: 'aluminum', name: 'Aluminum', description: 'Lightweight aluminum' },
+                { id: 'brass', name: 'Brass', description: 'Brass alloy material' },
+                { id: 'copper', name: 'Copper', description: 'Copper material' }
             ]
-         },
-         {
+        },
+        {
             id: 'wood-wallpaper',
             name: 'Wood & Wallpaper',
             description: 'Wood materials and wall covering papers',
             icon: 'fa-tree',
             color: 'linear-gradient(135deg, #8b4513, #a0522d)',
             defaultMaterials: [
-               { id: 'oak', name: 'Oak Wood', description: 'Solid oak wood' },
-               { id: 'pine', name: 'Pine Wood', description: 'Pine wood material' },
-               { id: 'vinyl-wallpaper', name: 'Vinyl Wallpaper', description: 'Vinyl wall covering' },
-               { id: 'fabric-wallpaper', name: 'Fabric Wallpaper', description: 'Fabric-based wallpaper' }
+                { id: 'oak', name: 'Oak Wood', description: 'Solid oak wood' },
+                { id: 'pine', name: 'Pine Wood', description: 'Pine wood material' },
+                { id: 'vinyl-wallpaper', name: 'Vinyl Wallpaper', description: 'Vinyl wall covering' },
+                { id: 'fabric-wallpaper', name: 'Fabric Wallpaper', description: 'Fabric-based wallpaper' }
             ]
-         },
-         {
+        },
+        {
             id: 'marble',
             name: 'Marble',
             description: 'Natural and engineered marble stones',
             icon: 'fa-gem',
             color: 'linear-gradient(135deg, #c0c0c0, #a9a9a9)',
             defaultMaterials: [
-               { id: 'carrara', name: 'Carrara Marble', description: 'White Carrara marble' },
-               { id: 'calacatta', name: 'Calacatta Marble', description: 'Luxury Calacatta marble' },
-               { id: 'engineered-marble', name: 'Engineered Marble', description: 'Composite marble' },
-               { id: 'travertine', name: 'Travertine', description: 'Natural travertine stone' }
+                { id: 'carrara', name: 'Carrara Marble', description: 'White Carrara marble' },
+                { id: 'calacatta', name: 'Calacatta Marble', description: 'Luxury Calacatta marble' },
+                { id: 'engineered-marble', name: 'Engineered Marble', description: 'Composite marble' },
+                { id: 'travertine', name: 'Travertine', description: 'Natural travertine stone' }
             ]
-         },
-         {
+        },
+        {
             id: 'glass',
             name: 'Glass',
             description: 'Various types of glass materials',
             icon: 'fa-wine-glass',
             color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
             defaultMaterials: [
-               { id: 'clear-glass', name: 'Clear Glass', description: 'Transparent glass' },
-               { id: 'tinted-glass', name: 'Tinted Glass', description: 'Colored glass' },
-               { id: 'tempered-glass', name: 'Tempered Glass', description: 'Safety tempered glass' },
-               { id: 'frosted-glass', name: 'Frosted Glass', description: 'Frosted finish glass' }
+                { id: 'clear-glass', name: 'Clear Glass', description: 'Transparent glass' },
+                { id: 'tinted-glass', name: 'Tinted Glass', description: 'Colored glass' },
+                { id: 'tempered-glass', name: 'Tempered Glass', description: 'Safety tempered glass' },
+                { id: 'frosted-glass', name: 'Frosted Glass', description: 'Frosted finish glass' }
             ]
-         },
-         {
+        },
+        {
             id: 'fabric-rope',
             name: 'Fabric & Rope',
             description: 'Textiles, fabrics, and rope materials',
             icon: 'fa-scroll',
             color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
             defaultMaterials: [
-               { id: 'cotton', name: 'Cotton Fabric', description: 'Natural cotton material' },
-               { id: 'polyester', name: 'Polyester Fabric', description: 'Synthetic polyester' },
-               { id: 'nylon-rope', name: 'Nylon Rope', description: 'Strong nylon rope' },
-               { id: 'hemp-rope', name: 'Hemp Rope', description: 'Natural hemp rope' }
+                { id: 'cotton', name: 'Cotton Fabric', description: 'Natural cotton material' },
+                { id: 'polyester', name: 'Polyester Fabric', description: 'Synthetic polyester' },
+                { id: 'nylon-rope', name: 'Nylon Rope', description: 'Strong nylon rope' },
+                { id: 'hemp-rope', name: 'Hemp Rope', description: 'Natural hemp rope' }
             ]
-         },
-         {
+        },
+        {
             id: 'pillow',
             name: 'Pillow',
             description: 'Pillow materials and components',
             icon: 'fa-couch',
             color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
             subcategories: [
-               { id: 'default-pillow', name: 'Default Pillow', description: 'Standard pillow material' },
-               { id: 'pillow-face', name: 'Pillow Face', description: 'Pillow front surface material' },
-               { id: 'pillow-back', name: 'Pillow Back', description: 'Pillow back surface material' },
-               { id: 'piping', name: 'Piping', description: 'Pillow piping and edges' }
+                {
+                    id: 'default-pillow',
+                    name: 'Default Pillow',
+                    description: 'Standard pillow material',
+                    icon: 'fa-cube'
+                },
+                {
+                    id: 'pillow-face',
+                    name: 'Pillow Face',
+                    description: 'Pillow front surface material',
+                    icon: 'fa-square'
+                },
+                {
+                    id: 'pillow-back',
+                    name: 'Pillow Back',
+                    description: 'Pillow back surface material',
+                    icon: 'fa-square'
+                },
+                {
+                    id: 'piping',
+                    name: 'Piping',
+                    description: 'Pillow piping and edges',
+                    icon: 'fa-grip-lines'
+                }
             ],
             defaultMaterials: [
-               { id: 'memory-foam', name: 'Memory Foam', description: 'Comfort memory foam' },
-               { id: 'poly-fill', name: 'Polyester Fill', description: 'Synthetic pillow filling' },
-               { id: 'feathers', name: 'Feathers', description: 'Natural feather filling' },
-               { id: 'cotton-cover', name: 'Cotton Cover', description: 'Cotton pillow cover' }
+                { id: 'memory-foam', name: 'Memory Foam', description: 'Comfort memory foam' },
+                { id: 'poly-fill', name: 'Polyester Fill', description: 'Synthetic pillow filling' },
+                { id: 'feathers', name: 'Feathers', description: 'Natural feather filling' },
+                { id: 'cotton-cover', name: 'Cotton Cover', description: 'Cotton pillow cover' }
             ]
-         }
-      ];
+        }
+    ];
 
-      // Product data
-      const productOptions = [{
-         id: 'fitout',
-         name: 'Fitout',
-         description: 'Interior construction, walls, ceilings, and flooring',
-         icon: 'fa-paint-roller',
-         color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
-         type: 'complex'
-      },
-      {
-         id: 'electrical',
-         name: 'Electrical Works',
-         description: 'Wiring, lighting, switches, and electrical systems',
-         icon: 'fa-bolt',
-         color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
-         type: 'simple'
-      },
-      {
-         id: 'plumbing',
-         name: 'Plumbing Systems',
-         description: 'Pipes, fixtures, drainage, and water systems',
-         icon: 'fa-faucet',
-         color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-         type: 'simple'
-      },
-      {
-         id: 'painting',
-         name: 'Painting & Finishing',
-         description: 'Paints, coatings, and surface finishing materials',
-         icon: 'fa-brush',
-         color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
-         type: 'simple'
-      }
-      ];
+    // Product data
+    const productOptions = [
+        {
+            id: 'fitout',
+            name: 'Fitout',
+            description: 'Interior construction, walls, ceilings, and flooring',
+            icon: 'fa-paint-roller',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'complex'
+        },
+        {
+            id: 'electrical',
+            name: 'Electrical Works',
+            description: 'Wiring, lighting, switches, and electrical systems',
+            icon: 'fa-bolt',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple'
+        },
+        {
+            id: 'plumbing',
+            name: 'Plumbing Systems',
+            description: 'Pipes, fixtures, drainage, and water systems',
+            icon: 'fa-faucet',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple'
+        },
+        {
+            id: 'painting',
+            name: 'Painting & Finishing',
+            description: 'Paints, coatings, and surface finishing materials',
+            icon: 'fa-brush',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple'
+        }
+    ];
 
-      // Fitout products (Wall, Ceiling, Ground)
-      const fitoutProducts = [{
-         id: 'wall',
-         name: 'Wall',
-         description: 'Wall construction and finishing',
-         icon: 'fa-wall',
-         color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
-         type: 'complex'
-      },
-      {
-         id: 'ceiling',
-         name: 'Ceiling',
-         description: 'Ceiling systems and fixtures',
-         icon: 'fa-border-all',
-         color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-         type: 'complex'
-      },
-      {
-         id: 'ground',
-         name: 'Ground',
-         description: 'Flooring and ground works',
-         icon: 'fa-square',
-         color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
-         type: 'complex'
-      }
-      ];
+    // Fitout products (Wall, Ceiling, Ground)
+    const fitoutProducts = [
+        {
+            id: 'wall',
+            name: 'Wall',
+            description: 'Wall construction and finishing',
+            icon: 'fa-wall',
+            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+            type: 'complex'
+        },
+        {
+            id: 'ceiling',
+            name: 'Ceiling',
+            description: 'Ceiling systems and fixtures',
+            icon: 'fa-border-all',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'complex'
+        },
+        {
+            id: 'ground',
+            name: 'Ground',
+            description: 'Flooring and ground works',
+            icon: 'fa-square',
+            color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
+            type: 'complex'
+        }
+    ];
 
-      // Item data for complex products
-      const itemData = {
-         'wall': {
+    // Item data for complex products
+    const itemData = {
+        'wall': {
             name: 'Wall Items',
             categories: {
-               'construction': {
-                  name: 'Construction',
-                  items: [{
-                     id: 'drywall',
-                     name: 'Drywall',
-                     description: 'Standard drywall panels',
-                     icon: 'fa-layer-group',
-                     color: '#ff6b6b'
-                  },
-                  {
-                     id: 'studs',
-                     name: 'Wall Studs',
-                     description: 'Metal or wood studs',
-                     icon: 'fa-grip-lines',
-                     color: '#ee5a52'
-                  }
-                  ]
-               },
-               'finishing': {
-                  name: 'Finishing',
-                  items: [{
-                     id: 'paint',
-                     name: 'Wall Paint',
-                     description: 'Interior wall paint',
-                     icon: 'fa-paint-roller',
-                     color: '#4361ee'
-                  },
-                  {
-                     id: 'wallpaper',
-                     name: 'Wallpaper',
-                     description: 'Wall covering material',
-                     icon: 'fa-scroll',
-                     color: '#3a0ca3'
-                  }
-                  ]
-               }
+                'construction': {
+                    name: 'Construction',
+                    items: [
+                        {
+                            id: 'drywall',
+                            name: 'Drywall',
+                            description: 'Standard drywall panels',
+                            icon: 'fa-layer-group',
+                            color: '#ff6b6b'
+                        },
+                        {
+                            id: 'studs',
+                            name: 'Wall Studs',
+                            description: 'Metal or wood studs',
+                            icon: 'fa-grip-lines',
+                            color: '#ee5a52'
+                        }
+                    ]
+                },
+                'finishing': {
+                    name: 'Finishing',
+                    items: [
+                        {
+                            id: 'paint',
+                            name: 'Wall Paint',
+                            description: 'Interior wall paint',
+                            icon: 'fa-paint-roller',
+                            color: '#4361ee'
+                        },
+                        {
+                            id: 'wallpaper',
+                            name: 'Wallpaper',
+                            description: 'Wall covering material',
+                            icon: 'fa-scroll',
+                            color: '#3a0ca3'
+                        }
+                    ]
+                }
             }
-         },
-         'ceiling': {
+        },
+        'ceiling': {
             name: 'Ceiling Items',
             categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                     id: 'ceiling_tiles',
-                     name: 'Ceiling Tiles',
-                     description: 'Acoustic ceiling tiles',
-                     icon: 'fa-border-all',
-                     color: '#4ecdc4'
-                  },
-                  {
-                     id: 'gypsum',
-                     name: 'Gypsum Board',
-                     description: 'Ceiling gypsum boards',
-                     icon: 'fa-square',
-                     color: '#44a08d'
-                  }
-                  ]
-               }
+                'materials': {
+                    name: 'Materials',
+                    items: [
+                        {
+                            id: 'ceiling_tiles',
+                            name: 'Ceiling Tiles',
+                            description: 'Acoustic ceiling tiles',
+                            icon: 'fa-border-all',
+                            color: '#4ecdc4'
+                        },
+                        {
+                            id: 'gypsum',
+                            name: 'Gypsum Board',
+                            description: 'Ceiling gypsum boards',
+                            icon: 'fa-square',
+                            color: '#44a08d'
+                        }
+                    ]
+                }
             }
-         },
-         'ground': {
+        },
+        'ground': {
             name: 'Ground Items',
             categories: {
-               'flooring': {
-                  name: 'Flooring',
-                  items: [{
-                     id: 'tiles',
-                     name: 'Floor Tiles',
-                     description: 'Ceramic or porcelain tiles',
-                     icon: 'fa-th-large',
-                     color: '#45b7d1'
-                  },
-                  {
-                     id: 'hardwood',
-                     name: 'Hardwood',
-                     description: 'Hardwood flooring',
-                     icon: 'fa-tree',
-                     color: '#8b4513'
-                  }
-                  ]
-               }
+                'flooring': {
+                    name: 'Flooring',
+                    items: [
+                        {
+                            id: 'tiles',
+                            name: 'Floor Tiles',
+                            description: 'Ceramic or porcelain tiles',
+                            icon: 'fa-th-large',
+                            color: '#45b7d1'
+                        },
+                        {
+                            id: 'hardwood',
+                            name: 'Hardwood',
+                            description: 'Hardwood flooring',
+                            icon: 'fa-tree',
+                            color: '#8b4513'
+                        }
+                    ]
+                }
             }
-         },
-         'electrical': {
+        },
+        'electrical': {
             name: 'Electrical Items',
             categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                     id: 'switches',
-                     name: 'Switches',
-                     description: 'Electrical switches',
-                     icon: 'fa-toggle-on',
-                     color: '#ff9a00'
-                  },
-                  {
-                     id: 'outlets',
-                     name: 'Outlets',
-                     description: 'Power outlets',
-                     icon: 'fa-plug',
-                     color: '#ff6b6b'
-                  },
-                  {
-                     id: 'lighting',
-                     name: 'Lighting',
-                     description: 'Light fixtures',
-                     icon: 'fa-lightbulb',
-                     color: '#ffd166'
-                  }
-                  ]
-               }
+                'fixtures': {
+                    name: 'Fixtures',
+                    items: [
+                        {
+                            id: 'switches',
+                            name: 'Switches',
+                            description: 'Electrical switches',
+                            icon: 'fa-toggle-on',
+                            color: '#ff9a00'
+                        },
+                        {
+                            id: 'outlets',
+                            name: 'Outlets',
+                            description: 'Power outlets',
+                            icon: 'fa-plug',
+                            color: '#ff6b6b'
+                        },
+                        {
+                            id: 'lighting',
+                            name: 'Lighting',
+                            description: 'Light fixtures',
+                            icon: 'fa-lightbulb',
+                            color: '#ffd166'
+                        }
+                    ]
+                }
             }
-         },
-         'plumbing': {
+        },
+        'plumbing': {
             name: 'Plumbing Items',
             categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                     id: 'faucet',
-                     name: 'Faucet',
-                     description: 'Water faucet',
-                     icon: 'fa-faucet',
-                     color: '#4ecdc4'
-                  },
-                  {
-                     id: 'pipe',
-                     name: 'Pipe',
-                     description: 'Water pipe',
-                     icon: 'fa-pipe',
-                     color: '#45b7d1'
-                  },
-                  {
-                     id: 'valve',
-                     name: 'Valve',
-                     description: 'Water valve',
-                     icon: 'fa-toggle-off',
-                     color: '#4361ee'
-                  }
-                  ]
-               },
-               'drainage': {
-                  name: 'Drainage',
-                  items: [{
-                     id: 'drain',
-                     name: 'Drain',
-                     description: 'Drain pipe',
-                     icon: 'fa-water',
-                     color: '#3a0ca3'
-                  },
-                  {
-                     id: 'trap',
-                     name: 'Trap',
-                     description: 'Pipe trap',
-                     icon: 'fa-undo',
-                     color: '#7209b7'
-                  }
-                  ]
-               }
+                'fixtures': {
+                    name: 'Fixtures',
+                    items: [
+                        {
+                            id: 'faucet',
+                            name: 'Faucet',
+                            description: 'Water faucet',
+                            icon: 'fa-faucet',
+                            color: '#4ecdc4'
+                        },
+                        {
+                            id: 'pipe',
+                            name: 'Pipe',
+                            description: 'Water pipe',
+                            icon: 'fa-pipe',
+                            color: '#45b7d1'
+                        },
+                        {
+                            id: 'valve',
+                            name: 'Valve',
+                            description: 'Water valve',
+                            icon: 'fa-toggle-off',
+                            color: '#4361ee'
+                        }
+                    ]
+                },
+                'drainage': {
+                    name: 'Drainage',
+                    items: [
+                        {
+                            id: 'drain',
+                            name: 'Drain',
+                            description: 'Drain pipe',
+                            icon: 'fa-water',
+                            color: '#3a0ca3'
+                        },
+                        {
+                            id: 'trap',
+                            name: 'Trap',
+                            description: 'Pipe trap',
+                            icon: 'fa-undo',
+                            color: '#7209b7'
+                        }
+                    ]
+                }
             }
-         },
-         'painting': {
+        },
+        'painting': {
             name: 'Painting Items',
             categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                     id: 'paint_bucket',
-                     name: 'Paint Bucket',
-                     description: 'Paint container',
-                     icon: 'fa-fill-drip',
-                     color: '#a8e6cf'
-                  },
-                  {
-                     id: 'brush',
-                     name: 'Brush',
-                     description: 'Paint brush',
-                     icon: 'fa-paint-brush',
-                     color: '#56ab2f'
-                  },
-                  {
-                     id: 'roller',
-                     name: 'Roller',
-                     description: 'Paint roller',
-                     icon: 'fa-paint-roller',
-                     color: '#a8e6cf'
-                  }
-                  ]
-               }
+                'materials': {
+                    name: 'Materials',
+                    items: [
+                        {
+                            id: 'paint_bucket',
+                            name: 'Paint Bucket',
+                            description: 'Paint container',
+                            icon: 'fa-fill-drip',
+                            color: '#a8e6cf'
+                        },
+                        {
+                            id: 'brush',
+                            name: 'Brush',
+                            description: 'Paint brush',
+                            icon: 'fa-paint-brush',
+                            color: '#56ab2f'
+                        },
+                        {
+                            id: 'roller',
+                            name: 'Roller',
+                            description: 'Paint roller',
+                            icon: 'fa-paint-roller',
+                            color: '#a8e6cf'
+                        }
+                    ]
+                }
             }
-         }
-      };
+        }
+    };
 
-      // Initialize qualification modal
-      function initializeQualificationModal() {
-         const $optionsContainer = $('#qualificationOptions');
-         $optionsContainer.empty();
+    // Initialize qualification modal
+    function initializeQualificationModal() {
+        const $optionsContainer = $('#qualificationOptions');
+        $optionsContainer.empty();
 
-         productOptions.forEach(qual => {
+        productOptions.forEach(qual => {
             const $option = $(`
             <div class="qualification-option" data-qualification="${qual.id}">
                <div class="qualification-option-header">
@@ -2178,26 +2289,24 @@
             </div>
          `);
             $optionsContainer.append($option);
-         });
-      }
+        });
+    }
 
-      // Initialize multi-select modal
-      function initializeMultiSelectModal(qualification) {
-         const $optionsContainer = $('#multiSelectOptions');
-         $optionsContainer.empty();
-         state.selectedProducts = [];
+    // Initialize multi-select modal
+    function initializeMultiSelectModal(qualification) {
+        const $optionsContainer = $('#multiSelectOptions');
+        $optionsContainer.empty();
+        state.selectedProducts = [];
 
-         let productsToShow = [];
+        let productsToShow = [];
 
-         if (qualification.id === 'fitout') {
-            // For fitout, show wall, ceiling, and ground as products
+        if (qualification.id === 'fitout') {
             productsToShow = fitoutProducts;
-         } else {
-            // For other qualifications, show the qualification itself as a product
+        } else {
             productsToShow = [qualification];
-         }
+        }
 
-         productsToShow.forEach(product => {
+        productsToShow.forEach(product => {
             const $option = $(`
             <div class="multi-select-option" data-product-id="${product.id}">
                <div class="multi-select-option-header">
@@ -2210,118 +2319,166 @@
             </div>
          `);
             $optionsContainer.append($option);
-         });
-      }
+        });
+    }
 
-      // Search functionality for qualification modal
-      function setupQualificationSearch() {
-         $('#qualificationSearch').on('input', function () {
+    // Search functionality for qualification modal
+    function setupQualificationSearch() {
+        $('#qualificationSearch').on('input', function() {
             const searchTerm = $(this).val().toLowerCase();
-            $('.qualification-option').each(function () {
-               const $option = $(this);
-               const name = $option.find('.qualification-option-name').text().toLowerCase();
-               const description = $option.find('.qualification-option-description').text().toLowerCase();
+            $('.qualification-option').each(function() {
+                const $option = $(this);
+                const name = $option.find('.qualification-option-name').text().toLowerCase();
+                const description = $option.find('.qualification-option-description').text().toLowerCase();
 
-               if (name.includes(searchTerm) || description.includes(searchTerm)) {
-                  $option.show();
-               } else {
-                  $option.hide();
-               }
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    $option.show();
+                } else {
+                    $option.hide();
+                }
             });
-         });
-      }
+        });
+    }
 
-      // Search functionality for product modal
-      function setupProductSearch() {
-         $('#productSearch').on('input', function () {
+    // Search functionality for product modal
+    function setupProductSearch() {
+        $('#productSearch').on('input', function() {
             const searchTerm = $(this).val().toLowerCase();
-            $('.multi-select-option').each(function () {
-               const $option = $(this);
-               const name = $option.find('.multi-select-option-name').text().toLowerCase();
-               const description = $option.find('.multi-select-option-description').text().toLowerCase();
+            $('.multi-select-option').each(function() {
+                const $option = $(this);
+                const name = $option.find('.multi-select-option-name').text().toLowerCase();
+                const description = $option.find('.multi-select-option-description').text().toLowerCase();
 
-               if (name.includes(searchTerm) || description.includes(searchTerm)) {
-                  $option.show();
-               } else {
-                  $option.hide();
-               }
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    $option.show();
+                } else {
+                    $option.hide();
+                }
             });
-         });
-      }
+        });
+    }
 
-      // Image upload functionality
-      function setupImageUpload() {
-         $(document).on('change', '.room-image-input', function () {
+    // Updated image upload functionality with larger image sizes
+    function setupImageUpload() {
+        $(document).on('change', '.room-image-input', function() {
             const file = this.files[0];
             const roomId = $(this).data('room');
             const $preview = $(`#imagePreview-room${roomId}`);
 
             if (file) {
-               const reader = new FileReader();
+                const reader = new FileReader();
 
-               reader.onload = function (e) {
-                  $preview.html(`<img src="${e.target.result}" alt="Room image">`);
-               }
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Room image">`);
+                }
 
-               reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
             }
-         });
+        });
 
-         // Product image upload
-         $(document).on('change', '.product-image-input', function () {
+        // Product image upload - now handles larger images (160px)
+        $(document).on('change', '.product-image-input', function() {
             const file = this.files[0];
-            const $preview = $(this).closest('.product-image-container').find('.product-image-preview');
+            const $preview = $(this).closest('.compact-details-with-image').find('.compact-image-preview');
 
             if (file) {
-               const reader = new FileReader();
+                const reader = new FileReader();
 
-               reader.onload = function (e) {
-                  $preview.html(`<img src="${e.target.result}" alt="Product image">`);
-               }
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Product image">`);
+                }
 
-               reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
             }
-         });
+        });
 
-         // Material image upload
-         $(document).on('change', '.material-image-input', function () {
+        // Material image upload - updated for larger images (160px)
+        $(document).on('change', '.material-image-input', function() {
             const file = this.files[0];
-            const $preview = $(this).closest('.material-image-container').find('.material-image-preview');
+            const $preview = $(this).closest('.material-inputs-compact').find('.material-compact-image');
 
             if (file) {
-               const reader = new FileReader();
+                const reader = new FileReader();
 
-               reader.onload = function (e) {
-                  $preview.html(`<img src="${e.target.result}" alt="Material image">`);
-               }
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Material image">`);
+                }
 
-               reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
             }
-         });
-      }
+        });
 
-      // Get next room number
-      function getNextRoomNumber() {
-         if (state.rooms.length === 0) return 1;
-         return Math.max(...state.rooms) + 1;
-      }
+        // Item image upload - now handles larger images (200px)
+        $(document).on('change', '.item-image-input', function() {
+            const file = this.files[0];
+            const $preview = $(this).closest('.enhanced-details-with-image').find('.enhanced-image-preview');
 
-      // Add room to state
-      function addRoomToState(roomNumber) {
-         state.rooms.push(roomNumber);
-         state.rooms.sort((a, b) => a - b);
-      }
+            if (file) {
+                const reader = new FileReader();
 
-      // Remove room from state
-      function removeRoomFromState(roomNumber) {
-         state.rooms = state.rooms.filter(num => num !== roomNumber);
-      }
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Item image">`);
+                }
 
-      // Renumber all rooms
-      function renumberRooms() {
-         const $roomTabs = $('#roomTabs .room-tab').get();
+                reader.readAsDataURL(file);
+            }
+        });
 
-         $roomTabs.forEach((tab, index) => {
+        // Pillow image upload
+        $(document).on('change', '.pillow-image-input', function() {
+            const file = this.files[0];
+            const $preview = $(this).closest('.material-inputs-compact').find('.material-compact-image');
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Pillow image">`);
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Header image upload
+        $(document).on('change', '.header-image-input', function() {
+            const file = this.files[0];
+            const $preview = $(this).closest('.product-header-with-image').find('.header-image-preview');
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $preview.html(`<img src="${e.target.result}" alt="Header image">`);
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Get next room number
+    function getNextRoomNumber() {
+        if (state.rooms.length === 0) return 1;
+        return Math.max(...state.rooms) + 1;
+    }
+
+    // Add room to state
+    function addRoomToState(roomNumber) {
+        state.rooms.push(roomNumber);
+        state.rooms.sort((a, b) => a - b);
+    }
+
+    // Remove room from state
+    function removeRoomFromState(roomNumber) {
+        state.rooms = state.rooms.filter(num => num !== roomNumber);
+    }
+
+    // Renumber all rooms
+    function renumberRooms() {
+        const $roomTabs = $('#roomTabs .room-tab').get();
+
+        $roomTabs.forEach((tab, index) => {
             const roomNumber = index + 1;
             const $tab = $(tab);
             const oldRoomId = $tab.attr('id').replace('-tab', '');
@@ -2354,122 +2511,113 @@
             $pane.find('.add-item-to-room-btn').data('room', roomNumber);
 
             // Update product tabs
-            $pane.find('.product-tab').each(function () {
-               const $productTab = $(this);
-               const productId = $productTab.data('product');
-               const newTabId = `product-${productId}-room${roomNumber}`;
+            $pane.find('.product-tab').each(function() {
+                const $productTab = $(this);
+                const productId = $productTab.data('product');
+                const newTabId = `product-${productId}-room${roomNumber}`;
 
-               $productTab.attr('id', `${newTabId}-tab`);
+                $productTab.attr('id', `${newTabId}-tab`);
 
-               const $productContent = $(`#product-${productId}-${oldRoomId}`);
-               if ($productContent.length) {
-                  $productContent.attr('id', newTabId);
-               }
+                const $productContent = $(`#product-${productId}-${oldRoomId}`);
+                if ($productContent.length) {
+                    $productContent.attr('id', newTabId);
+                }
             });
-         });
+        });
 
-         // Update state
-         state.rooms = $roomTabs.map((tab, index) => index + 1);
-      }
+        // Update state
+        state.rooms = $roomTabs.map((tab, index) => index + 1);
+    }
 
-      // Modal management functions
-      function showQualificationModal(roomId) {
-         console.log('Opening qualification modal for room:', roomId);
-         state.currentRoom = roomId;
-         state.selectedQualification = null;
-         $('#qualificationModal').fadeIn(300);
-         $('#qualificationOptions .qualification-option').removeClass('selected');
-         $('#confirmAddQualification').prop('disabled', true);
-         $('#qualificationSearch').val(''); // Clear search
-         $('.qualification-option').show(); // Show all options
-      }
+    // Modal management functions
+    function showQualificationModal(roomId) {
+        console.log('Opening qualification modal for room:', roomId);
+        state.currentRoom = roomId;
+        state.selectedQualification = null;
+        $('#qualificationModal').fadeIn(300);
+        $('#qualificationOptions .qualification-option').removeClass('selected');
+        $('#confirmAddQualification').prop('disabled', true);
+        $('#qualificationSearch').val('');
+        $('.qualification-option').show();
+    }
 
-      function hideQualificationModal() {
-         $('#qualificationModal').fadeOut(300);
-         state.selectedQualification = null;
-      }
+    function hideQualificationModal() {
+        $('#qualificationModal').fadeOut(300);
+        state.selectedQualification = null;
+    }
 
-      function showMultiSelectModal(qualification, roomId) {
-         console.log('Opening multi-select modal for:', qualification.name, 'room:', roomId);
+    function showMultiSelectModal(qualification, roomId) {
+        console.log('Opening multi-select modal for:', qualification.name, 'room:', roomId);
 
-         // Store data in modal
-         $('#multiSelectModal')
+        $('#multiSelectModal')
             .data('qualification', qualification)
             .data('roomId', roomId);
 
-         // Also update state
-         state.currentRoom = roomId;
+        state.currentRoom = roomId;
 
-         // Initialize the modal with products
-         initializeMultiSelectModal(qualification);
+        initializeMultiSelectModal(qualification);
 
-         $('#multiSelectModal').fadeIn(300);
-         $('#multiSelectOptions .multi-select-option').removeClass('selected');
-         $('#confirmMultiSelect').prop('disabled', true);
-         $('#productSearch').val(''); // Clear search
-         $('.multi-select-option').show(); // Show all options
-      }
+        $('#multiSelectModal').fadeIn(300);
+        $('#multiSelectOptions .multi-select-option').removeClass('selected');
+        $('#confirmMultiSelect').prop('disabled', true);
+        $('#productSearch').val('');
+        $('.multi-select-option').show();
+    }
 
-      function hideMultiSelectModal() {
-         $('#multiSelectModal').fadeOut(300);
-         state.selectedProducts = [];
-         $('#multiSelectModal').removeData('qualification');
-         $('#multiSelectModal').removeData('roomId');
-      }
+    function hideMultiSelectModal() {
+        $('#multiSelectModal').fadeOut(300);
+        state.selectedProducts = [];
+        $('#multiSelectModal').removeData('qualification');
+        $('#multiSelectModal').removeData('roomId');
+    }
 
-      function showItemSelectionModal(productType) {
-         console.log('Opening item selection modal for product:', productType);
-         state.currentProductType = productType;
+    function showItemSelectionModal(productType) {
+        console.log('Opening item selection modal for product:', productType);
+        state.currentProductType = productType;
 
-         const $modal = $('#itemSelectionModal');
-         const $categoryTabs = $('#itemCategoryTabs');
-         const $itemOptions = $('#itemOptions');
+        const $modal = $('#itemSelectionModal');
+        const $categoryTabs = $('#itemCategoryTabs');
+        const $itemOptions = $('#itemOptions');
 
-         // Clear previous content
-         $categoryTabs.empty();
-         $itemOptions.empty();
+        $categoryTabs.empty();
+        $itemOptions.empty();
 
-         // Get item data for the product type
-         const productData = itemData[productType] || itemData.electrical;
-         const categories = productData.categories;
+        const productData = itemData[productType] || itemData.electrical;
+        const categories = productData.categories;
 
-         // Create category tabs only if there are multiple categories
-         let firstCategory = null;
-         const categoryKeys = Object.keys(categories);
+        let firstCategory = null;
+        const categoryKeys = Object.keys(categories);
 
-         if (categoryKeys.length > 1) {
+        if (categoryKeys.length > 1) {
             categoryKeys.forEach((catKey, index) => {
-               const categoryInfo = categories[catKey];
-               if (index === 0) firstCategory = catKey;
+                const categoryInfo = categories[catKey];
+                if (index === 0) firstCategory = catKey;
 
-               const $tab = $(`
-               <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
-                  ${categoryInfo.name}
-               </div>
+                const $tab = $(`
+                <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
+                   ${categoryInfo.name}
+                </div>
             `);
-               $categoryTabs.append($tab);
+                $categoryTabs.append($tab);
             });
-         } else {
-            // Hide tabs if only one category
+        } else {
             $categoryTabs.hide();
             firstCategory = categoryKeys[0];
-         }
+        }
 
-         // Load items for first category
-         if (firstCategory) {
+        if (firstCategory) {
             loadItemCategory(firstCategory, categories[firstCategory]);
-         }
+        }
 
-         // Show modal
-         $modal.fadeIn(300);
-         $('#confirmSelectItem').prop('disabled', true);
-      }
+        $modal.fadeIn(300);
+        $('#confirmSelectItem').prop('disabled', true);
+    }
 
-      function loadItemCategory(categoryKey, categoryInfo) {
-         const $itemOptions = $('#itemOptions');
-         $itemOptions.empty();
+    function loadItemCategory(categoryKey, categoryInfo) {
+        const $itemOptions = $('#itemOptions');
+        $itemOptions.empty();
 
-         categoryInfo.items.forEach(item => {
+        categoryInfo.items.forEach(item => {
             const $option = $(`
             <div class="item-option" data-item-id="${item.id}">
                <div class="item-option-icon" style="background: ${item.color};">
@@ -2480,396 +2628,275 @@
             </div>
          `);
             $itemOptions.append($option);
-         });
-      }
+        });
+    }
 
-      function hideItemSelectionModal() {
-         $('#itemSelectionModal').fadeOut(300);
-         state.currentProductType = null;
-         state.selectedItem = null;
-      }
+    function hideItemSelectionModal() {
+        $('#itemSelectionModal').fadeOut(300);
+        state.currentProductType = null;
+        state.selectedItem = null;
+    }
 
-      // Add product tab
-      function addProductTab(roomId, product) {
-         console.log('Adding product:', product.name, 'to room:', roomId);
+    // Add product tab
+    function addProductTab(roomId, product) {
+        console.log('Adding product:', product.name, 'to room:', roomId);
 
-         const $tabsContainer = $(`#productTabs-room${roomId}`);
-         const $emptyState = $tabsContainer.find('.product-empty-state');
+        const $tabsContainer = $(`#productTabs-room${roomId}`);
+        const $emptyState = $tabsContainer.find('.product-empty-state');
 
-         // Remove empty state if it exists
-         if ($emptyState.length) {
+        if ($emptyState.length) {
             $emptyState.remove();
-         }
+        }
 
-         const productId = `product-${product.id}-room${roomId}`;
-         const tabId = `${productId}-tab`;
+        const productId = `product-${product.id}-room${roomId}`;
+        const tabId = `${productId}-tab`;
 
-         // Check if product already exists
-         if ($tabsContainer.find(`[data-product="${product.id}"]`).length) {
+        if ($tabsContainer.find(`[data-product="${product.id}"]`).length) {
             alert('This product has already been added to this room.');
             return;
-         }
+        }
 
-         const $tab = $(`
-         <div class="product-tab" data-product="${product.id}" id="${tabId}">
-            <div class="product-tab-icon" style="background: ${product.color};">
-               <i class="fa ${product.icon}"></i>
-            </div>
-            <span class="product-tab-name">${product.name}</span>
-            <div class="product-tab-close" title="Remove product">
-               <i class="fa fa-times"></i>
-            </div>
-         </div>
-      `);
+        const $tab = $(`
+        <div class="product-tab" data-product="${product.id}" id="${tabId}">
+           <div class="product-tab-icon" style="background: ${product.color};">
+              <i class="fa ${product.icon}"></i>
+           </div>
+           <span class="product-tab-name">${product.name}</span>
+           <div class="product-tab-close" title="Remove product">
+              <i class="fa fa-times"></i>
+           </div>
+        </div>
+     `);
 
-         $tabsContainer.append($tab);
+        $tabsContainer.append($tab);
 
-         // Create content area for this product
-         const $contentArea = $(`#productContent-room${roomId}`);
-         const $emptyContent = $contentArea.find('.product-empty-state');
+        const $contentArea = $(`#productContent-room${roomId}`);
+        const $emptyContent = $contentArea.find('.product-empty-state');
 
-         // Remove empty content if it exists
-         if ($emptyContent.length) {
+        if ($emptyContent.length) {
             $emptyContent.remove();
-         }
+        }
 
-         const $content = $(`
-         <div class="product-content" id="${productId}" style="display: none;">
-            <div class="loading-state">
-               <i class="fa fa-spinner fa-spin fa-2x"></i>
-               <p>Loading ${product.name} details...</p>
-            </div>
-         </div>
-      `);
+        const $content = $(`
+        <div class="product-content" id="${productId}" style="display: none;">
+           <div class="loading-state">
+              <i class="fa fa-spinner fa-spin fa-2x"></i>
+              <p>Loading ${product.name} details...</p>
+           </div>
+        </div>
+     `);
 
-         $contentArea.append($content);
+        $contentArea.append($content);
 
-         // Activate the new tab
-         activateProductTab($tab);
+        activateProductTab($tab);
 
-         // Load product content after a delay
-         setTimeout(() => {
+        setTimeout(() => {
             loadProductContent(productId, product);
-         }, 500);
-      }
+        }, 500);
+    }
 
-      function activateProductTab($tab) {
-         const productId = $tab.data('product');
-         const roomId = $tab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
+    function activateProductTab($tab) {
+        const productId = $tab.data('product');
+        const roomId = $tab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
 
-         // Deactivate all tabs and hide all content
-         $(`#productTabs-room${roomId} .product-tab`).removeClass('active');
-         $(`#productContent-room${roomId} .product-content`).hide();
+        $(`#productTabs-room${roomId} .product-tab`).removeClass('active');
+        $(`#productContent-room${roomId} .product-content`).hide();
 
-         // Activate current tab and show content
-         $tab.addClass('active');
-         $(`#product-${productId}-room${roomId}`).show();
-      }
+        $tab.addClass('active');
+        $(`#product-${productId}-room${roomId}`).show();
+    }
 
-      function loadProductContent(contentId, product) {
-         const $content = $(`#${contentId}`);
+    function loadProductContent(contentId, product) {
+        const $content = $(`#${contentId}`);
 
-         if (product.type === 'complex') {
-            // For complex products (Wall, Ceiling, Ground)
+        if (product.type === 'complex') {
             loadComplexProductContent($content, product);
-         } else {
-            // For simple products
+        } else {
             loadSimpleProductContent($content, product);
-         }
-      }
+        }
+    }
 
-      function loadComplexProductContent($content, product) {
-         const buttonText = `Add Item to ${product.name}`;
+    function loadComplexProductContent($content, product) {
+        const buttonText = `Add Item to ${product.name}`;
 
-         const $wrapper = $(`
-         <div class="product-details-wrapper">
-            <div class="complex-product-layout">
-               <div class="items-tabs-sidebar">
-                  <div class="items-tabs-header">
-                     <h6><i class="fa fa-list mr-2"></i>Items</h6>
-                  </div>
-                  <div class="items-tabs-container">
-                     <div class="empty-items-tabs">
-                        <i class="fa fa-cube"></i>
-                        <p>No items added yet</p>
-                     </div>
-                  </div>
-                  <div class="add-item-section">
-                     <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" style="width: 100%;">
-                        <i class="fa fa-plus mr-1"></i> ${buttonText}
-                     </button>
-                  </div>
-               </div>
-               <div class="item-details-content">
-                  <div class="item-details-header">
-                     <h6><i class="fa fa-info-circle mr-2"></i>Item Details</h6>
-                     <div class="compact-header-details">
-                        <div class="compact-header-group">
-                           <label>Width (m)</label>
-                           <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                           <label>Length (m)</label>
-                           <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                           <label>Height (m)</label>
-                           <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                           <label>Unit Price ($)</label>
-                           <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                           <label>Total Price ($)</label>
-                           <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="item-details-body">
-                     <div class="product-image-layout">
-                        <div>
-                           <div class="compact-product-details">
-                              <div class="compact-section-header">
-                                 <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
-                              </div>
-                              <div class="compact-details-grid">
-                                 <div class="compact-detail-group">
-                                    <label>Material Type</label>
-                                    <input type="text" class="form-control" placeholder="Enter material type">
-                                 </div>
-                                 <div class="compact-detail-group">
-                                    <label>Finish Type</label>
-                                    <input type="text" class="form-control" placeholder="Enter finish type">
-                                 </div>
-                                 <div class="compact-detail-group">
-                                    <label>Color</label>
-                                    <input type="text" class="form-control" placeholder="Enter color">
-                                 </div>
-                                 <div class="compact-detail-group">
-                                    <label>Supplier</label>
-                                    <input type="text" class="form-control" placeholder="Enter supplier">
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="material-section">
-                              <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-                              <div class="material-categories" id="materialCategories-${product.id}">
-                                 ${materialCategories.map(category => `
-                                    <div class="material-category" data-category="${category.id}">
-                                       <div class="material-category-header">
-                                          <div class="material-category-icon" style="background: ${category.color};">
-                                             <i class="fa ${category.icon}"></i>
-                                          </div>
-                                          <div class="material-category-name">${category.name}</div>
-                                       </div>
-                                       <div class="material-category-description">${category.description}</div>
-                                       ${category.id === 'pillow' ? `
-                                          <div class="pillow-subcategories" style="display: none;">
-                                             ${category.subcategories.map(sub => `
-                                                <div class="pillow-subcategory" data-subcategory="${sub.id}">
-                                                   <div class="pillow-subcategory-name">${sub.name}</div>
-                                                </div>
-                                             `).join('')}
-                                          </div>
-                                       ` : ''}
-                                    </div>
+        const $wrapper = $(`
+        <div class="product-details-wrapper">
+           <div class="complex-product-layout">
+              <div class="items-tabs-sidebar">
+                 <div class="items-tabs-header">
+                    <h6><i class="fa fa-list mr-2"></i>Items</h6>
+                    <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}">
+                       <i class="fa fa-plus mr-1"></i> ${buttonText}
+                    </button>
+                 </div>
+                 <div class="items-tabs-container">
+                    <div class="empty-items-tabs">
+                       <i class="fa fa-cube"></i>
+                       <p>No items added yet</p>
+                    </div>
+                 </div>
+              </div>
+              <div class="item-details-content">
+                 <div class="product-details-header">
+                    <div class="product-header-with-image">
+                       <div class="header-image-preview">
+                          <i class="fa ${product.icon}"></i>
+                       </div>
+                       <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
+                    </div>
+                    <div class="compact-header-details">
+                       <div class="compact-header-group">
+                          <label>Width (m)</label>
+                          <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="compact-header-group">
+                          <label>Length/Height (m)</label>
+                          <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="compact-header-group">
+                          <label>Unit Price ($)</label>
+                          <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="compact-header-group">
+                          <label>Total Price ($)</label>
+                          <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                       </div>
+                    </div>
+                 </div>
+                 <div class="product-details-body">
+                    <div class="empty-item-selection">
+                       <i class="fa fa-hand-pointer"></i>
+                       <p>Select an item to view and edit details</p>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+     `);
+
+        $content.html($wrapper);
+
+        setupDimensionCalculations(product.id);
+        setupPriceCalculations(product.id);
+    }
+
+    // UPDATED: Material section with image on left, details on right and pillow subcategory tabs
+    function loadSimpleProductContent($content, product) {
+        const $wrapper = $(`
+        <div class="simple-product-content">
+           <div class="compact-product-details">
+              <div class="compact-section-header">
+                 <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
+              </div>
+              <div class="compact-details-with-image">
+                 <div class="compact-image-preview">
+                    <i class="fa fa-image"></i>
+                 </div>
+                 <div class="compact-details-fields">
+                    <div class="compact-detail-group">
+                       <label>Width (m)</label>
+                       <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="compact-detail-group">
+                       <label>Length (m)</label>
+                       <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="compact-detail-group">
+                       <label>Height (m)</label>
+                       <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="compact-detail-group">
+                       <label>Unit Price ($)</label>
+                       <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="compact-detail-group">
+                       <label>Total Price ($)</label>
+                       <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                    </div>
+                 </div>
+              </div>
+              <div class="file-input-wrapper" style="margin-top: 12px;">
+                 <button type="button" class="btn btn-sm btn-outline-primary">
+                    <i class="fa fa-upload mr-1"></i> Upload ${product.name} Image
+                 </button>
+                 <input type="file" class="product-image-input" data-file-type="image">
+              </div>
+           </div>
+           
+           <!-- UPDATED Material Section with Image on Left and Details on Right -->
+           <div class="material-section">
+              <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
+              <div class="material-tabs" id="materialTabs-${product.id}">
+                 ${materialCategories.map(category => `
+                    <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
+                       ${category.name}
+                    </button>
+                 `).join('')}
+              </div>
+              <div class="material-tabs-content" id="materialTabsContent-${product.id}">
+                 ${materialCategories.map((category, index) => `
+                    <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.id}-${category.id}">
+                       ${category.id === 'pillow' ? 
+                          // Pillow subcategories with horizontal tabs
+                          `<div class="pillow-subcategories-section">
+                              <h6>Pillow Components</h6>
+                              <div class="pillow-subcategories-tabs" id="pillowTabs-${product.id}">
+                                 ${category.subcategories.map((subcat, subIndex) => `
+                                    <button class="pillow-subcategory-tab ${subIndex === 0 ? 'active' : ''}" 
+                                            data-subcategory="${subcat.id}" data-product="${product.id}">
+                                       ${subcat.name}
+                                    </button>
                                  `).join('')}
                               </div>
-                              <div class="materials-container" id="materials-${product.id}">
-                                 <div class="material-item">
-                                    <div class="material-item-header">
-                                       <div class="material-item-title">Selected Material</div>
-                                       <div class="material-item-actions">
-                                          <button type="button" class="btn btn-sm btn-icon remove-material" title="Remove material">
-                                             <i class="fa fa-times"></i>
-                                          </button>
-                                       </div>
-                                    </div>
-                                    <div class="material-image-layout">
-                                       <div class="material-inputs">
-                                          <div class="material-input">
-                                             <label>Material Category</label>
-                                             <select class="form-control material-category-select">
-                                                <option value="">Select Category</option>
-                                                ${materialCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                                             </select>
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Material Type</label>
-                                             <select class="form-control material-type-select">
-                                                <option value="">Select Material</option>
-                                             </select>
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Material Grade</label>
-                                             <select class="form-control material-grade">
-                                                <option value="">Select Grade</option>
-                                                <option value="standard">Standard</option>
-                                                <option value="premium">Premium</option>
-                                                <option value="economy">Economy</option>
-                                                <option value="commercial">Commercial</option>
-                                                <option value="residential">Residential</option>
-                                             </select>
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Finish Type</label>
-                                             <select class="form-control finish-type">
-                                                <option value="">Select Finish</option>
-                                                <option value="matte">Matte</option>
-                                                <option value="glossy">Glossy</option>
-                                                <option value="semi-gloss">Semi-Gloss</option>
-                                                <option value="textured">Textured</option>
-                                                <option value="smooth">Smooth</option>
-                                             </select>
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Color</label>
-                                             <input type="text" class="form-control material-color" placeholder="Enter color">
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Supplier</label>
-                                             <input type="text" class="form-control material-supplier" placeholder="Supplier name">
-                                          </div>
-                                          <div class="material-input">
-                                             <label>Warranty (Years)</label>
-                                             <input type="number" class="form-control material-warranty" placeholder="0" min="0" step="1">
-                                          </div>
-                                       </div>
-                                       <div class="material-image-container">
-                                          <div class="material-image-preview">
+                              ${category.subcategories.map((subcat, subIndex) => `
+                                 <div class="pillow-subcategory-content ${subIndex === 0 ? 'active' : ''}" 
+                                      id="pillowContent-${product.id}-${subcat.id}">
+                                    <div class="pillow-subcategory-details">
+                                       <div class="material-inputs-compact">
+                                          <div class="material-compact-image">
                                              <i class="fa fa-image"></i>
                                           </div>
-                                          <div class="file-input-wrapper">
-                                             <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                                                <i class="fa fa-upload mr-1"></i> Upload Image
-                                             </button>
-                                             <input type="file" class="material-image-input" data-file-type="image">
+                                          <div class="material-compact-fields">
+                                             <div class="material-input">
+                                                <label>Material Grade</label>
+                                                <select class="form-control material-grade">
+                                                   <option value="">Select Grade</option>
+                                                   <option value="standard">Standard</option>
+                                                   <option value="premium">Premium</option>
+                                                   <option value="economy">Economy</option>
+                                                </select>
+                                             </div>
+                                             <div class="material-input">
+                                                <label>Material Type</label>
+                                                <select class="form-control material-type-select">
+                                                   <option value="">Select Material</option>
+                                                   ${category.defaultMaterials.map(material => `
+                                                      <option value="${material.id}">${material.name}</option>
+                                                   `).join('')}
+                                                </select>
+                                             </div>
+                                             <div class="material-input">
+                                                <label>Area/Weight</label>
+                                                <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                                             </div>
                                           </div>
+                                       </div>
+                                       <div class="file-input-wrapper" style="margin-top: 12px;">
+                                          <button type="button" class="btn btn-sm btn-outline-primary">
+                                             <i class="fa fa-upload mr-1"></i> Upload ${subcat.name} Image
+                                          </button>
+                                          <input type="file" class="pillow-image-input" data-subcategory="${subcat.id}">
                                        </div>
                                     </div>
                                  </div>
+                              `).join('')}
+                           </div>` : 
+                          // Standard material layout for non-pillow categories (Image on left, details on right)
+                          `<div class="material-inputs-compact">
+                              <div class="material-compact-image">
+                                 <i class="fa fa-image"></i>
                               </div>
-                              <button type="button" class="btn btn-sm btn-outline-primary add-material-btn" data-product="${product.id}" style="width: 100%;">
-                                 <i class="fa fa-plus mr-1"></i> Add Another Material
-                              </button>
-                           </div>
-                        </div>
-                        <div class="product-image-container">
-                           <div class="product-image-preview">
-                              <i class="fa fa-image"></i>
-                           </div>
-                           <div class="file-input-wrapper">
-                              <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                                 <i class="fa fa-upload mr-1"></i> Upload Product Image
-                              </button>
-                              <input type="file" class="product-image-input" data-file-type="image">
-                           </div>
-                        </div>
-                     </div>
-                     <div class="empty-item-selection">
-                        <i class="fa fa-hand-pointer"></i>
-                        <p>Select an item to view and edit details</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      `);
-
-         $content.html($wrapper);
-
-         // Set up dimension calculations
-         setupDimensionCalculations(product.id);
-
-         // Set up price calculations
-         setupPriceCalculations(product.id);
-
-         // Set up material category selection
-         setupMaterialCategorySelection(product.id);
-      }
-
-      function loadSimpleProductContent($content, product) {
-         const $wrapper = $(`
-         <div class="simple-product-content">
-            <div class="product-image-layout">
-               <div>
-                  <div class="compact-product-details">
-                     <div class="compact-section-header">
-                        <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
-                     </div>
-                     <div class="compact-details-grid">
-                        <div class="compact-detail-group">
-                           <label>Width (m)</label>
-                           <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Length (m)</label>
-                           <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Height (m)</label>
-                           <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Unit Price ($)</label>
-                           <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Total Price ($)</label>
-                           <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="material-section">
-                     <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-                     <div class="material-categories" id="materialCategories-${product.id}">
-                        ${materialCategories.map(category => `
-                           <div class="material-category" data-category="${category.id}">
-                              <div class="material-category-header">
-                                 <div class="material-category-icon" style="background: ${category.color};">
-                                    <i class="fa ${category.icon}"></i>
-                                 </div>
-                                 <div class="material-category-name">${category.name}</div>
-                              </div>
-                              <div class="material-category-description">${category.description}</div>
-                              ${category.id === 'pillow' ? `
-                                 <div class="pillow-subcategories" style="display: none;">
-                                    ${category.subcategories.map(sub => `
-                                       <div class="pillow-subcategory" data-subcategory="${sub.id}">
-                                          <div class="pillow-subcategory-name">${sub.name}</div>
-                                       </div>
-                                    `).join('')}
-                                 </div>
-                              ` : ''}
-                           </div>
-                        `).join('')}
-                     </div>
-                     <div class="materials-container" id="materials-${product.id}">
-                        <div class="material-item">
-                           <div class="material-item-header">
-                              <div class="material-item-title">Selected Material</div>
-                              <div class="material-item-actions">
-                                 <button type="button" class="btn btn-sm btn-icon remove-material" title="Remove material">
-                                    <i class="fa fa-times"></i>
-                                 </button>
-                              </div>
-                           </div>
-                           <div class="material-image-layout">
-                              <div class="material-inputs">
-                                 <div class="material-input">
-                                    <label>Material Category</label>
-                                    <select class="form-control material-category-select">
-                                       <option value="">Select Category</option>
-                                       ${materialCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
-                                       <option value="">Select Material</option>
-                                    </select>
-                                 </div>
+                              <div class="material-compact-fields">
                                  <div class="material-input">
                                     <label>Material Grade</label>
                                     <select class="form-control material-grade">
@@ -2877,405 +2904,352 @@
                                        <option value="standard">Standard</option>
                                        <option value="premium">Premium</option>
                                        <option value="economy">Economy</option>
-                                       <option value="commercial">Commercial</option>
-                                       <option value="residential">Residential</option>
                                     </select>
                                  </div>
                                  <div class="material-input">
-                                    <label>Finish Type</label>
-                                    <select class="form-control finish-type">
-                                       <option value="">Select Finish</option>
-                                       <option value="matte">Matte</option>
-                                       <option value="glossy">Glossy</option>
-                                       <option value="semi-gloss">Semi-Gloss</option>
-                                       <option value="textured">Textured</option>
-                                       <option value="smooth">Smooth</option>
+                                    <label>Material Type</label>
+                                    <select class="form-control material-type-select">
+                                       <option value="">Select Material</option>
+                                       ${category.defaultMaterials.map(material => `
+                                          <option value="${material.id}">${material.name}</option>
+                                       `).join('')}
                                     </select>
                                  </div>
                                  <div class="material-input">
-                                    <label>Color</label>
-                                    <input type="text" class="form-control material-color" placeholder="Enter color">
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Supplier</label>
-                                    <input type="text" class="form-control material-supplier" placeholder="Supplier name">
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Warranty (Years)</label>
-                                    <input type="number" class="form-control material-warranty" placeholder="0" min="0" step="1">
-                                 </div>
-                              </div>
-                              <div class="material-image-container">
-                                 <div class="material-image-preview">
-                                    <i class="fa fa-image"></i>
-                                 </div>
-                                 <div class="file-input-wrapper">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                                       <i class="fa fa-upload mr-1"></i> Upload Image
-                                    </button>
-                                    <input type="file" class="material-image-input" data-file-type="image">
+                                    <label>Area/Weight</label>
+                                    <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
                                  </div>
                               </div>
                            </div>
-                        </div>
-                     </div>
-                     <button type="button" class="btn btn-sm btn-outline-primary add-material-btn" data-product="${product.id}" style="width: 100%;">
-                        <i class="fa fa-plus mr-1"></i> Add Another Material
-                     </button>
-                  </div>
-               </div>
-               <div class="product-image-container">
-                  <div class="product-image-preview">
-                     <i class="fa fa-image"></i>
-                  </div>
-                  <div class="file-input-wrapper">
-                     <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                        <i class="fa fa-upload mr-1"></i> Upload Product Image
-                     </button>
-                     <input type="file" class="product-image-input" data-file-type="image">
-                  </div>
-               </div>
-            </div>
-         </div>
-      `);
+                           <div class="file-input-wrapper" style="margin-top: 12px;">
+                              <button type="button" class="btn btn-sm btn-outline-primary">
+                                 <i class="fa fa-upload mr-1"></i> Upload Material Image
+                              </button>
+                              <input type="file" class="material-image-input" data-file-type="image">
+                           </div>`
+                       }
+                    </div>
+                 `).join('')}
+              </div>
+           </div>
+        </div>
+     `);
 
-         $content.html($wrapper);
+        $content.html($wrapper);
 
-         // Set up dimension calculations
-         setupDimensionCalculations(product.id);
+        setupDimensionCalculations(product.id);
+        setupPriceCalculations(product.id);
+        setupMaterialTabs(product.id);
+        setupPillowSubcategoryTabs(product.id);
+    }
 
-         // Set up price calculations
-         setupPriceCalculations(product.id);
-
-         // Set up material category selection
-         setupMaterialCategorySelection(product.id);
-      }
-
-      function setupDimensionCalculations(productId) {
-         $(`#product-${productId}-room${state.currentRoom} .dimension-width, #product-${productId}-room${state.currentRoom} .dimension-length`).on('input', function () {
+    function setupDimensionCalculations(productId) {
+        $(`#product-${productId}-room${state.currentRoom} .dimension-width, #product-${productId}-room${state.currentRoom} .dimension-length`).on('input', function() {
             const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
             const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
             const area = width * length;
-            // Update total price calculation
             const unitPrice = parseFloat($(`#product-${productId}-room${state.currentRoom} .unit-price`).val()) || 0;
             const totalPrice = unitPrice * area;
             $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
-         });
-      }
+        });
+    }
 
-      function setupPriceCalculations(productId) {
-         $(`#product-${productId}-room${state.currentRoom} .unit-price`).on('input', function () {
+    function setupPriceCalculations(productId) {
+        $(`#product-${productId}-room${state.currentRoom} .unit-price`).on('input', function() {
             const unitPrice = parseFloat($(this).val()) || 0;
             const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
             const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
             const area = width * length;
             const totalPrice = unitPrice * area;
             $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
-         });
-      }
+        });
+    }
 
-      function setupMaterialCategorySelection(productId) {
-         const $container = $(`#materialCategories-${productId}`);
-         
-         // Material category click
-         $container.on('click', '.material-category', function() {
+    // Setup material tabs functionality
+    function setupMaterialTabs(itemId) {
+        $(`#materialTabs-${itemId} .material-tab`).on('click', function(e) {
+            e.preventDefault();
             const categoryId = $(this).data('category');
-            const category = materialCategories.find(cat => cat.id === categoryId);
-            
-            // Update state
-            state.selectedMaterialCategory = categoryId;
-            state.selectedPillowSubcategory = null;
-            
-            // Update UI
-            $container.find('.material-category').removeClass('active');
+
+            $(`#materialTabs-${itemId} .material-tab`).removeClass('active');
             $(this).addClass('active');
-            
-            // Show/hide pillow subcategories
-            $container.find('.pillow-subcategories').hide();
-            if (categoryId === 'pillow') {
-               $(this).find('.pillow-subcategories').show();
-            }
-            
-            // Update material type dropdown
-            updateMaterialTypeDropdown(productId, category);
-         });
-         
-         // Pillow subcategory click
-         $container.on('click', '.pillow-subcategory', function(e) {
-            e.stopPropagation();
+
+            $(`#materialTabsContent-${itemId} .material-tab-content`).removeClass('active');
+            $(`#materialContent-${itemId}-${categoryId}`).addClass('active');
+        });
+    }
+
+    // Setup pillow subcategory tabs functionality
+    function setupPillowSubcategoryTabs(productId) {
+        $(`#pillowTabs-${productId} .pillow-subcategory-tab`).on('click', function(e) {
+            e.preventDefault();
             const subcategoryId = $(this).data('subcategory');
-            
-            // Update state
-            state.selectedPillowSubcategory = subcategoryId;
-            
-            // Update UI
-            $(this).closest('.pillow-subcategories').find('.pillow-subcategory').removeClass('active');
+            const productId = $(this).data('product');
+
+            $(`#pillowTabs-${productId} .pillow-subcategory-tab`).removeClass('active');
             $(this).addClass('active');
-         });
-         
-         // Material category dropdown change
-         $(`#product-${productId}-room${state.currentRoom} .material-category-select`).on('change', function() {
-            const categoryId = $(this).val();
-            const category = materialCategories.find(cat => cat.id === categoryId);
-            updateMaterialTypeDropdown(productId, category);
-         });
-      }
-      
-      function updateMaterialTypeDropdown(productId, category) {
-         const $materialTypeSelect = $(`#product-${productId}-room${state.currentRoom} .material-type-select`);
-         $materialTypeSelect.empty();
-         
-         if (category && category.defaultMaterials) {
-            $materialTypeSelect.append('<option value="">Select Material</option>');
-            category.defaultMaterials.forEach(material => {
-               $materialTypeSelect.append(`<option value="${material.id}">${material.name}</option>`);
-            });
-         } else {
-            $materialTypeSelect.append('<option value="">Select Material</option>');
-         }
-      }
 
-      function addItemToProduct(roomId, productId, item) {
-         console.log('Adding item to product:', item.name, 'room:', roomId, 'product:', productId);
+            $(`#materialContent-${productId}-pillow .pillow-subcategory-content`).removeClass('active');
+            $(`#pillowContent-${productId}-${subcategoryId}`).addClass('active');
+        });
+    }
 
-         const $productContent = $(`#product-${productId}-room${roomId}`);
-         const $tabsContainer = $productContent.find('.items-tabs-container');
-         const $emptyState = $tabsContainer.find('.empty-items-tabs');
-         const $detailsBody = $productContent.find('.item-details-body');
-         const $emptyDetails = $detailsBody.find('.empty-item-selection');
+    // UPDATED: Add item to product with improved material section layout
+    function addItemToProduct(roomId, productId, item) {
+        console.log('Adding item to product:', item.name, 'room:', roomId, 'product:', productId);
 
-         // Remove empty states if they exist
-         if ($emptyState.length) {
+        const $productContent = $(`#product-${productId}-room${roomId}`);
+        const $tabsContainer = $productContent.find('.items-tabs-container');
+        const $emptyState = $tabsContainer.find('.empty-items-tabs');
+        const $detailsBody = $productContent.find('.product-details-body');
+        const $emptyDetails = $detailsBody.find('.empty-item-selection');
+
+        if ($emptyState.length) {
             $emptyState.remove();
-         }
+        }
 
-         // Check if item already exists as a tab
-         const existingTab = $tabsContainer.find(`[data-item-id="${item.id}"]`);
-         if (existingTab.length) {
+        const existingTab = $tabsContainer.find(`[data-item-id="${item.id}"]`);
+        if (existingTab.length) {
             alert('This item has already been added.');
             return;
-         }
+        }
 
-         // Create item tab
-         const tabId = `item-${item.id}-${productId}-room${roomId}`;
-         const $tab = $(`
-         <div class="items-tab" data-item-id="${item.id}" id="${tabId}-tab">
-            <span class="items-tab-name">${item.name}</span>
-            <div class="items-tab-close" title="Remove item">
-               <i class="fa fa-times"></i>
-            </div>
-         </div>
-      `);
+        const tabId = `item-${item.id}-${productId}-room${roomId}`;
+        const $tab = $(`
+        <div class="items-tab" data-item-id="${item.id}" id="${tabId}-tab">
+           <span class="items-tab-name">${item.name}</span>
+           <div class="items-tab-close" title="Remove item">
+              <i class="fa fa-times"></i>
+           </div>
+        </div>
+     `);
 
-         $tabsContainer.append($tab);
+        $tabsContainer.append($tab);
 
-         // Create item details content with material section
-         const $detailsContent = $(`
-         <div class="item-details" id="${tabId}" style="display: none;">
-            <div class="product-image-layout">
-               <div>
-                  <div class="enhanced-category-item">
-                     <div class="enhanced-item-header">
-                        <div class="enhanced-item-name">${item.name}</div>
-                     </div>
-                     <div class="enhanced-item-details">
-                        <div class="detail-group">
-                           <label>Quantity</label>
-                           <input type="number" class="form-control item-qty" placeholder="0" min="1" value="1">
-                        </div>
-                        <div class="detail-group">
-                           <label>Unit Price</label>
-                           <input type="number" class="form-control item-price" placeholder="0.00" min="0" step="0.01" value="0.00">
-                        </div>
-                        <div class="detail-group">
-                           <label>Length (m)</label>
-                           <input type="number" class="form-control item-length item-dims" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="detail-group">
-                           <label>Width (m)</label>
-                           <input type="number" class="form-control item-width item-dims" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="detail-group">
-                           <label>Height (m)</label>
-                           <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="detail-group">
-                           <label>Material</label>
-                           <input type="text" class="form-control item-material" placeholder="Material type">
-                        </div>
-                     </div>
-                     <div class="detail-group">
-                        <label>Notes</label>
-                        <textarea class="form-control item-notes" placeholder="Additional notes..." rows="2"></textarea>
-                     </div>
-                  </div>
-                  <div class="material-section">
-                     <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-                     <div class="material-categories" id="materialCategories-${item.id}">
-                        ${materialCategories.map(category => `
-                           <div class="material-category" data-category="${category.id}">
-                              <div class="material-category-header">
-                                 <div class="material-category-icon" style="background: ${category.color};">
-                                    <i class="fa ${category.icon}"></i>
-                                 </div>
-                                 <div class="material-category-name">${category.name}</div>
-                              </div>
-                              <div class="material-category-description">${category.description}</div>
-                              ${category.id === 'pillow' ? `
-                                 <div class="pillow-subcategories" style="display: none;">
-                                    ${category.subcategories.map(sub => `
-                                       <div class="pillow-subcategory" data-subcategory="${sub.id}">
-                                          <div class="pillow-subcategory-name">${sub.name}</div>
-                                       </div>
+        // UPDATED: Item details with improved material section layout
+        const $detailsContent = $(`
+        <div class="item-details" id="${tabId}" style="display: none;">
+           <div class="item-details-subheader">
+              <h6><i class="fa fa-info-circle mr-2"></i>Item Details</h6>
+           </div>
+           <div class="product-details-body">
+              <div class="enhanced-category-item">
+                 <div class="enhanced-item-header">
+                    <div class="enhanced-item-name">${item.name}</div>
+                 </div>
+                 <div class="enhanced-details-with-image">
+                    <div class="enhanced-image-preview">
+                       <i class="fa fa-image"></i>
+                    </div>
+                    <div class="enhanced-details-fields">
+                       <div class="detail-group">
+                          <label>Quantity</label>
+                          <input type="number" class="form-control item-qty" placeholder="0" min="1" value="1">
+                       </div>
+                       <div class="detail-group">
+                          <label>Unit Price</label>
+                          <input type="number" class="form-control item-price" placeholder="0.00" min="0" step="0.01" value="0.00">
+                       </div>
+                       <div class="detail-group">
+                          <label>Length (m)</label>
+                          <input type="number" class="form-control item-length item-dims" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="detail-group">
+                          <label>Width (m)</label>
+                          <input type="number" class="form-control item-width item-dims" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="detail-group">
+                          <label>Height (m)</label>
+                          <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
+                       </div>
+                       <div class="detail-group">
+                          <label>Material</label>
+                          <input type="text" class="form-control item-material" placeholder="Material type">
+                       </div>
+                    </div>
+                 </div>
+                 <div class="file-input-wrapper" style="margin-top: 12px;">
+                    <button type="button" class="btn btn-sm btn-outline-primary">
+                       <i class="fa fa-upload mr-1"></i> Upload Item Image
+                    </button>
+                    <input type="file" class="item-image-input" data-file-type="image">
+                 </div>
+                 <div class="detail-group" style="margin-top: 12px;">
+                    <label>Notes</label>
+                    <textarea class="form-control item-notes" placeholder="Additional notes..." rows="2"></textarea>
+                 </div>
+              </div>
+              
+              <!-- UPDATED Material Tabs Section with Improved Layout -->
+              <div class="material-section">
+                 <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
+                 <div class="material-tabs" id="materialTabs-${item.id}">
+                    ${materialCategories.map(category => `
+                       <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
+                          ${category.name}
+                       </button>
+                    `).join('')}
+                 </div>
+                 <div class="material-tabs-content" id="materialTabsContent-${item.id}">
+                    ${materialCategories.map((category, index) => `
+                       <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${item.id}-${category.id}">
+                          ${category.id === 'pillow' ? 
+                             // Pillow subcategories with horizontal tabs
+                             `<div class="pillow-subcategories-section">
+                                 <h6>Pillow Components</h6>
+                                 <div class="pillow-subcategories-tabs" id="pillowTabs-${item.id}">
+                                    ${category.subcategories.map((subcat, subIndex) => `
+                                       <button class="pillow-subcategory-tab ${subIndex === 0 ? 'active' : ''}" 
+                                               data-subcategory="${subcat.id}" data-item="${item.id}">
+                                          ${subcat.name}
+                                       </button>
                                     `).join('')}
                                  </div>
-                              ` : ''}
-                           </div>
-                        `).join('')}
-                     </div>
-                     <div class="materials-container" id="materials-${item.id}">
-                        <div class="material-item">
-                           <div class="material-item-header">
-                              <div class="material-item-title">Selected Material</div>
-                              <div class="material-item-actions">
-                                 <button type="button" class="btn btn-sm btn-icon remove-material" title="Remove material">
-                                    <i class="fa fa-times"></i>
-                                 </button>
-                              </div>
-                           </div>
-                           <div class="material-image-layout">
-                              <div class="material-inputs">
-                                 <div class="material-input">
-                                    <label>Material Category</label>
-                                    <select class="form-control material-category-select">
-                                       <option value="">Select Category</option>
-                                       ${materialCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
-                                       <option value="">Select Material</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
-                                       <option value="commercial">Commercial</option>
-                                       <option value="residential">Residential</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Finish Type</label>
-                                    <select class="form-control finish-type">
-                                       <option value="">Select Finish</option>
-                                       <option value="matte">Matte</option>
-                                       <option value="glossy">Glossy</option>
-                                       <option value="semi-gloss">Semi-Gloss</option>
-                                       <option value="textured">Textured</option>
-                                       <option value="smooth">Smooth</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Color</label>
-                                    <input type="text" class="form-control material-color" placeholder="Enter color">
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Supplier</label>
-                                    <input type="text" class="form-control material-supplier" placeholder="Supplier name">
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Warranty (Years)</label>
-                                    <input type="number" class="form-control material-warranty" placeholder="0" min="0" step="1">
-                                 </div>
-                              </div>
-                              <div class="material-image-container">
-                                 <div class="material-image-preview">
+                                 ${category.subcategories.map((subcat, subIndex) => `
+                                    <div class="pillow-subcategory-content ${subIndex === 0 ? 'active' : ''}" 
+                                         id="pillowContent-${item.id}-${subcat.id}">
+                                       <div class="pillow-subcategory-details">
+                                          <div class="material-inputs-compact">
+                                             <div class="material-compact-image">
+                                                <i class="fa fa-image"></i>
+                                             </div>
+                                             <div class="material-compact-fields">
+                                                <div class="material-input">
+                                                   <label>Material Grade</label>
+                                                   <select class="form-control material-grade">
+                                                      <option value="">Select Grade</option>
+                                                      <option value="standard">Standard</option>
+                                                      <option value="premium">Premium</option>
+                                                      <option value="economy">Economy</option>
+                                                   </select>
+                                                </div>
+                                                <div class="material-input">
+                                                   <label>Material Type</label>
+                                                   <select class="form-control material-type-select">
+                                                      <option value="">Select Material</option>
+                                                      ${category.defaultMaterials.map(material => `
+                                                         <option value="${material.id}">${material.name}</option>
+                                                      `).join('')}
+                                                   </select>
+                                                </div>
+                                                <div class="material-input">
+                                                   <label>Area/Weight</label>
+                                                   <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                                                </div>
+                                             </div>
+                                          </div>
+                                          <div class="file-input-wrapper" style="margin-top: 12px;">
+                                             <button type="button" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-upload mr-1"></i> Upload ${subcat.name} Image
+                                             </button>
+                                             <input type="file" class="pillow-image-input" data-subcategory="${subcat.id}">
+                                          </div>
+                                       </div>
+                                    </div>
+                                 `).join('')}
+                              </div>` : 
+                             // Standard material layout for non-pillow categories (Image on left, details on right)
+                             `<div class="material-inputs-compact">
+                                 <div class="material-compact-image">
                                     <i class="fa fa-image"></i>
                                  </div>
-                                 <div class="file-input-wrapper">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                                       <i class="fa fa-upload mr-1"></i> Upload Image
-                                    </button>
-                                    <input type="file" class="material-image-input" data-file-type="image">
+                                 <div class="material-compact-fields">
+                                    <div class="material-input">
+                                       <label>Material Grade</label>
+                                       <select class="form-control material-grade">
+                                          <option value="">Select Grade</option>
+                                          <option value="standard">Standard</option>
+                                          <option value="premium">Premium</option>
+                                          <option value="economy">Economy</option>
+                                       </select>
+                                    </div>
+                                    <div class="material-input">
+                                       <label>Material Type</label>
+                                       <select class="form-control material-type-select">
+                                          <option value="">Select Material</option>
+                                          ${category.defaultMaterials.map(material => `
+                                             <option value="${material.id}">${material.name}</option>
+                                          `).join('')}
+                                       </select>
+                                    </div>
+                                    <div class="material-input">
+                                       <label>Area/Weight</label>
+                                       <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                                    </div>
                                  </div>
                               </div>
-                           </div>
-                        </div>
-                     </div>
-                     <button type="button" class="btn btn-sm btn-outline-primary add-material-btn" data-item="${item.id}" style="width: 100%;">
-                        <i class="fa fa-plus mr-1"></i> Add Another Material
-                     </button>
-                  </div>
-               </div>
-               <div class="product-image-container">
-                  <div class="product-image-preview">
-                     <i class="fa fa-image"></i>
-                  </div>
-                  <div class="file-input-wrapper">
-                     <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                        <i class="fa fa-upload mr-1"></i> Upload Item Image
-                     </button>
-                     <input type="file" class="product-image-input" data-file-type="image">
-                  </div>
-               </div>
-            </div>
-         </div>
-      `);
+                              <div class="file-input-wrapper" style="margin-top: 12px;">
+                                 <button type="button" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa fa-upload mr-1"></i> Upload Material Image
+                                 </button>
+                                 <input type="file" class="material-image-input" data-file-type="image">
+                              </div>`
+                          }
+                       </div>
+                    `).join('')}
+                 </div>
+              </div>
+           </div>
+        </div>
+     `);
 
-         // Remove empty details if they exist
-         if ($emptyDetails.length) {
+        if ($emptyDetails.length) {
             $emptyDetails.remove();
-         }
+        }
 
-         $detailsBody.append($detailsContent);
+        $detailsBody.append($detailsContent);
 
-         // Activate the new tab
-         activateItemTab($tab, roomId, productId);
+        activateItemTab($tab, roomId, productId);
 
-         // Add event listeners
-         $tab.find('.items-tab-close').on('click', function (e) {
+        setupMaterialTabs(item.id);
+        setupPillowSubcategoryTabsForItem(item.id);
+
+        $tab.find('.items-tab-close').on('click', function(e) {
             e.stopPropagation();
             removeItemFromProduct($tab, roomId, productId, item.id);
-         });
+        });
 
-         // Set up material category selection for the item
-         setupMaterialCategorySelection(item.id);
+        updateRoomStatus(`room${roomId}`);
+    }
 
-         updateRoomStatus(`room${roomId}`);
-      }
+    // Setup pillow subcategory tabs for items
+    function setupPillowSubcategoryTabsForItem(itemId) {
+        $(`#pillowTabs-${itemId} .pillow-subcategory-tab`).on('click', function(e) {
+            e.preventDefault();
+            const subcategoryId = $(this).data('subcategory');
+            const itemId = $(this).data('item');
 
-      function activateItemTab($tab, roomId, productId) {
-         const itemId = $tab.data('item-id');
-         const $productContent = $(`#product-${productId}-room${roomId}`);
+            $(`#pillowTabs-${itemId} .pillow-subcategory-tab`).removeClass('active');
+            $(this).addClass('active');
 
-         // Deactivate all tabs and hide all content
-         $productContent.find('.items-tab').removeClass('active');
-         $productContent.find('.item-details').hide();
+            $(`#materialContent-${itemId}-pillow .pillow-subcategory-content`).removeClass('active');
+            $(`#pillowContent-${itemId}-${subcategoryId}`).addClass('active');
+        });
+    }
 
-         // Activate current tab and show content
-         $tab.addClass('active');
-         $(`#item-${itemId}-${productId}-room${roomId}`).show();
-      }
+    function activateItemTab($tab, roomId, productId) {
+        const itemId = $tab.data('item-id');
+        const $productContent = $(`#product-${productId}-room${roomId}`);
 
-      function removeItemFromProduct($tab, roomId, productId, itemId) {
-         console.log('Removing item from product');
+        $productContent.find('.items-tab').removeClass('active');
+        $productContent.find('.item-details').hide();
 
-         // Remove tab and details
-         $tab.remove();
-         $(`#item-${itemId}-${productId}-room${roomId}`).remove();
+        $tab.addClass('active');
+        $(`#item-${itemId}-${productId}-room${roomId}`).show();
+    }
 
-         // Check if container is empty and show empty state
-         const $productContent = $(`#product-${productId}-room${roomId}`);
-         const $tabsContainer = $productContent.find('.items-tabs-container');
-         const $detailsBody = $productContent.find('.item-details-body');
-         const $tabs = $tabsContainer.find('.items-tab');
+    function removeItemFromProduct($tab, roomId, productId, itemId) {
+        console.log('Removing item from product');
 
-         if ($tabs.length === 0) {
+        $tab.remove();
+        $(`#item-${itemId}-${productId}-room${roomId}`).remove();
+
+        const $productContent = $(`#product-${productId}-room${roomId}`);
+        const $tabsContainer = $productContent.find('.items-tabs-container');
+        const $detailsBody = $productContent.find('.product-details-body');
+        const $tabs = $tabsContainer.find('.items-tab');
+
+        if ($tabs.length === 0) {
             $tabsContainer.html(`
             <div class="empty-items-tabs">
                <i class="fa fa-cube"></i>
@@ -3284,28 +3258,29 @@
          `);
 
             $detailsBody.html(`
-            <div class="empty-item-selection">
-               <i class="fa fa-hand-pointer"></i>
-               <p>Select an item to view and edit details</p>
+            <div class="product-details-content">
+               <div class="empty-item-selection">
+                  <i class="fa fa-hand-pointer"></i>
+                  <p>Select an item to view and edit details</p>
+               </div>
             </div>
          `);
-         } else {
-            // Activate the first remaining tab
+        } else {
             const $firstTab = $tabs.first();
             activateItemTab($firstTab, roomId, productId);
-         }
+        }
 
-         updateRoomStatus(`room${roomId}`);
-      }
+        updateRoomStatus(`room${roomId}`);
+    }
 
-      function updateRoomStatus(roomId) {
-         const $roomPane = $(`#${roomId}`);
-         const $statusIndicator = $(`#${roomId}-tab .status-indicator`);
+    function updateRoomStatus(roomId) {
+        const $roomPane = $(`#${roomId}`);
+        const $statusIndicator = $(`#${roomId}-tab .status-indicator`);
 
-         let hasItems = false;
-         let allComplete = true;
+        let hasItems = false;
+        let allComplete = true;
 
-         $roomPane.find('.enhanced-category-item').each(function () {
+        $roomPane.find('.enhanced-category-item').each(function() {
             hasItems = true;
             const $qty = $(this).find('.item-qty');
             const $itemLength = $(this).find('.item-length');
@@ -3314,493 +3289,350 @@
             const $name = $(this).find('.enhanced-item-name');
 
             if (!$qty.val() || !$itemLength.val() || !$itemWidth.val() || !$itemHeight.val() || !$name.val()) {
-               allComplete = false;
-               return false;
+                allComplete = false;
+                return false;
             }
-         });
+        });
 
-         $statusIndicator.removeClass('status-empty status-incomplete status-complete');
+        $statusIndicator.removeClass('status-empty status-incomplete status-complete');
 
-         if (!hasItems) {
+        if (!hasItems) {
             $statusIndicator.addClass('status-empty');
-         } else if (allComplete) {
+        } else if (allComplete) {
             $statusIndicator.addClass('status-complete');
-         } else {
+        } else {
             $statusIndicator.addClass('status-incomplete');
-         }
-      }
+        }
+    }
 
-      // Add material functionality
-      function addMaterial(productId, itemId = null) {
-         const materialId = Date.now(); // Simple unique ID
-         const materialNumber = $(`#materials-${itemId || productId} .material-item`).length + 1;
+    // Event handlers
+    $('#addRoomBtn').on('click', function() {
+        const roomNumber = getNextRoomNumber();
+        const roomId = 'room' + roomNumber;
 
-         const $material = $(`
-         <div class="material-item" data-material-id="${materialId}">
-            <div class="material-item-header">
-               <div class="material-item-title">Material ${materialNumber}</div>
-               <div class="material-item-actions">
-                  <button type="button" class="btn btn-sm btn-icon remove-material" title="Remove material">
-                     <i class="fa fa-times"></i>
-                  </button>
-               </div>
-            </div>
-            <div class="material-image-layout">
-               <div class="material-inputs">
-                  <div class="material-input">
-                     <label>Material Category</label>
-                     <select class="form-control material-category-select">
-                        <option value="">Select Category</option>
-                        ${materialCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
-                     </select>
-                  </div>
-                  <div class="material-input">
-                     <label>Material Type</label>
-                     <select class="form-control material-type-select">
-                        <option value="">Select Material</option>
-                     </select>
-                  </div>
-                  <div class="material-input">
-                     <label>Material Grade</label>
-                     <select class="form-control material-grade">
-                        <option value="">Select Grade</option>
-                        <option value="standard">Standard</option>
-                        <option value="premium">Premium</option>
-                        <option value="economy">Economy</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="residential">Residential</option>
-                     </select>
-                  </div>
-                  <div class="material-input">
-                     <label>Finish Type</label>
-                     <select class="form-control finish-type">
-                        <option value="">Select Finish</option>
-                        <option value="matte">Matte</option>
-                        <option value="glossy">Glossy</option>
-                        <option value="semi-gloss">Semi-Gloss</option>
-                        <option value="textured">Textured</option>
-                        <option value="smooth">Smooth</option>
-                     </select>
-                  </div>
-                  <div class="material-input">
-                     <label>Color</label>
-                     <input type="text" class="form-control material-color" placeholder="Enter color">
-                  </div>
-                  <div class="material-input">
-                     <label>Supplier</label>
-                     <input type="text" class="form-control material-supplier" placeholder="Supplier name">
-                  </div>
-                  <div class="material-input">
-                     <label>Warranty (Years)</label>
-                     <input type="number" class="form-control material-warranty" placeholder="0" min="0" step="1">
-                  </div>
-               </div>
-               <div class="material-image-container">
-                  <div class="material-image-preview">
-                     <i class="fa fa-image"></i>
-                  </div>
-                  <div class="file-input-wrapper">
-                     <button type="button" class="btn btn-sm btn-outline-primary" style="width: 100%;">
-                        <i class="fa fa-upload mr-1"></i> Upload Image
-                     </button>
-                     <input type="file" class="material-image-input" data-file-type="image">
-                  </div>
-               </div>
-            </div>
-         </div>
-      `);
+        const $tabLi = $(`
+        <li class="nav-item">
+           <a class="nav-link room-tab" id="${roomId}-tab" data-toggle="tab" href="#${roomId}" role="tab" aria-controls="${roomId}" data-room="${roomNumber}">
+              <div class="room-header">
+                 <span class="status-indicator status-empty"></span>
+                 <span class="room-title">Room ${roomNumber}</span>
+                 <span class="close-room ml-2" title="Remove room">
+                    <i class="fa fa-times"></i>
+                 </span>
+              </div>
+           </a>
+        </li>
+     `);
+        $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
 
-         $(`#materials-${itemId || productId}`).append($material);
-         
-         // Set up material category selection for the new material
-         const newMaterialId = itemId || productId;
-         setupMaterialCategorySelection(newMaterialId);
-      }
+        const $pane = $(`
+        <div class="tab-pane fade" id="${roomId}" role="tabpanel" aria-labelledby="${roomId}-tab" data-room="${roomNumber}">
+           <div class="product-tabs-wrapper">
+              <div class="product-tabs-header">
+                 <div class="room-info-form">
+                    <div class="form-group-small">
+                       <label for="floorName-${roomId}">Floor Name</label>
+                       <input type="text" class="form-control-small" id="floorName-${roomId}" placeholder="Enter floor name">
+                    </div>
+                    <div class="form-group-small">
+                       <label for="roomName-${roomId}">Room Name</label>
+                       <input type="text" class="form-control-small" id="roomName-${roomId}" placeholder="Enter room name">
+                    </div>
+                    <div class="form-group-small">
+                       <label>Room Image</label>
+                       <div class="image-upload-container">
+                          <div class="image-preview" id="imagePreview-${roomId}">
+                             <i class="fa fa-image"></i>
+                          </div>
+                          <div class="file-input-wrapper">
+                             <button type="button" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-upload mr-1"></i> Upload
+                             </button>
+                             <input type="file" class="room-image-input" id="roomImage-${roomId}" data-file-type="image" data-room="${roomNumber}">
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+                 <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="${roomNumber}">
+                    <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
+                 </button>
+              </div>
+              <div class="product-tabs-container" id="productTabs-room${roomNumber}">
+                 <div class="product-empty-state">
+                    <i class="fa fa-cube"></i>
+                    <p>No products added yet</p>
+                 </div>
+              </div>
+              <div class="product-content-area" id="productContent-room${roomNumber}">
+                 <div class="product-empty-state">
+                    <i class="fa fa-hand-pointer"></i>
+                    <p>Select a product to configure details</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+     `);
 
-      // EVENT HANDLERS
+        $('#roomTabsContent').append($pane);
+        $(`#${roomId}-tab`).tab('show');
+        updateRoomStatus(roomId);
+        addRoomToState(roomNumber);
+    });
 
-      // Add room button
-      $('#addRoomBtn').on('click', function () {
-         const roomNumber = getNextRoomNumber();
-         const roomId = 'room' + roomNumber;
+    $(document).on('click', '.add-item-to-room-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-         const $tabLi = $(`
-         <li class="nav-item">
-            <a class="nav-link room-tab" id="${roomId}-tab" data-toggle="tab" href="#${roomId}" role="tab" aria-controls="${roomId}" data-room="${roomNumber}">
-               <div class="room-header">
-                  <span class="status-indicator status-empty"></span>
-                  <span class="room-title">Room ${roomNumber}</span>
-                  <span class="close-room ml-2" title="Remove room">
-                     <i class="fa fa-times"></i>
-                  </span>
-               </div>
-            </a>
-         </li>
-      `);
-         $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
+        let roomId = $(this).data('room');
+        console.log('Add item to room button clicked, roomId from data:', roomId);
 
-         const $pane = $(`
-         <div class="tab-pane fade" id="${roomId}" role="tabpanel" aria-labelledby="${roomId}-tab" data-room="${roomNumber}">
-            <div class="product-tabs-wrapper">
-               <div class="product-tabs-header">
-                  <div class="room-info-form">
-                     <div class="form-group-small">
-                        <label for="floorName-${roomId}">Floor Name</label>
-                        <input type="text" class="form-control-small" id="floorName-${roomId}" placeholder="Enter floor name">
-                     </div>
-                     <div class="form-group-small">
-                        <label for="roomName-${roomId}">Room Name</label>
-                        <input type="text" class="form-control-small" id="roomName-${roomId}" placeholder="Enter room name">
-                     </div>
-                     <div class="form-group-small">
-                        <label>Room Image</label>
-                        <div class="image-upload-container">
-                           <div class="image-preview" id="imagePreview-${roomId}">
-                              <i class="fa fa-image"></i>
-                           </div>
-                           <div class="file-input-wrapper">
-                              <button type="button" class="btn btn-sm btn-outline-primary">
-                                 <i class="fa fa-upload mr-1"></i> Upload
-                              </button>
-                              <input type="file" class="room-image-input" id="roomImage-${roomId}" data-file-type="image" data-room="${roomNumber}">
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="${roomNumber}">
-                     <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
-                  </button>
-               </div>
-               <div class="product-tabs-container" id="productTabs-room${roomNumber}">
-                  <div class="product-empty-state">
-                     <i class="fa fa-cube"></i>
-                     <p>No products added yet</p>
-                  </div>
-               </div>
-               <div class="product-content-area" id="productContent-room${roomNumber}">
-                  <div class="product-empty-state">
-                     <i class="fa fa-hand-pointer"></i>
-                     <p>Select a product to configure details</p>
-                  </div>
-               </div>
-            </div>
-         </div>
-      `);
-
-         $('#roomTabsContent').append($pane);
-         $(`#${roomId}-tab`).tab('show');
-         updateRoomStatus(roomId);
-         addRoomToState(roomNumber);
-      });
-
-      // Add item to room button
-      $(document).on('click', '.add-item-to-room-btn', function (e) {
-         e.preventDefault();
-         e.stopPropagation();
-
-         let roomId = $(this).data('room');
-         console.log('Add item to room button clicked, roomId from data:', roomId);
-
-         if (!roomId) {
+        if (!roomId) {
             const $roomPane = $(this).closest('.tab-pane');
             if ($roomPane.length) {
-               roomId = $roomPane.data('room');
-               console.log('RoomId from pane data:', roomId);
+                roomId = $roomPane.data('room');
+                console.log('RoomId from pane data:', roomId);
             }
-         }
+        }
 
-         if (roomId) {
+        if (roomId) {
             console.log('Final roomId for qualification modal:', roomId);
             showQualificationModal(roomId);
-         } else {
+        } else {
             console.error('Could not determine roomId for product');
-         }
-      });
+        }
+    });
 
-      // Qualification option selection
-      $(document).on('click', '.qualification-option', function () {
-         console.log('Qualification option clicked:', $(this).data('qualification'));
-         $('.qualification-option').removeClass('selected');
-         $(this).addClass('selected');
-         state.selectedQualification = $(this).data('qualification');
-         $('#confirmAddQualification').prop('disabled', false);
-      });
+    $(document).on('click', '.qualification-option', function() {
+        console.log('Qualification option clicked:', $(this).data('qualification'));
+        $('.qualification-option').removeClass('selected');
+        $(this).addClass('selected');
+        state.selectedQualification = $(this).data('qualification');
+        $('#confirmAddQualification').prop('disabled', false);
+    });
 
-      // Confirm add qualification
-      $('#confirmAddQualification').on('click', function () {
-         console.log('Confirm add qualification clicked');
-         console.log('Current state:', {
+    $('#confirmAddQualification').on('click', function() {
+        console.log('Confirm add qualification clicked');
+        console.log('Current state:', {
             selectedQualification: state.selectedQualification,
             currentRoom: state.currentRoom
-         });
+        });
 
-         if (state.selectedQualification && state.currentRoom) {
+        if (state.selectedQualification && state.currentRoom) {
             const qualification = productOptions.find(q => q.id === state.selectedQualification);
             if (qualification) {
-               const roomId = state.currentRoom;
+                const roomId = state.currentRoom;
 
-               hideQualificationModal();
+                hideQualificationModal();
 
-               // Use setTimeout to ensure the modal is fully hidden before showing next
-               setTimeout(() => {
-                  console.log('Showing multi-select modal with roomId:', roomId);
-                  showMultiSelectModal(qualification, roomId);
-               }, 100);
+                setTimeout(() => {
+                    console.log('Showing multi-select modal with roomId:', roomId);
+                    showMultiSelectModal(qualification, roomId);
+                }, 100);
             }
-         }
-      });
+        }
+    });
 
-      // Multi-select option selection
-      $(document).on('click', '.multi-select-option', function () {
-         const productId = $(this).data('product-id');
-         console.log('Multi-select option clicked:', productId);
+    $(document).on('click', '.multi-select-option', function() {
+        const productId = $(this).data('product-id');
+        console.log('Multi-select option clicked:', productId);
 
-         $(this).toggleClass('selected');
+        $(this).toggleClass('selected');
 
-         // Update selected products array
-         if ($(this).hasClass('selected')) {
+        if ($(this).hasClass('selected')) {
             if (!state.selectedProducts.includes(productId)) {
-               state.selectedProducts.push(productId);
+                state.selectedProducts.push(productId);
             }
-         } else {
+        } else {
             state.selectedProducts = state.selectedProducts.filter(id => id !== productId);
-         }
+        }
 
-         $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
-      });
+        $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
+    });
 
-      // Confirm multi-select
-      $('#confirmMultiSelect').on('click', function () {
-         console.log('Confirm multi-select clicked');
+    $('#confirmMultiSelect').on('click', function() {
+        console.log('Confirm multi-select clicked');
 
-         // Get data directly from modal
-         const qualification = $('#multiSelectModal').data('qualification');
-         const roomId = $('#multiSelectModal').data('roomId');
+        const qualification = $('#multiSelectModal').data('qualification');
+        const roomId = $('#multiSelectModal').data('roomId');
 
-         console.log('Data for multi-select addition:', {
+        console.log('Data for multi-select addition:', {
             qualification: qualification,
             roomId: roomId,
             selectedProducts: state.selectedProducts
-         });
+        });
 
-         if (state.selectedProducts.length > 0 && roomId && qualification) {
-            // Create product objects from selected product IDs
+        if (state.selectedProducts.length > 0 && roomId && qualification) {
             let products = [];
 
             if (qualification.id === 'fitout') {
-               // For fitout, the selected products are wall, ceiling, ground
-               products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
+                products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
             } else {
-               // For other qualifications, use the qualification itself
-               products = [qualification];
+                products = [qualification];
             }
 
             console.log('Adding products:', products);
             products.forEach(product => {
-               addProductTab(roomId, product);
+                addProductTab(roomId, product);
             });
             hideMultiSelectModal();
-         } else {
+        } else {
             console.error('Missing data for multi-select addition');
             alert('Please select at least one product to continue.');
-         }
-      });
+        }
+    });
 
-      // Item option selection
-      $(document).on('click', '.item-option', function () {
-         console.log('Item option clicked:', $(this).data('item-id'));
-         $('.item-option').removeClass('selected');
-         $(this).addClass('selected');
+    $(document).on('click', '.item-option', function() {
+        console.log('Item option clicked:', $(this).data('item-id'));
+        $('.item-option').removeClass('selected');
+        $(this).addClass('selected');
 
-         const itemId = $(this).data('item-id');
-         const productData = itemData[state.currentProductType] || itemData.electrical;
+        const itemId = $(this).data('item-id');
+        const productData = itemData[state.currentProductType] || itemData.electrical;
 
-         // Find the selected item
-         state.selectedItem = null;
-         Object.keys(productData.categories).forEach(catKey => {
+        state.selectedItem = null;
+        Object.keys(productData.categories).forEach(catKey => {
             const category = productData.categories[catKey];
             const item = category.items.find(i => i.id === itemId);
             if (item) {
-               state.selectedItem = item;
+                state.selectedItem = item;
             }
-         });
+        });
 
-         $('#confirmSelectItem').prop('disabled', false);
-      });
+        $('#confirmSelectItem').prop('disabled', false);
+    });
 
-      // Confirm item selection
-      $('#confirmSelectItem').on('click', function () {
-         console.log('Confirm item selection clicked');
+    $('#confirmSelectItem').on('click', function() {
+        console.log('Confirm item selection clicked');
 
-         if (state.selectedItem && state.currentProductType) {
-            // Get current active product tab
+        if (state.selectedItem && state.currentProductType) {
             const $activeProductTab = $('.product-tab.active');
             if ($activeProductTab.length === 0) {
-               console.error('No active product tab found');
-               return;
+                console.error('No active product tab found');
+                return;
             }
 
             const productId = $activeProductTab.data('product');
             const roomId = $activeProductTab.closest('.product-tabs-container').attr('id').replace('productTabs-room', '');
 
             console.log('Adding item to:', {
-               productId,
-               roomId,
-               item: state.selectedItem
+                productId,
+                roomId,
+                item: state.selectedItem
             });
 
             addItemToProduct(roomId, productId, state.selectedItem);
             hideItemSelectionModal();
-         } else {
+        } else {
             console.error('Missing item for selection');
-         }
-      });
+        }
+    });
 
-      // Item category tab click
-      $(document).on('click', '.item-category-tab', function () {
-         const categoryKey = $(this).data('category');
-         console.log('Item category tab clicked:', categoryKey);
-         $('.item-category-tab').removeClass('active');
-         $(this).addClass('active');
+    $(document).on('click', '.item-category-tab', function() {
+        const categoryKey = $(this).data('category');
+        console.log('Item category tab clicked:', categoryKey);
+        $('.item-category-tab').removeClass('active');
+        $(this).addClass('active');
 
-         const productData = itemData[state.currentProductType] || itemData.electrical;
-         loadItemCategory(categoryKey, productData.categories[categoryKey]);
-      });
+        const productData = itemData[state.currentProductType] || itemData.electrical;
+        loadItemCategory(categoryKey, productData.categories[categoryKey]);
+    });
 
-      // Add item buttons
-      $(document).on('click', '.add-product-item-btn', function () {
-         const productId = $(this).data('product');
-         console.log('Add product item button clicked:', productId);
-         showItemSelectionModal(productId);
-      });
+    $(document).on('click', '.add-product-item-btn', function() {
+        const productId = $(this).data('product');
+        console.log('Add product item button clicked:', productId);
+        showItemSelectionModal(productId);
+    });
 
-      // Add material buttons
-      $(document).on('click', '.add-material-btn', function () {
-         const productId = $(this).data('product');
-         const itemId = $(this).data('item');
-         console.log('Add material button clicked:', { productId, itemId });
-         addMaterial(productId, itemId);
-      });
+    $(document).on('click', '.close-room', function(e) {
+        e.stopPropagation();
+        const $tab = $(this).closest('a.room-tab');
+        const totalRooms = $('#roomTabs a.room-tab').length;
 
-      // Remove material buttons
-      $(document).on('click', '.remove-material', function () {
-         const $materialItem = $(this).closest('.material-item');
-         const $materialsContainer = $materialItem.closest('.materials-container');
-         
-         if ($materialsContainer.find('.material-item').length > 1) {
-            $materialItem.remove();
-            // Renumber remaining materials
-            $materialsContainer.find('.material-item').each(function(index) {
-               $(this).find('.material-item-title').text(`Material ${index + 1}`);
-            });
-         } else {
-            alert('At least one material is required.');
-         }
-      });
-
-      // Close room
-      $(document).on('click', '.close-room', function (e) {
-         e.stopPropagation();
-         const $tab = $(this).closest('a.room-tab');
-         const totalRooms = $('#roomTabs a.room-tab').length;
-
-         if (totalRooms <= 1) {
+        if (totalRooms <= 1) {
             alert('At least one room must be present.');
             return;
-         }
+        }
 
-         const roomId = $tab.attr('href').replace('#', '');
-         const isActive = $tab.hasClass('active');
+        const roomId = $tab.attr('href').replace('#', '');
+        const isActive = $tab.hasClass('active');
 
-         $tab.closest('.nav-item').remove();
-         $(`#${roomId}`).remove();
+        $tab.closest('.nav-item').remove();
+        $(`#${roomId}`).remove();
 
-         // Renumber all rooms after deletion
-         renumberRooms();
+        renumberRooms();
 
-         if (isActive) {
+        if (isActive) {
             const $remainingTabs = $('#roomTabs a.room-tab');
             if ($remainingTabs.length > 0) {
-               const $firstTab = $remainingTabs.first();
-               $firstTab.tab('show');
+                const $firstTab = $remainingTabs.first();
+                $firstTab.tab('show');
             }
-         }
-      });
+        }
+    });
 
-      // Product tab click
-      $(document).on('click', '.product-tab', function (e) {
-         if (!$(e.target).closest('.product-tab-close').length) {
+    $(document).on('click', '.product-tab', function(e) {
+        if (!$(e.target).closest('.product-tab-close').length) {
             activateProductTab($(this));
-         }
-      });
+        }
+    });
 
-      // Product tab close
-      $(document).on('click', '.product-tab-close', function (e) {
-         e.stopPropagation();
-         const $tab = $(this).closest('.product-tab');
-         const $tabsContainer = $tab.closest('.product-tabs-container');
+    $(document).on('click', '.product-tab-close', function(e) {
+        e.stopPropagation();
+        const $tab = $(this).closest('.product-tab');
+        const $tabsContainer = $tab.closest('.product-tabs-container');
 
-         if ($tabsContainer.find('.product-tab').length <= 1) {
+        if ($tabsContainer.find('.product-tab').length <= 1) {
             alert('At least one product must remain in the room.');
             return;
-         }
+        }
 
-         // Remove product tab
-         const productId = $tab.data('product');
-         const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
+        const productId = $tab.data('product');
+        const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
 
-         // Remove content
-         $(`#product-${productId}-room${roomId}`).remove();
-         $tab.remove();
+        $(`#product-${productId}-room${roomId}`).remove();
+        $tab.remove();
 
-         // Activate first remaining tab if this was active
-         if ($tab.hasClass('active')) {
+        if ($tab.hasClass('active')) {
             const $firstTab = $tabsContainer.find('.product-tab').first();
             if ($firstTab.length) {
-               activateProductTab($firstTab);
+                activateProductTab($firstTab);
             }
-         }
-      });
+        }
+    });
 
-      // Add event delegation for item tab clicks
-      $(document).on('click', '.items-tab', function () {
-         const $tab = $(this);
-         const $productContent = $tab.closest('.product-content');
-         const productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
-         const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
+    $(document).on('click', '.items-tab', function() {
+        const $tab = $(this);
+        const $productContent = $tab.closest('.product-content');
+        const productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
+        const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
 
-         if (!$tab.find('.items-tab-close').is(':hover')) {
+        if (!$tab.find('.items-tab-close').is(':hover')) {
             activateItemTab($tab, roomId, productId);
-         }
-      });
+        }
+    });
 
-      // Close modal buttons
-      $('#closeQualificationModal').on('click', hideQualificationModal);
-      $('#closeMultiSelectModal').on('click', hideMultiSelectModal);
-      $('#closeItemSelectionModal').on('click', hideItemSelectionModal);
+    $('#closeQualificationModal').on('click', hideQualificationModal);
+    $('#closeMultiSelectModal').on('click', hideMultiSelectModal);
+    $('#closeItemSelectionModal').on('click', hideItemSelectionModal);
 
-      // Close modals on background click
-      $('#qualificationModal').on('click', function (e) {
-         if (e.target === this) hideQualificationModal();
-      });
-      $('#multiSelectModal').on('click', function (e) {
-         if (e.target === this) hideMultiSelectModal();
-      });
-      $('#itemSelectionModal').on('click', function (e) {
-         if (e.target === this) hideItemSelectionModal();
-      });
+    $('#qualificationModal').on('click', function(e) {
+        if (e.target === this) hideQualificationModal();
+    });
+    $('#multiSelectModal').on('click', function(e) {
+        if (e.target === this) hideMultiSelectModal();
+    });
+    $('#itemSelectionModal').on('click', function(e) {
+        if (e.target === this) hideItemSelectionModal();
+    });
 
-      // Initialize
-      initializeQualificationModal();
-      setupQualificationSearch();
-      setupProductSearch();
-      setupImageUpload();
-      // Add initial room to state
-      addRoomToState(1);
-      updateRoomStatus('room1');
+    // Initialize
+    initializeQualificationModal();
+    setupQualificationSearch();
+    setupProductSearch();
+    setupImageUpload();
+    addRoomToState(1);
+    updateRoomStatus('room1');
 
-      console.log('System initialized successfully');
-   });
+    console.log('System initialized successfully with updated material section layout and pillow subcategory tabs');
+});
 </script>
-I want item image or product image to the details section in to the left side in which there are lenth width price, etc details. and material section will not be in wall/ceiling/ground details in fitout
-and one more change I want add item to wall/ceiling/ground button to the right side in the items header section. dont give boilerplat code because I have to include this code inside a page
