@@ -2966,6 +2966,7 @@ include PATH . '/inc/footer.php';
 <script>
    jQuery(function($) {
       // State management
+      // State management
       const state = {
          rooms: [],
          currentRoom: null,
@@ -2979,7 +2980,423 @@ include PATH . '/inc/footer.php';
          currentProductId: null
       };
 
-      // Updated material categories data with pillow subcategories
+      // Qualifications Data
+      const qualifications = [{
+            id: 1,
+            name: 'Fitout',
+            description: 'Interior construction, walls, ceilings, and flooring',
+            icon: 'fa-paint-roller',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
+         },
+         {
+            id: 2,
+            name: 'Curtains',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 3,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)'
+         },
+         {
+            id: 4,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)'
+         },
+         {
+            id: 5,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 6,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
+         }
+      ];
+
+      // Products Data with parent_id for variants and items
+      const products = [
+         // Fitout Products (parent_id: null)
+         {
+            id: 101,
+            name: 'Wall',
+            description: 'Wall construction and finishing',
+            icon: 'fa-wall',
+            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Wall Items (children with parent_id: 101)
+         {
+            id: 111,
+            name: 'Drywall',
+            description: 'Standard drywall panels',
+            icon: 'fa-layer-group',
+            color: '#ff6b6b',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'construction'
+         },
+         {
+            id: 112,
+            name: 'Wall Studs',
+            description: 'Metal or wood studs',
+            icon: 'fa-grip-lines',
+            color: '#ee5a52',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'construction'
+         },
+         {
+            id: 113,
+            name: 'Wall Paint',
+            description: 'Interior wall paint',
+            icon: 'fa-paint-roller',
+            color: '#4361ee',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'finishing'
+         },
+         {
+            id: 114,
+            name: 'Wallpaper',
+            description: 'Wall covering material',
+            icon: 'fa-scroll',
+            color: '#3a0ca3',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'finishing'
+         },
+
+         {
+            id: 102,
+            name: 'Ceiling',
+            description: 'Ceiling systems and fixtures',
+            icon: 'fa-border-all',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Ceiling Items (children with parent_id: 102)
+         {
+            id: 121,
+            name: 'Ceiling Tiles',
+            description: 'Acoustic ceiling tiles',
+            icon: 'fa-border-all',
+            color: '#4ecdc4',
+            type: 'item',
+            parent_id: 102,
+            qualification_id: 1,
+            category: 'materials'
+         },
+         {
+            id: 122,
+            name: 'Gypsum Board',
+            description: 'Ceiling gypsum boards',
+            icon: 'fa-square',
+            color: '#44a08d',
+            type: 'item',
+            parent_id: 102,
+            qualification_id: 1,
+            category: 'materials'
+         },
+
+         {
+            id: 103,
+            name: 'Ground',
+            description: 'Flooring and ground works',
+            icon: 'fa-square',
+            color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Ground Items (children with parent_id: 103)
+         {
+            id: 131,
+            name: 'Floor Tiles',
+            description: 'Ceramic or porcelain tiles',
+            icon: 'fa-th-large',
+            color: '#45b7d1',
+            type: 'item',
+            parent_id: 103,
+            qualification_id: 1,
+            category: 'flooring'
+         },
+         {
+            id: 132,
+            name: 'Hardwood',
+            description: 'Hardwood flooring',
+            icon: 'fa-tree',
+            color: '#8b4513',
+            type: 'item',
+            parent_id: 103,
+            qualification_id: 1,
+            category: 'flooring'
+         },
+
+         // Curtain Products (parent_id: null)
+         {
+            id: 201,
+            name: 'Blinds',
+            description: 'Window blinds and shades',
+            icon: 'fa-grip-lines',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 202,
+            name: 'Chiffon',
+            description: 'Sheer chiffon curtains',
+            icon: 'fa-scroll',
+            color: 'linear-gradient(135deg, #f72585, #b5179e)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 203,
+            name: 'Main Curtains',
+            description: 'Primary curtain panels',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 204,
+            name: 'Main Curtains with Blinds',
+            description: 'Curtains with integrated blinds',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #4cc9f0, #4895ef)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 205,
+            name: 'Main Curtains with Chiffon',
+            description: 'Curtains with chiffon overlay',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #f72585, #7209b7)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 206,
+            name: 'Main Curtains With Blind and Chiffon',
+            description: 'Complete window treatment system',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+
+         // Beds (parent product)
+         {
+            id: 301,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size',
+            parent_id: null,
+            qualification_id: 3
+         },
+         // Bed Variants (children with parent_id)
+         {
+            id: 302,
+            name: 'Single Bed',
+            description: 'Single Bed 90x190cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 299.00
+         },
+         {
+            id: 303,
+            name: 'Double Bed',
+            description: 'Double Bed 140x190cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 399.00
+         },
+         {
+            id: 304,
+            name: 'Queen Bed',
+            description: 'Queen Bed 160x200cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 499.00
+         },
+
+         // Dining Sets (parent product)
+         {
+            id: 401,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 4
+         },
+         // Dining Set Variants (children with parent_id)
+         {
+            id: 402,
+            name: 'Basic Dining Set',
+            description: 'Basic 6-seater dining set',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 899.00
+         },
+         {
+            id: 403,
+            name: 'Premium Dining Set',
+            description: 'Premium 8-seater dining set',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 1499.00
+         },
+         {
+            id: 404,
+            name: 'Luxury Dining Set',
+            description: 'Luxury dining set with extras',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 2299.00
+         },
+
+         // Sofa Sets (parent product)
+         {
+            id: 501,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 5
+         },
+         // Sofa Set Variants (children with parent_id)
+         {
+            id: 502,
+            name: '3-Piece Sofa Set',
+            description: '3-piece sofa set',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            parent_id: 501,
+            qualification_id: 5,
+            basePrice: 1299.00
+         },
+         {
+            id: 503,
+            name: '4-Piece Sofa Set',
+            description: '4-piece sofa set with coffee table',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            parent_id: 501,
+            qualification_id: 5,
+            basePrice: 1899.00
+         },
+
+         // Wardrobes (parent product)
+         {
+            id: 601,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size',
+            parent_id: null,
+            qualification_id: 6
+         },
+         // Wardrobe Variants (children with parent_id)
+         {
+            id: 602,
+            name: 'Small Wardrobe',
+            description: 'Small Wardrobe 120x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 399.00
+         },
+         {
+            id: 603,
+            name: 'Medium Wardrobe',
+            description: 'Medium Wardrobe 180x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 599.00
+         },
+         {
+            id: 604,
+            name: 'Large Wardrobe',
+            description: 'Large Wardrobe 240x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 799.00
+         }
+      ];
+
+      // Material Categories Data
       const materialCategories = [{
             id: 'metal',
             name: 'Metal',
@@ -3175,251 +3592,116 @@ include PATH . '/inc/footer.php';
          }
       ];
 
-      // Product data - ADDED CURTAINS QUALIFICATION
-      const productOptions = [
-         {
-            id: 1,
-            name: 'Fitout',
-            description: 'Interior construction, walls, ceilings, and flooring',
-            icon: 'fa-paint-roller',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
-            type: 'complex',
-            hasVariants: false
-         },
-         {
-            id: 2,
-            name: 'Curtains',
-            description: 'Window treatments, blinds, and curtain systems',
-            icon: 'fa-window-restore',
+      // Curtain accessory options
+      const curtainAccessories = [{
+            id: 'side-holder',
+            name: 'Side Holder',
+            description: 'Curtain side holders and accessories',
+            icon: 'fa-grip-lines-vertical',
             color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            type: 'curtains',
-            hasVariants: false
-         },
-         {
-            id: 3,
-            name: 'Beds',
-            description: 'Bed frames, mattresses, and bedroom furniture',
-            icon: 'fa-bed',
-            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'size',
-            variants: [
-               {
-                  id: 301,
-                  name: 'Size 1',
-                  description: 'Single Bed 90x190cm',
-                  qualification: 3,
-                  basePrice: 299.00
+            options: [{
+                  id: 'holder1',
+                  name: 'Classic Side Holder',
+                  description: 'Traditional side holder design',
+                  image: 'holder1.jpg'
                },
                {
-                  id: 302,
-                  name: 'Size 2',
-                  description: 'Double Bed 140x190cm',
-                  qualification: 3,
-                  basePrice: 399.00
+                  id: 'holder2',
+                  name: 'Modern Side Holder',
+                  description: 'Contemporary side holder design',
+                  image: 'holder2.jpg'
                },
                {
-                  id: 303,
-                  name: 'Size 3',
-                  description: 'Queen Bed 160x200cm',
-                  qualification: 3,
-                  basePrice: 499.00
+                  id: 'holder3',
+                  name: 'Decorative Side Holder',
+                  description: 'Ornamental side holder design',
+                  image: 'holder3.jpg'
                }
             ]
          },
          {
-            id: 4,
-            name: 'Dining Sets',
-            description: 'Complete dining room furniture sets',
-            icon: 'fa-utensils',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'set',
-            variants: [
-               {
-                  id: 401,
-                  name: 'Set 1',
-                  description: 'Basic 6-seater dining set',
-                  qualification: 4,
-                  basePrice: 899.00
+            id: 'black-out',
+            name: 'Black Out',
+            description: 'Black out lining and accessories',
+            icon: 'fa-moon',
+            color: 'linear-gradient(135deg, #2b2d42, #1d1e2c)',
+            options: [{
+                  id: 'blackout1',
+                  name: 'Standard Black Out',
+                  description: 'Basic black out lining',
+                  image: 'blackout1.jpg'
                },
                {
-                  id: 402,
-                  name: 'Set 2',
-                  description: 'Premium 8-seater dining set',
-                  qualification: 4,
-                  basePrice: 1499.00
+                  id: 'blackout2',
+                  name: 'Thermal Black Out',
+                  description: 'Insulated black out lining',
+                  image: 'blackout2.jpg'
                },
                {
-                  id: 403,
-                  name: 'Set 3',
-                  description: 'Luxury dining set with extras',
-                  qualification: 4,
-                  basePrice: 2299.00
-               }
-            ]
-         },
-         {
-            id: 5,
-            name: 'Sofa Sets',
-            description: 'Living room sofa and furniture sets',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'set',
-            variants: [
-               {
-                  id: 501,
-                  name: 'Set 1',
-                  description: '3-piece sofa set',
-                  qualification: 5,
-                  basePrice: 1299.00
-               },
-               {
-                  id: 502,
-                  name: 'Set 2',
-                  description: '4-piece sofa set with coffee table',
-                  qualification: 5,
-                  basePrice: 1899.00
-               }
-            ]
-         },
-         {
-            id: 6,
-            name: 'Wardrobes',
-            description: 'Bedroom wardrobes and storage solutions',
-            icon: 'fa-archive',
-            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'size',
-            variants: [
-               {
-                  id: 601,
-                  name: 'Size 1',
-                  description: 'Small Wardrobe 120x200cm',
-                  qualification: 6,
-                  basePrice: 399.00
-               },
-               {
-                  id: 602,
-                  name: 'Size 2',
-                  description: 'Medium Wardrobe 180x200cm',
-                  qualification: 6,
-                  basePrice: 599.00
-               },
-               {
-                  id: 603,
-                  name: 'Size 3',
-                  description: 'Large Wardrobe 240x200cm',
-                  qualification: 6,
-                  basePrice: 799.00
+                  id: 'blackout3',
+                  name: 'Premium Black Out',
+                  description: 'Luxury black out lining',
+                  image: 'blackout3.jpg'
                }
             ]
          }
       ];
 
-      const availableProductsForSets = [{
-            id: 'dining-table-basic',
-            name: 'Basic Dining Table',
-            qualification: 'tables',
-            description: 'Standard dining table',
-            icon: 'fa-table',
-            color: 'linear-gradient(135deg, #8b4513, #a0522d)'
-         },
-         {
-            id: 'dining-table-premium',
-            name: 'Premium Dining Table',
-            qualification: 'tables',
-            description: 'High-end dining table',
-            icon: 'fa-table',
-            color: 'linear-gradient(135deg, #654321, #8b4513)'
-         },
-         {
-            id: 'dining-chair-basic',
-            name: 'Basic Dining Chair',
-            qualification: 'chairs',
-            description: 'Standard dining chair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)'
-         },
-         {
-            id: 'dining-chair-premium',
-            name: 'Premium Dining Chair',
-            qualification: 'chairs',
-            description: 'Comfortable dining chair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #56ab2f, #a8e6cf)'
-         },
-         {
-            id: 'sideboard-premium',
-            name: 'Premium Sideboard',
-            qualification: 'storage',
-            description: 'Elegant sideboard',
-            icon: 'fa-archive',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
-         },
-         {
-            id: 'sofa-3seat',
-            name: '3-Seater Sofa',
-            qualification: 'sofas',
-            description: 'Comfortable 3-seater sofa',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)'
-         },
-         {
-            id: 'loveseat',
-            name: 'Loveseat',
-            qualification: 'sofas',
-            description: 'Compact two-seater sofa',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)'
-         },
-         {
-            id: 'armchair',
-            name: 'Armchair',
-            qualification: 'chairs',
-            description: 'Comfortable armchair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
-         }
-      ];
+      // Helper functions to get products by qualification
+      function getProductsByQualification(qualificationId) {
+         return products.filter(product =>
+            product.qualification_id === qualificationId && product.parent_id === null
+         );
+      }
+
+      function getProductVariants(parentProductId) {
+         return products.filter(product => product.parent_id === parentProductId && product.type !== 'item');
+      }
+
+      function getProductItems(parentProductId) {
+         return products.filter(product => product.parent_id === parentProductId && product.type === 'item');
+      }
+
+      function getItemCategories(parentProductId) {
+         const items = getProductItems(parentProductId);
+         const categories = {};
+
+         items.forEach(item => {
+            if (!categories[item.category]) {
+               categories[item.category] = {
+                  name: item.category.charAt(0).toUpperCase() + item.category.slice(1),
+                  items: []
+               };
+            }
+            categories[item.category].items.push(item);
+         });
+
+         return categories;
+      }
 
       // Function to check if a product has variants
       function productHasVariants(productId) {
-         const product = productOptions.find(p => p.id === productId);
+         const product = products.find(p => p.id === productId);
          return product ? product.hasVariants : false;
+      }
+
+      function productHasItems(productId) {
+         return getProductItems(productId).length > 0;
       }
 
       // Function to get product variant type
       function getProductVariantType(productId) {
-         const product = productOptions.find(p => p.id === productId);
+         const product = products.find(p => p.id === productId);
          return product ? product.variantType : null;
       }
 
       // Function to get variants for a product
       function getVariants(productId) {
-         const product = productOptions.find(p => p.id === productId);
-         return product ? product.variants : [];
-      }
-
-      // Function to get default variants for a product
-      function getDefaultVariants(productId) {
-         const product = productOptions.find(p => p.id === productId);
-         return product ? product.defaultVariants : [];
+         return getProductVariants(productId);
       }
 
       // Function to create variants tabs for a product
-      function createVariantsTabs(productId, roomId) {
-         const product = productOptions.find(p => p.id === productId);
-         if (!product || !product.hasVariants) return '';
-
-         const variantType = product.variantType;
-         const variants = product.variants;
-
+      function createVariantsTabs(productId, variants, roomId) {
          return `
         <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
             <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
@@ -3442,7 +3724,7 @@ include PATH . '/inc/footer.php';
                 `).join('')}
             </div>
         </div>
-    `;
+        `;
       }
 
       // Function to create standard material content (non-pillow categories)
@@ -4206,7 +4488,7 @@ include PATH . '/inc/footer.php';
 
       // Function to setup set product selection
       function setupSetProductSelection(productId, roomId) {
-         const variants = getDefaultVariants(productId);
+         const variants = getProductVariants(productId);
 
          variants.forEach(variant => {
             if (!variant.isIndividualProduct) {
@@ -4508,266 +4790,12 @@ include PATH . '/inc/footer.php';
          }
       ];
 
-      // Item data for complex products
-      const itemData = {
-         'wall': {
-            name: 'Wall Items',
-            categories: {
-               'construction': {
-                  name: 'Construction',
-                  items: [{
-                        id: 'drywall',
-                        name: 'Drywall',
-                        description: 'Standard drywall panels',
-                        icon: 'fa-layer-group',
-                        color: '#ff6b6b'
-                     },
-                     {
-                        id: 'studs',
-                        name: 'Wall Studs',
-                        description: 'Metal or wood studs',
-                        icon: 'fa-grip-lines',
-                        color: '#ee5a52'
-                     }
-                  ]
-               },
-               'finishing': {
-                  name: 'Finishing',
-                  items: [{
-                        id: 'paint',
-                        name: 'Wall Paint',
-                        description: 'Interior wall paint',
-                        icon: 'fa-paint-roller',
-                        color: '#4361ee'
-                     },
-                     {
-                        id: 'wallpaper',
-                        name: 'Wallpaper',
-                        description: 'Wall covering material',
-                        icon: 'fa-scroll',
-                        color: '#3a0ca3'
-                     }
-                  ]
-               }
-            }
-         },
-         'ceiling': {
-            name: 'Ceiling Items',
-            categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                        id: 'ceiling_tiles',
-                        name: 'Ceiling Tiles',
-                        description: 'Acoustic ceiling tiles',
-                        icon: 'fa-border-all',
-                        color: '#4ecdc4'
-                     },
-                     {
-                        id: 'gypsum',
-                        name: 'Gypsum Board',
-                        description: 'Ceiling gypsum boards',
-                        icon: 'fa-square',
-                        color: '#44a08d'
-                     }
-                  ]
-               }
-            }
-         },
-         'ground': {
-            name: 'Ground Items',
-            categories: {
-               'flooring': {
-                  name: 'Flooring',
-                  items: [{
-                        id: 'tiles',
-                        name: 'Floor Tiles',
-                        description: 'Ceramic or porcelain tiles',
-                        icon: 'fa-th-large',
-                        color: '#45b7d1'
-                     },
-                     {
-                        id: 'hardwood',
-                        name: 'Hardwood',
-                        description: 'Hardwood flooring',
-                        icon: 'fa-tree',
-                        color: '#8b4513'
-                     }
-                  ]
-               }
-            }
-         },
-         'electrical': {
-            name: 'Electrical Items',
-            categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                        id: 'switches',
-                        name: 'Switches',
-                        description: 'Electrical switches',
-                        icon: 'fa-toggle-on',
-                        color: '#ff9a00'
-                     },
-                     {
-                        id: 'outlets',
-                        name: 'Outlets',
-                        description: 'Power outlets',
-                        icon: 'fa-plug',
-                        color: '#ff6b6b'
-                     },
-                     {
-                        id: 'lighting',
-                        name: 'Lighting',
-                        description: 'Light fixtures',
-                        icon: 'fa-lightbulb',
-                        color: '#ffd166'
-                     }
-                  ]
-               }
-            }
-         },
-         'plumbing': {
-            name: 'Plumbing Items',
-            categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                        id: 'faucet',
-                        name: 'Faucet',
-                        description: 'Water faucet',
-                        icon: 'fa-faucet',
-                        color: '#4ecdc4'
-                     },
-                     {
-                        id: 'pipe',
-                        name: 'Pipe',
-                        description: 'Water pipe',
-                        icon: 'fa-pipe',
-                        color: '#45b7d1'
-                     },
-                     {
-                        id: 'valve',
-                        name: 'Valve',
-                        description: 'Water valve',
-                        icon: 'fa-toggle-off',
-                        color: '#4361ee'
-                     }
-                  ]
-               },
-               'drainage': {
-                  name: 'Drainage',
-                  items: [{
-                        id: 'drain',
-                        name: 'Drain',
-                        description: 'Drain pipe',
-                        icon: 'fa-water',
-                        color: '#3a0ca3'
-                     },
-                     {
-                        id: 'trap',
-                        name: 'Trap',
-                        description: 'Pipe trap',
-                        icon: 'fa-undo',
-                        color: '#7209b7'
-                     }
-                  ]
-               }
-            }
-         },
-         'painting': {
-            name: 'Painting Items',
-            categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                        id: 'paint_bucket',
-                        name: 'Paint Bucket',
-                        description: 'Paint container',
-                        icon: 'fa-fill-drip',
-                        color: '#a8e6cf'
-                     },
-                     {
-                        id: 'brush',
-                        name: 'Brush',
-                        description: 'Paint brush',
-                        icon: 'fa-paint-brush',
-                        color: '#56ab2f'
-                     },
-                     {
-                        id: 'roller',
-                        name: 'Roller',
-                        description: 'Paint roller',
-                        icon: 'fa-paint-roller',
-                        color: '#a8e6cf'
-                     }
-                  ]
-               }
-            }
-         }
-      };
-
-      // ADDED: Curtain accessory options
-      const curtainAccessories = [{
-            id: 'side-holder',
-            name: 'Side Holder',
-            description: 'Curtain side holders and accessories',
-            icon: 'fa-grip-lines-vertical',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            options: [{
-                  id: 'holder1',
-                  name: 'Classic Side Holder',
-                  description: 'Traditional side holder design',
-                  image: 'holder1.jpg'
-               },
-               {
-                  id: 'holder2',
-                  name: 'Modern Side Holder',
-                  description: 'Contemporary side holder design',
-                  image: 'holder2.jpg'
-               },
-               {
-                  id: 'holder3',
-                  name: 'Decorative Side Holder',
-                  description: 'Ornamental side holder design',
-                  image: 'holder3.jpg'
-               }
-            ]
-         },
-         {
-            id: 'black-out',
-            name: 'Black Out',
-            description: 'Black out lining and accessories',
-            icon: 'fa-moon',
-            color: 'linear-gradient(135deg, #2b2d42, #1d1e2c)',
-            options: [{
-                  id: 'blackout1',
-                  name: 'Standard Black Out',
-                  description: 'Basic black out lining',
-                  image: 'blackout1.jpg'
-               },
-               {
-                  id: 'blackout2',
-                  name: 'Thermal Black Out',
-                  description: 'Insulated black out lining',
-                  image: 'blackout2.jpg'
-               },
-               {
-                  id: 'blackout3',
-                  name: 'Premium Black Out',
-                  description: 'Luxury black out lining',
-                  image: 'blackout3.jpg'
-               }
-            ]
-         }
-      ];
-
       // Initialize qualification modal
       function initializeQualificationModal() {
          const $optionsContainer = $('#qualificationOptions');
          $optionsContainer.empty();
 
-         productOptions.forEach(qual => {
+         qualifications.forEach(qual => {
             const $option = $(`
             <div class="qualification-option" data-qualification="${qual.id}">
                <div class="qualification-option-header">
@@ -4789,15 +4817,8 @@ include PATH . '/inc/footer.php';
          $optionsContainer.empty();
          state.selectedProducts = [];
 
-         let productsToShow = [];
-
-         if (qualification.id === 'fitout') {
-            productsToShow = fitoutProducts;
-         } else if (qualification.id === 'curtains') {
-            productsToShow = curtainProducts;
-         } else {
-            productsToShow = [qualification];
-         }
+         // Get products for this qualification
+         const productsToShow = getProductsByQualification(qualification.id);
 
          productsToShow.forEach(product => {
             const $option = $(`
@@ -5018,24 +5039,14 @@ include PATH . '/inc/footer.php';
          $('#multiSelectModal').removeData('roomId');
       }
 
-      function showItemSelectionModal(productType) {
-         console.log('Opening item selection modal for product:', productType);
-         state.currentProductType = productType;
+      function showItemSelectionModal(productId) {
+         console.log('Opening item selection modal for product:', productId);
+         state.currentProductId = productId;
 
-         // FIX: Get the current room and product context from the active product tab
+         // Get the current room context
          const $activeProductTab = $('.product-tab.active');
          if ($activeProductTab.length) {
-            const productId = $activeProductTab.data('product');
-            const $tabPane = $activeProductTab.closest('.tab-pane');
-            const roomId = $tabPane.data('room');
-
-            console.log('Found active product tab context:', {
-               productId: productId,
-               roomId: roomId,
-               tabPane: $tabPane.length
-            });
-
-            // Store the current context in the modal
+            const roomId = $activeProductTab.closest('.tab-pane').data('room');
             $('#itemSelectionModal').data('current-room', roomId);
             $('#itemSelectionModal').data('current-product', productId);
 
@@ -5056,11 +5067,18 @@ include PATH . '/inc/footer.php';
          $categoryTabs.empty();
          $itemOptions.empty();
 
-         const productData = itemData[productType] || itemData.electrical;
-         const categories = productData.categories;
+         // Get items for this product
+         const categories = getItemCategories(productId);
+         const categoryKeys = Object.keys(categories);
+
+         if (categoryKeys.length === 0) {
+            $itemOptions.html('<div class="no-items-message">No items available for this product</div>');
+            $('#confirmSelectItem').prop('disabled', true);
+            $modal.fadeIn(300);
+            return;
+         }
 
          let firstCategory = null;
-         const categoryKeys = Object.keys(categories);
 
          if (categoryKeys.length > 1) {
             categoryKeys.forEach((catKey, index) => {
@@ -5068,10 +5086,10 @@ include PATH . '/inc/footer.php';
                if (index === 0) firstCategory = catKey;
 
                const $tab = $(`
-                <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
-                   ${categoryInfo.name}
-                </div>
-            `);
+            <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
+               ${categoryInfo.name}
+            </div>
+        `);
                $categoryTabs.append($tab);
             });
          } else {
@@ -5083,10 +5101,7 @@ include PATH . '/inc/footer.php';
             loadItemCategory(firstCategory, categories[firstCategory]);
          }
 
-         // ADDED: Clear search input and show all items
          $('#itemSearch').val('');
-         $('.item-option').show();
-
          $modal.fadeIn(300);
          $('#confirmSelectItem').prop('disabled', true);
       }
@@ -5201,7 +5216,6 @@ include PATH . '/inc/footer.php';
 
          $contentArea.append($content);
 
-         // FIX: Always activate the new tab when it's added
          activateProductTab($tab);
 
          setTimeout(() => {
@@ -5230,6 +5244,16 @@ include PATH . '/inc/footer.php';
       function loadProductContent(contentId, product) {
          const $content = $(`#${contentId}`);
 
+         // Check if product has variants
+         if (product.hasVariants) {
+            const variants = getProductVariants(product.id);
+            if (variants.length > 0) {
+               loadProductWithVariants($content, product, variants);
+               return;
+            }
+         }
+
+         // Load based on product type
          if (product.type === 'complex') {
             loadComplexProductContent($content, product);
          } else if (product.type === 'curtains') {
@@ -5238,76 +5262,120 @@ include PATH . '/inc/footer.php';
             loadSimpleProductContent($content, product);
          }
 
-         // Add variants if the product has them
+         // Setup material tabs
          const roomId = $content.closest('.tab-pane').data('room');
-         addVariantsToProduct(product.id, roomId);
+         setupMaterialTabs(product.id);
 
-         // Setup pillow subcategories if the product has them (for non-variant products)
+         // Setup pillow subcategories if needed
          if (!productHasVariants(product.id)) {
             setupPillowSubcategoryTabs(product.id);
          }
       }
 
-      function loadComplexProductContent($content, product) {
-         const buttonText = `Add Item to ${product.name}`;
-
-         // Get room ID from the content container
+      function loadProductWithVariants($content, product, variants) {
          const roomId = $content.closest('.tab-pane').data('room');
 
+         // Create basic details section + variants tabs
+         const basicDetailsHTML = createBasicDetailsSection(product, roomId);
+         const variantsHTML = createVariantsTabs(product.id, variants, roomId);
+
          const $wrapper = $(`
-        <div class="product-details-wrapper">
-            <div class="complex-product-layout">
-                <div class="items-tabs-sidebar">
-                    <div class="items-tabs-header">
-                        <h6><i class="fa fa-list mr-2"></i>Items</h6>
-                        <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
-                            <i class="fa fa-plus mr-1"></i> ${buttonText}
-                        </button>
-                    </div>
-                    <div class="items-tabs-container">
-                        <div class="empty-items-tabs">
-                            <i class="fa fa-cube"></i>
-                            <p>No items added yet</p>
-                        </div>
-                    </div>
+    <div class="product-with-variants">
+        ${basicDetailsHTML}
+        <div class="product-variants-section">
+            ${variantsHTML}
+        </div>
+    </div>
+    `);
+
+         $content.html($wrapper);
+         setupVariantsTabs(product.id, roomId);
+      }
+
+      function createBasicDetailsSection(product, roomId) {
+         return `
+    <div class="basic-details-section">
+        <div class="compact-product-details">
+            <div class="compact-section-header">
+                <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+            </div>
+            <div class="compact-details-with-image">
+                <div class="compact-image-preview">
+                    <i class="fa fa-image"></i>
                 </div>
-                <div class="item-details-content">
-                    <div class="product-details-header">
-                        <div class="product-header-with-image">
-                            <div class="header-image-preview">
-                                <i class="fa ${product.icon}"></i>
-                            </div>
-                            <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
-                        </div>
-                        <div class="compact-header-details">
-                            <div class="compact-header-group">
-                                <label>Width (m)</label>
-                                <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Length/Height (m)</label>
-                                <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Unit Price ($)</label>
-                                <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Total Price ($)</label>
-                                <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                            </div>
-                        </div>
+                <div class="compact-details-fields">
+                    <div class="compact-detail-group">
+                        <label>Unit Price ($)</label>
+                        <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
                     </div>
-                    <!-- This is the main product-details-body that will contain item details -->
-                    <div class="product-details-body">
-                        <div class="empty-item-selection">
-                            <i class="fa fa-hand-pointer"></i>
-                            <p>Select an item to view and edit details</p>
-                        </div>
+                    <div class="compact-detail-group">
+                        <label>Total Price ($)</label>
+                        <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    `;
+      }
+
+      function loadComplexProductContent($content, product) {
+         const buttonText = `Add Item to ${product.name}`;
+         const roomId = $content.closest('.tab-pane').data('room');
+
+         const $wrapper = $(`
+    <div class="product-details-wrapper">
+        <div class="complex-product-layout">
+            <div class="items-tabs-sidebar">
+                <div class="items-tabs-header">
+                    <h6><i class="fa fa-list mr-2"></i>Items</h6>
+                    <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
+                        <i class="fa fa-plus mr-1"></i> ${buttonText}
+                    </button>
+                </div>
+                <div class="items-tabs-container">
+                    <div class="empty-items-tabs">
+                        <i class="fa fa-cube"></i>
+                        <p>No items added yet</p>
+                    </div>
+                </div>
+            </div>
+            <div class="item-details-content">
+                <div class="product-details-header">
+                    <div class="product-header-with-image">
+                        <div class="header-image-preview">
+                            <i class="fa ${product.icon}"></i>
+                        </div>
+                        <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
+                    </div>
+                    <div class="compact-header-details">
+                        <div class="compact-header-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Length/Height (m)</label>
+                            <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-details-body">
+                    <div class="empty-item-selection">
+                        <i class="fa fa-hand-pointer"></i>
+                        <p>Select an item to view and edit details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     `);
 
          $content.html($wrapper);
@@ -6471,7 +6539,7 @@ include PATH . '/inc/footer.php';
          });
 
          if (state.selectedQualification && state.currentRoom) {
-            const qualification = productOptions.find(q => q.id === state.selectedQualification);
+            const qualification = qualifications.find(q => q.id === state.selectedQualification);
             if (qualification) {
                const roomId = state.currentRoom;
 
@@ -6487,87 +6555,61 @@ include PATH . '/inc/footer.php';
 
       $(document).on('click', '.multi-select-option', function() {
          const productId = $(this).data('product-id');
-         console.log('Multi-select option clicked:', productId);
+         console.log('Product option clicked:', productId);
 
-         $(this).toggleClass('selected');
+         // Single selection
+         $('.multi-select-option').removeClass('selected');
+         $(this).addClass('selected');
 
-         if ($(this).hasClass('selected')) {
-            if (!state.selectedProducts.includes(productId)) {
-               state.selectedProducts.push(productId);
-            }
-         } else {
-            state.selectedProducts = state.selectedProducts.filter(id => id !== productId);
-         }
+         // Store single product ID
+         state.selectedProducts = [productId];
 
-         $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
+         $('#confirmMultiSelect').prop('disabled', false);
       });
 
       $('#confirmMultiSelect').on('click', function() {
-         console.log('Confirm multi-select clicked');
+         console.log('Confirm product selection clicked');
 
          const qualification = $('#multiSelectModal').data('qualification');
          const roomId = $('#multiSelectModal').data('roomId');
 
-         console.log('Data for multi-select addition:', {
+         console.log('Data for product addition:', {
             qualification: qualification,
             roomId: roomId,
             selectedProducts: state.selectedProducts
          });
 
          if (state.selectedProducts.length > 0 && roomId && qualification) {
-            let products = [];
+            const selectedProductId = state.selectedProducts[0];
 
-            if (qualification.id === 'fitout') {
-               products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
-            } else if (qualification.id === 'curtains') {
-               products = curtainProducts.filter(product => state.selectedProducts.includes(product.id));
+            // Find the selected product
+            const selectedProduct = products.find(product => product.id === selectedProductId);
+
+            console.log('Selected product to add:', selectedProduct);
+
+            if (selectedProduct) {
+               addProductTab(roomId, selectedProduct);
+               hideMultiSelectModal();
             } else {
-               products = [qualification];
+               console.error('Could not find selected product');
+               alert('Error: Could not find the selected product.');
             }
-
-            console.log('Adding products:', products);
-            products.forEach(product => {
-               addProductTab(roomId, product);
-            });
-            hideMultiSelectModal();
          } else {
-            console.error('Missing data for multi-select addition');
-            alert('Please select at least one product to continue.');
+            console.error('Missing data for product addition');
+            alert('Please select a product to continue.');
          }
-      });
-
-      $(document).on('click', '.item-option', function() {
-         console.log('Item option clicked:', $(this).data('item-id'));
-         $('.item-option').removeClass('selected');
-         $(this).addClass('selected');
-
-         const itemId = $(this).data('item-id');
-         const productData = itemData[state.currentProductType] || itemData.electrical;
-
-         state.selectedItem = null;
-         Object.keys(productData.categories).forEach(catKey => {
-            const category = productData.categories[catKey];
-            const item = category.items.find(i => i.id === itemId);
-            if (item) {
-               state.selectedItem = item;
-            }
-         });
-
-         $('#confirmSelectItem').prop('disabled', false);
       });
 
       $('#confirmSelectItem').on('click', function() {
          console.log('Confirm item selection clicked');
 
-         // FIX: Get context from modal data
          const roomId = $('#itemSelectionModal').data('current-room');
          const productId = $('#itemSelectionModal').data('current-product');
 
          console.log('Context from modal:', {
             roomId: roomId,
             productId: productId,
-            selectedItem: state.selectedItem,
-            currentProductType: state.currentProductType
+            selectedItem: state.selectedItem
          });
 
          if (state.selectedItem && roomId && productId) {
@@ -6580,26 +6622,28 @@ include PATH . '/inc/footer.php';
             addItemToProduct(roomId, productId, state.selectedItem);
             hideItemSelectionModal();
          } else {
-            console.error('Missing data for item selection:', {
-               hasItem: !!state.selectedItem,
-               hasRoomId: !!roomId,
-               hasProductId: !!productId
-            });
+            console.error('Missing data for item selection');
             alert('Error: Missing context information. Please try again.');
          }
       });
 
-      // ADDED: Accessory selection handlers
+      // Accessory selection handlers
       $(document).on('click', '.item-option', function() {
-         if ($(this).closest('#accessoryOptions').length) {
-            console.log('Accessory option clicked:', $(this).data('accessory-id'));
-            $('.item-option').removeClass('selected');
-            $(this).addClass('selected');
+         console.log('Item option clicked:', $(this).data('item-id'));
+         $('.item-option').removeClass('selected');
+         $(this).addClass('selected');
 
-            const accessoryId = $(this).data('accessory-id');
-            state.selectedAccessory = curtainAccessories.find(acc => acc.id === accessoryId);
+         const itemId = $(this).data('item-id');
 
-            $('#confirmSelectAccessory').prop('disabled', false);
+         // FIX: Use products array instead of itemData
+         state.selectedItem = products.find(item => item.id === itemId);
+
+         if (state.selectedItem) {
+            console.log('Selected item:', state.selectedItem);
+            $('#confirmSelectItem').prop('disabled', false);
+         } else {
+            console.error('Could not find selected item with ID:', itemId);
+            $('#confirmSelectItem').prop('disabled', true);
          }
       });
 
@@ -6635,21 +6679,19 @@ include PATH . '/inc/footer.php';
          $('.item-category-tab').removeClass('active');
          $(this).addClass('active');
 
-         const productData = itemData[state.currentProductType] || itemData.electrical;
-         loadItemCategory(categoryKey, productData.categories[categoryKey]);
+         const productId = $('#itemSelectionModal').data('current-product');
+         const categories = getItemCategories(productId);
+         loadItemCategory(categoryKey, categories[categoryKey]);
 
-         // ADDED: Clear search when switching categories
          $('#itemSearch').val('');
       });
 
       $(document).on('click', '.add-product-item-btn', function() {
          const productId = $(this).data('product');
 
-         // FIX: Multiple ways to get roomId to ensure we always have context
+         // Get room context
          let roomId = $(this).data('room');
-
          if (!roomId) {
-            // Try to get from the product content
             const $productContent = $(this).closest('.product-content');
             if ($productContent.length) {
                const contentId = $productContent.attr('id');
@@ -6658,18 +6700,9 @@ include PATH . '/inc/footer.php';
             }
          }
 
-         if (!roomId) {
-            // Try to get from the tab pane
-            const $tabPane = $(this).closest('.tab-pane');
-            if ($tabPane.length) {
-               roomId = $tabPane.data('room');
-            }
-         }
-
          console.log('Add product item button clicked - Context:', {
             productId: productId,
-            roomId: roomId,
-            button: $(this)
+            roomId: roomId
          });
 
          if (roomId && productId) {
@@ -6789,7 +6822,7 @@ include PATH . '/inc/footer.php';
       initializeQualificationModal();
       setupQualificationSearch();
       setupProductSearch();
-      setupItemSearch(); // ADDED: Initialize item search
+      setupItemSearch();
       setupImageUpload();
       addRoomToState(1);
       updateRoomStatus('room1');
@@ -6797,4 +6830,3 @@ include PATH . '/inc/footer.php';
       console.log('System initialized successfully with pillow subcategories horizontal tabs');
    });
 </script>
-
