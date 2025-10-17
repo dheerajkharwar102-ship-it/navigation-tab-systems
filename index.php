@@ -1,3 +1,42 @@
+<?php
+if (!defined('inc_admin_pages')) {
+   die;
+}
+
+define('inc_panel_header', true);
+include PATH . '/inc/header.php';
+
+$user = new User();
+$logged = $user->getLogged('user_id,user_auth,user_branch');
+$logged_auth = $logged->user_auth;
+$b = new Branch();
+$item = $b->getBranch($logged->user_branch);
+$cate = explode(",", $item->catalog_ids);
+
+$page_auth = ['admin', 'manager', 'user', 'sales', 'ordermngr', 'partner', 'graphic_and_media', 'encounter'];
+if (!in_array($logged_auth, $page_auth)) {
+   header("Location:" . URL);
+   die;
+}
+
+$customer = new Customer();
+$pa = new ProductAttribute();
+$p = new Product();
+
+$set = array();
+$get_settings = Settings::getAll();
+if (count($get_settings) > 0) {
+   foreach ($get_settings as $setting) {
+      $set[$setting->set_name] = $setting->set_value;
+   }
+}
+
+/* order ürün rowu için zorunlu define */
+define('inc_base_order_product_rowlayout', true);
+
+$togle_temp_count = 0;
+?>
+
 <style>
    .room-wrapper {
       background: white;
@@ -2073,6 +2112,32 @@
       .curtain-controls {
          grid-template-columns: 1fr;
       }
+
+      .product-variants-tabs,
+      .set-products-tabs {
+         flex-direction: column;
+         padding: 8px;
+      }
+
+      .product-variant-tab,
+      .set-product-tab {
+         margin-bottom: 4px;
+         border-radius: 4px;
+      }
+
+      .variant-management-buttons {
+         flex-direction: column;
+      }
+
+      .set-variant-header {
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 8px;
+      }
+
+      .variant-product-selection {
+         grid-template-columns: 1fr;
+      }
    }
 
    .items-tabs-container::-webkit-scrollbar {
@@ -2171,9 +2236,545 @@
       background: #c1c1c1;
       border-radius: 2px;
    }
+
+   .product-variants-tabs {
+      background: linear-gradient(135deg, #ff9a00, #ff6b6b);
+      padding: 8px 12px 0;
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      margin: 0;
+      flex-wrap: wrap;
+   }
+
+   .set-products-tabs {
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+      padding: 8px 12px 0;
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+      margin: 16px 0 0 0;
+      flex-wrap: wrap;
+      border-radius: 6px 6px 0 0;
+   }
+
+   .product-variant-tab {
+      border: none;
+      border-radius: 6px 6px 0 0;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      position: relative;
+      margin-right: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      white-space: nowrap;
+   }
+
+   .product-variant-tab:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      transform: translateY(-1px);
+   }
+
+   .product-variant-tab.active {
+      background: white;
+      color: #ff6b6b;
+      font-weight: 600;
+      box-shadow: 0 -4px 12px rgba(255, 107, 107, 0.2);
+   }
+
+   .set-product-tab {
+      border: none;
+      border-radius: 6px 6px 0 0;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      position: relative;
+      margin-right: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      white-space: nowrap;
+   }
+
+   .set-product-tab:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      transform: translateY(-1px);
+   }
+
+   .set-product-tab.active {
+      background: white;
+      color: #44a08d;
+      font-weight: 600;
+      box-shadow: 0 -4px 12px rgba(68, 160, 141, 0.2);
+   }
+
+   .set-product-content.active {
+      display: block;
+   }
+
+   /* Empty state for variants */
+   .empty-variants-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+   }
+
+   .product-variant-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+   }
+
+   .product-variant-title {
+      font-size: 0.85rem;
+   }
+
+   .product-variants-content {
+      padding: 16px;
+      background: white;
+      border-radius: 0 0 6px 6px;
+      border: 1px solid #e0e0e0;
+      border-top: none;
+      min-height: 400px;
+   }
+
+   .product-variant-content {
+      display: none;
+   }
+
+   .product-variant-content.active {
+      display: block;
+   }
+
+   /* Status indicators for variants */
+   .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+   }
+
+   .status-complete {
+      background: linear-gradient(135deg, #2a9d8f, #2ec4b6);
+   }
+
+   .status-incomplete {
+      background: linear-gradient(135deg, #ffb703, #ff9e00);
+   }
+
+   .status-empty {
+      background: linear-gradient(135deg, #adb5bd, #6c757d);
+   }
+
+   /* Variant management buttons */
+   .variant-management-buttons {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+   }
+
+   .add-variant-btn {
+      background: linear-gradient(135deg, #ff9a00, #ff6b6b);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+   }
+
+   .add-variant-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+   }
+
+   /* Set-specific styling */
+   .set-variant-content {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px;
+   }
+
+   .set-variant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e0e0e0;
+   }
+
+   .set-variant-name {
+      font-weight: 600;
+      color: #495057;
+      font-size: 1rem;
+   }
+
+   .remove-set-btn {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      transition: all 0.2s ease;
+   }
+
+   .remove-set-btn:hover {
+      background: #dc3545;
+      color: white;
+   }
+
+   /* Individual product in set styling */
+   .set-product-item {
+      background: white;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #e0e0e0;
+      position: relative;
+   }
+
+   .set-product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+   }
+
+   .set-product-name {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+   }
+
+   .remove-product-from-set-btn {
+      background: rgba(108, 117, 125, 0.1);
+      border: 1px solid #6c757d;
+      color: #6c757d;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      transition: all 0.2s ease;
+   }
+
+   .remove-product-from-set-btn:hover {
+      background: #6c757d;
+      color: white;
+   }
+
+   /* Empty state for variants */
+   .empty-variants-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+   }
+
+   .empty-variants-state i {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      color: #adb5bd;
+      opacity: 0.6;
+   }
+
+   .empty-variants-state p {
+      margin: 0 0 16px 0;
+      font-size: 0.85rem;
+   }
+
+   /* Add product to set section */
+   .add-product-to-set-section {
+      background: white;
+      border-radius: 6px;
+      padding: 16px;
+      border: 1px solid #e0e0e0;
+      margin-top: 16px;
+   }
+
+   .add-product-to-set-btn {
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+   }
+
+   .add-product-to-set-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+   }
+
+   /* Variant product selection */
+   .variant-product-selection {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+   }
+
+   .variant-product-option {
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      text-align: center;
+   }
+
+   .variant-product-option:hover {
+      border-color: #4361ee;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.15);
+   }
+
+   .variant-product-option.selected {
+      border-color: #4361ee;
+      background: linear-gradient(135deg, #4361ee08 0%, #3a0ca308 100%);
+      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+   }
+
+   .variant-product-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      color: white;
+      font-size: 1rem;
+   }
+
+   .variant-product-name {
+      font-weight: 500;
+      color: #495057;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+   }
+
+   .variant-product-description {
+      color: #6c757d;
+      font-size: 0.7rem;
+      line-height: 1.2;
+   }
 </style>
 
-<div class="room-wrapper">
+<!-- Start content -->
+<div class="content">
+   <div class="container-fluid">
+      <div class="page-title-box">
+         <div class="row align-items-center">
+            <div class="col-sm-6">
+               <h4 class="page-title"><?php echo get_lang_text('orderadd_page_title'); ?> New System </h4>
+            </div>
+            <div class="col-sm-6 text-right">
+               <a href="<?php echo URL; ?>/index.php?page=orders" class="btn btn-success">
+                  <?php echo get_lang_text('orderadd_btn_all_orders'); ?>
+               </a>
+            </div>
+         </div> <!-- end row -->
+      </div>
+      <!-- end page-title -->
+
+      <div class="row">
+         <div class="col-12">
+            <div class="card m-b-30">
+               <div class="card-body">
+                  <form id="add_order_form" enctype="multipart/form-data">
+                     <input type="hidden" name="add_order_with_new" value="1">
+                     <div class="row">
+                        <div class="order-page-col col-md-3 col-sm-6">
+                           <div class="form-group">
+                              <label for="lblOrderDate"><?php echo get_lang_text('orderadd_input_order_date'); ?> *</label>
+                              <input type="text" name="order_date" class="form-control make-datepicker required" id="lblOrderDate" placeholder="<?php echo get_lang_text('orderadd_input_order_date'); ?> *" value="<?php echo date('d.m.Y'); ?>">
+                           </div>
+                        </div>
+                        <div class="order-page-col col-md-3 col-sm-6">
+                           <div class="form-group">
+                              <label for="lblOrderDeliveryDate"><?php echo get_lang_text('orderadd_input_delivery_date'); ?> *</label>
+                              <input type="text" name="order_delivery_date" class="form-control make-datepicker order_delivery_date required" id="lblOrderDeliveryDate" placeholder="<?php echo get_lang_text('orderadd_input_delivery_date'); ?> *" value="<?php echo date('d.m.Y', strtotime($item->order_delivery_date)); ?>">
+                              <input type="hidden" name="dlv_date_modified" class="form-control" id="date_modified" value="0">
+                              <small class="text-danger date_modified-note d-none">User-modified date is not automatically calculated.</small>
+                           </div>
+                        </div>
+                        <div class="order-page-col col-md-3 col-sm-6">
+                           <div class="form-group">
+                              <label for="lblOrderArcs"><?php echo get_lang_text('orderadd_input_arcs'); ?> *</label>
+                              <input type="text" name="order_arcs" class="form-control required" placeholder="<?php echo get_lang_text('orderadd_input_arcs'); ?> *">
+                           </div>
+                        </div>
+                        <div class="order-page-col col-md-3 col-sm-6">
+                           <div class="form-group">
+                              <label for="lblOrderCustomer"><?php echo get_lang_text('orderadd_input_customer'); ?> *</label>
+                              <select name="customer_id" id="lblOrderCustomer" class="form-control make-it-select order-select-customer required">
+                                 <option value=""><?php echo get_lang_text('orderadd_input_customer_select'); ?></option>
+                                 <?php
+                                 $customers_where = [['customer_status', '=', '1']];
+                                 if ($logged->user_auth == 'user') {
+                                    $customers_where[] = ['customer_added_branch', '=', $logged->user_branch];
+                                 }
+                                 $customers = $customer->getCustomers('customer_id,customer_name,customer_comm_rate', ['customer_name', 'ASC'], $customers_where);
+                                 if (count($customers) > 0) {
+                                    foreach ($customers as $c) {
+                                 ?>
+                                       <option value="<?php echo $c->customer_id; ?>" data-comm-rate="<?php echo formatExcelPrice($c->customer_comm_rate, 0); ?>"><?php echo $c->customer_name; ?></option>
+                                 <?php
+                                    }
+                                 }
+                                 ?>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="order-page-col col-md-3 col-sm-6 full-w-s">
+                           <div class="form-group">
+                              <label for="lblOrderCustomerAddress"><?php echo get_lang_text('orderadd_input_delivery_address'); ?> *</label>
+                              <select name="customer_address_id" id="lblOrderCustomerAddress" class="form-control make-it-select order-select-customer-address required" disabled>
+                                 <option value=""><?php echo get_lang_text('orderadd_input_delivery_address_select'); ?></option>
+                              </select>
+                           </div>
+
+                           <div class="form-group order-show-country" style="display: none;">
+                              <label for="lblOrderAddress"><?php echo get_lang_text('orderadd_input_delivery_address_detail'); ?></label><br>
+                              <div class="address-detail">
+                                 <strong><?php echo get_lang_text('orderadd_input_delivery_address_detail_country'); ?></strong> : <span class="order-address-country"></span>
+                                 <strong><?php echo get_lang_text('orderadd_input_delivery_address_detail_address'); ?></strong> : <span class="order-address-text"></span><br>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="order-page-col col-md-3 col-sm-6 full-w-s">
+                           <div class="form-group">
+                              <label for="lblOrderExportRegistered"><?php echo get_lang_text('orderadd_input_export_register'); ?> *</label>
+                              <select name="order_export_registered" id="lblOrderExportRegistered" class="form-control required">
+                                 <option value="1"><?php echo get_lang_text('orderadd_input_export_register_yes'); ?></option>
+                                 <option value="0"><?php echo get_lang_text('orderadd_input_export_register_no'); ?></option>
+                              </select>
+                           </div>
+                        </div>
+
+                        <div class="order-page-col col-md-3 col-sm-3">
+                           <div class="form-group row">
+                              <label class="col-sm-12"><?php echo get_lang_text('orderadd_input_tax'); ?> *</label>
+                              <div class="col-sm-12">
+                                 <select name="order_tax" id="lblOrderTax" class="form-control make-it-select required">
+                                    <?php
+                                    for ($i = 0; $i <= 24; $i++) {
+                                    ?>
+                                       <option value="<?php echo $i; ?>"><?php echo $i; ?>%</option>
+                                    <?php
+                                    }
+                                    ?>
+                                 </select>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="order-page-col col-md-3 col-sm-3">
+                           <div class="form-group row">
+                              <label class="col-sm-12"><?php echo get_lang_text('orderadd_input_contracts'); ?> *</label>
+                              <div class="col-sm-12">
+                                 <select name="order_agreement" id="lblOrderAgreement" class="form-control make-it-select select-order-agreement required">
+                                    <option value=""><?php echo get_lang_text('orderadd_input_contracts_select'); ?></option>
+                                    <?php
+                                    $agr_where = [['agr_status', '=', '1']];
+                                    if ($logged_auth == 'user' || $logged_auth == 'partner') {
+                                       $agr_where[] = ['branch_id', '=', $logged->user_branch];
+                                    }
+                                    $agreement = new Agreement();
+                                    $agreements = $agreement->getAgreements('agr_id,agr_title', ['agr_title', 'ASC'], $agr_where);
+                                    if (count($agreements) > 0) {
+                                       foreach ($agreements as $agr) {
+                                    ?>
+                                          <option value="<?php echo $agr->agr_id; ?>"><?php echo $agr->agr_title; ?></option>
+                                    <?php
+                                       }
+                                    }
+                                    ?>
+                                 </select>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="order-page-col col-md-4 col-sm-6 full-w-s">
+                           <div class="form-group">
+                              <label for="lblOrderAgreement"><?php echo get_lang_text('orderadd_input_comm_amount'); ?></label>
+                              <div class="input-group">
+                                 <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">$</span>
+                                 </div>
+                                 <input type="text" name="order_comm_amount" class="form-control make-numeric order-comm-amount" placeholder="<?php echo get_lang_text('orderadd_input_comm_amount'); ?>" autocomplete="off">
+                              </div>
+                           </div>
+
+                           <div class="form-group">
+                              <label for="lblOrderAgreementText"><?php echo get_lang_text('orderadd_input_contract_text'); ?> *</label>
+                              <textarea name="order_agreement_text" id="lblOrderAgreementText" class="form-control order-agreement-text required" placeholder="<?php echo get_lang_text('orderadd_input_contract_text'); ?> *" disabled></textarea>
+                              <small><?php echo get_lang_text('orderadd_input_contract_text_desc'); ?></small>
+                           </div>
+                        </div>
+
+                        <div class="order-page-col col-md-4 col-sm-6 full-w-s">
+                           <div class="form-group">
+                              <label for="lblOrderTax"><?php echo get_lang_text('orderadd_input_comm_rate'); ?></label>
+                              <div class="input-group">
+                                 <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">%</span>
+                                 </div>
+                                 <input type="text" name="order_comm_rate" class="form-control make-numeric order-comm-rate" placeholder="<?php echo get_lang_text('orderadd_input_comm_rate'); ?>" autocomplete="off">
+                              </div>
+                           </div>
+
+                           <div class="form-group">
+                              <label for="lblOrderNotes"><?php echo get_lang_text('orderadd_input_order_notes'); ?></label>
+                              <textarea name="order_notes" id="lblOrderNotes" class="form-control" rows="5" placeholder="<?php echo get_lang_text('orderadd_input_order_notes'); ?>"></textarea>
+                              <small><?php echo get_lang_text('orderadd_input_order_notes_desc'); ?></small>
+                           </div>
+
+                           <div class="form-group show-extra-agreement-row row" style="display: none;">
+                              <label for="lblOrderCustomerArc" class="col-sm-12"><?php echo get_lang_text('orderadd_input_contract_extra'); ?></label>
+                              <div class="col-sm-6">
+                                 <textarea name="order_extra_agreement_tr" class="form-control order-agreement-extra-tr" rows="8" placeholder="<?php echo get_lang_text('orderadd_input_contract_extra'); ?> (TR)" disabled></textarea>
+                              </div>
+                              <div class="col-sm-6">
+                                 <textarea name="order_extra_agreement_en" class="form-control order-agreement-extra-en" rows="8" placeholder="<?php echo get_lang_text('orderadd_input_contract_extra'); ?> (EN)" disabled></textarea>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="order-page-col col-md-4 col-sm-6 full-w-s">
+                           <div class="form-group">
+                              <label for="lblOrderCustomerArc"><?php echo get_lang_text('orderadd_input_customer_has_arc'); ?></label>
+                              <select name="order_extra_agreement" id="lblOrderCustomerArc" class="form-control order-agreement-special-arc" disabled>
+                                 <option value="0"><?php echo get_lang_text('orderadd_input_customer_has_arc_no'); ?></option>
+                                 <option value="1"><?php echo get_lang_text('orderadd_input_customer_has_arc_yes'); ?></option>
+                              </select>
+                              <small><?php echo get_lang_text('orderadd_input_customer_has_arc_desc'); ?></small>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="room-wrapper">
                         <ul class="nav nav-tabs" id="roomTabs" role="tablist">
                            <li class="nav-item">
                               <a class="nav-link active room-tab" id="room1-tab" data-toggle="tab" href="#room1" role="tab"
@@ -2323,8 +2924,48 @@
                         </div>
                      </div>
 
-                     <script>
+                     <div class="form-group text-right">
+                        <!-- Refresh Button (hidden initially) -->
+                        <button
+                           type="button"
+                           id="refreshBtn"
+                           class="btn btn-primary waves-effect waves-light btn-sb-form"
+                           style="display: none;"
+                           onclick="location.reload();">
+                           Refresh
+                        </button>
+                        <button type="submit" class="btn btn-success waves-effect waves-light btn-sb-form" onclick="post_file_form('add_order_form','dont_refresh'); showRefreshBtn();">
+                           <?php echo get_lang_text('orderadd_btn_finish_order'); ?>
+                        </button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<?php
+define('inc_panel_footer', true);
+include PATH . '/inc/footer.php';
+?>
+<script>
+   function showRefreshBtn() {
+      // Delay showing the Refresh button to allow post_file_form to finish
+      setTimeout(function() {
+         document.getElementById('refreshBtn').style.display = 'inline-block';
+      }, 1500); // Adjust time as needed (in ms)
+   }
+   document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.querySelector('.button-menu-mobile.open-left.waves-effect');
+      if (btn) btn.click();
+   });
+</script>
+
+<script>
    jQuery(function($) {
+      // State management
       // State management
       const state = {
          rooms: [],
@@ -2339,7 +2980,423 @@
          currentProductId: null
       };
 
-      // Updated material categories data with pillow subcategories
+      // Qualifications Data
+      const qualifications = [{
+            id: 1,
+            name: 'Fitout',
+            description: 'Interior construction, walls, ceilings, and flooring',
+            icon: 'fa-paint-roller',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
+         },
+         {
+            id: 2,
+            name: 'Curtains',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 3,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)'
+         },
+         {
+            id: 4,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)'
+         },
+         {
+            id: 5,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 6,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
+         }
+      ];
+
+      // Products Data with parent_id for variants and items
+      const products = [
+         // Fitout Products (parent_id: null)
+         {
+            id: 101,
+            name: 'Wall',
+            description: 'Wall construction and finishing',
+            icon: 'fa-wall',
+            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Wall Items (children with parent_id: 101)
+         {
+            id: 111,
+            name: 'Drywall',
+            description: 'Standard drywall panels',
+            icon: 'fa-layer-group',
+            color: '#ff6b6b',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'construction'
+         },
+         {
+            id: 112,
+            name: 'Wall Studs',
+            description: 'Metal or wood studs',
+            icon: 'fa-grip-lines',
+            color: '#ee5a52',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'construction'
+         },
+         {
+            id: 113,
+            name: 'Wall Paint',
+            description: 'Interior wall paint',
+            icon: 'fa-paint-roller',
+            color: '#4361ee',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'finishing'
+         },
+         {
+            id: 114,
+            name: 'Wallpaper',
+            description: 'Wall covering material',
+            icon: 'fa-scroll',
+            color: '#3a0ca3',
+            type: 'item',
+            parent_id: 101,
+            qualification_id: 1,
+            category: 'finishing'
+         },
+
+         {
+            id: 102,
+            name: 'Ceiling',
+            description: 'Ceiling systems and fixtures',
+            icon: 'fa-border-all',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Ceiling Items (children with parent_id: 102)
+         {
+            id: 121,
+            name: 'Ceiling Tiles',
+            description: 'Acoustic ceiling tiles',
+            icon: 'fa-border-all',
+            color: '#4ecdc4',
+            type: 'item',
+            parent_id: 102,
+            qualification_id: 1,
+            category: 'materials'
+         },
+         {
+            id: 122,
+            name: 'Gypsum Board',
+            description: 'Ceiling gypsum boards',
+            icon: 'fa-square',
+            color: '#44a08d',
+            type: 'item',
+            parent_id: 102,
+            qualification_id: 1,
+            category: 'materials'
+         },
+
+         {
+            id: 103,
+            name: 'Ground',
+            description: 'Flooring and ground works',
+            icon: 'fa-square',
+            color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
+            type: 'complex',
+            parent_id: null,
+            qualification_id: 1
+         },
+         // Ground Items (children with parent_id: 103)
+         {
+            id: 131,
+            name: 'Floor Tiles',
+            description: 'Ceramic or porcelain tiles',
+            icon: 'fa-th-large',
+            color: '#45b7d1',
+            type: 'item',
+            parent_id: 103,
+            qualification_id: 1,
+            category: 'flooring'
+         },
+         {
+            id: 132,
+            name: 'Hardwood',
+            description: 'Hardwood flooring',
+            icon: 'fa-tree',
+            color: '#8b4513',
+            type: 'item',
+            parent_id: 103,
+            qualification_id: 1,
+            category: 'flooring'
+         },
+
+         // Curtain Products (parent_id: null)
+         {
+            id: 201,
+            name: 'Blinds',
+            description: 'Window blinds and shades',
+            icon: 'fa-grip-lines',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 202,
+            name: 'Chiffon',
+            description: 'Sheer chiffon curtains',
+            icon: 'fa-scroll',
+            color: 'linear-gradient(135deg, #f72585, #b5179e)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 203,
+            name: 'Main Curtains',
+            description: 'Primary curtain panels',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 204,
+            name: 'Main Curtains with Blinds',
+            description: 'Curtains with integrated blinds',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #4cc9f0, #4895ef)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 205,
+            name: 'Main Curtains with Chiffon',
+            description: 'Curtains with chiffon overlay',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #f72585, #7209b7)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+         {
+            id: 206,
+            name: 'Main Curtains With Blind and Chiffon',
+            description: 'Complete window treatment system',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
+            type: 'curtains',
+            parent_id: null,
+            qualification_id: 2
+         },
+
+         // Beds (parent product)
+         {
+            id: 301,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size',
+            parent_id: null,
+            qualification_id: 3
+         },
+         // Bed Variants (children with parent_id)
+         {
+            id: 302,
+            name: 'Single Bed',
+            description: 'Single Bed 90x190cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 299.00
+         },
+         {
+            id: 303,
+            name: 'Double Bed',
+            description: 'Double Bed 140x190cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 399.00
+         },
+         {
+            id: 304,
+            name: 'Queen Bed',
+            description: 'Queen Bed 160x200cm',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            parent_id: 301,
+            qualification_id: 3,
+            basePrice: 499.00
+         },
+
+         // Dining Sets (parent product)
+         {
+            id: 401,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 4
+         },
+         // Dining Set Variants (children with parent_id)
+         {
+            id: 402,
+            name: 'Basic Dining Set',
+            description: 'Basic 6-seater dining set',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 899.00
+         },
+         {
+            id: 403,
+            name: 'Premium Dining Set',
+            description: 'Premium 8-seater dining set',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 1499.00
+         },
+         {
+            id: 404,
+            name: 'Luxury Dining Set',
+            description: 'Luxury dining set with extras',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            parent_id: 401,
+            qualification_id: 4,
+            basePrice: 2299.00
+         },
+
+         // Sofa Sets (parent product)
+         {
+            id: 501,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 5
+         },
+         // Sofa Set Variants (children with parent_id)
+         {
+            id: 502,
+            name: '3-Piece Sofa Set',
+            description: '3-piece sofa set',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            parent_id: 501,
+            qualification_id: 5,
+            basePrice: 1299.00
+         },
+         {
+            id: 503,
+            name: '4-Piece Sofa Set',
+            description: '4-piece sofa set with coffee table',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            parent_id: 501,
+            qualification_id: 5,
+            basePrice: 1899.00
+         },
+
+         // Wardrobes (parent product)
+         {
+            id: 601,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size',
+            parent_id: null,
+            qualification_id: 6
+         },
+         // Wardrobe Variants (children with parent_id)
+         {
+            id: 602,
+            name: 'Small Wardrobe',
+            description: 'Small Wardrobe 120x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 399.00
+         },
+         {
+            id: 603,
+            name: 'Medium Wardrobe',
+            description: 'Medium Wardrobe 180x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 599.00
+         },
+         {
+            id: 604,
+            name: 'Large Wardrobe',
+            description: 'Large Wardrobe 240x200cm',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            parent_id: 601,
+            qualification_id: 6,
+            basePrice: 799.00
+         }
+      ];
+
+      // Material Categories Data
       const materialCategories = [{
             id: 'metal',
             name: 'Metal',
@@ -2535,48 +3592,1125 @@
          }
       ];
 
-      // Product data - ADDED CURTAINS QUALIFICATION
-      const productOptions = [{
-            id: 'fitout',
-            name: 'Fitout',
-            description: 'Interior construction, walls, ceilings, and flooring',
-            icon: 'fa-paint-roller',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
-            type: 'complex'
-         },
-         {
-            id: 'curtains',
-            name: 'Curtains',
-            description: 'Window treatments, blinds, and curtain systems',
-            icon: 'fa-window-restore',
+      // Curtain accessory options
+      const curtainAccessories = [{
+            id: 'side-holder',
+            name: 'Side Holder',
+            description: 'Curtain side holders and accessories',
+            icon: 'fa-grip-lines-vertical',
             color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            type: 'curtains'
+            options: [{
+                  id: 'holder1',
+                  name: 'Classic Side Holder',
+                  description: 'Traditional side holder design',
+                  image: 'holder1.jpg'
+               },
+               {
+                  id: 'holder2',
+                  name: 'Modern Side Holder',
+                  description: 'Contemporary side holder design',
+                  image: 'holder2.jpg'
+               },
+               {
+                  id: 'holder3',
+                  name: 'Decorative Side Holder',
+                  description: 'Ornamental side holder design',
+                  image: 'holder3.jpg'
+               }
+            ]
          },
          {
-            id: 'electrical',
-            name: 'Electrical Works',
-            description: 'Wiring, lighting, switches, and electrical systems',
-            icon: 'fa-bolt',
-            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
-            type: 'simple'
-         },
-         {
-            id: 'plumbing',
-            name: 'Plumbing Systems',
-            description: 'Pipes, fixtures, drainage, and water systems',
-            icon: 'fa-faucet',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-            type: 'simple'
-         },
-         {
-            id: 'painting',
-            name: 'Painting & Finishing',
-            description: 'Paints, coatings, and surface finishing materials',
-            icon: 'fa-brush',
-            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
-            type: 'simple'
+            id: 'black-out',
+            name: 'Black Out',
+            description: 'Black out lining and accessories',
+            icon: 'fa-moon',
+            color: 'linear-gradient(135deg, #2b2d42, #1d1e2c)',
+            options: [{
+                  id: 'blackout1',
+                  name: 'Standard Black Out',
+                  description: 'Basic black out lining',
+                  image: 'blackout1.jpg'
+               },
+               {
+                  id: 'blackout2',
+                  name: 'Thermal Black Out',
+                  description: 'Insulated black out lining',
+                  image: 'blackout2.jpg'
+               },
+               {
+                  id: 'blackout3',
+                  name: 'Premium Black Out',
+                  description: 'Luxury black out lining',
+                  image: 'blackout3.jpg'
+               }
+            ]
          }
       ];
+
+      // Helper functions to get products by qualification
+      function getProductsByQualification(qualificationId) {
+         return products.filter(product =>
+            product.qualification_id === qualificationId && product.parent_id === null
+         );
+      }
+
+      function getProductVariants(parentProductId) {
+         return products.filter(product => product.parent_id === parentProductId && product.type !== 'item');
+      }
+
+      function getProductItems(parentProductId) {
+         return products.filter(product => product.parent_id === parentProductId && product.type === 'item');
+      }
+
+      function getItemCategories(parentProductId) {
+         const items = getProductItems(parentProductId);
+         const categories = {};
+
+         items.forEach(item => {
+            if (!categories[item.category]) {
+               categories[item.category] = {
+                  name: item.category.charAt(0).toUpperCase() + item.category.slice(1),
+                  items: []
+               };
+            }
+            categories[item.category].items.push(item);
+         });
+
+         return categories;
+      }
+
+      // Function to check if a product has variants
+      function productHasVariants(productId) {
+         const product = products.find(p => p.id === productId);
+         return product ? product.hasVariants : false;
+      }
+
+      function productHasItems(productId) {
+         return getProductItems(productId).length > 0;
+      }
+
+      // Function to get product variant type
+      function getProductVariantType(productId) {
+         const product = products.find(p => p.id === productId);
+         return product ? product.variantType : null;
+      }
+
+      // Function to get variants for a product
+      function getVariants(productId) {
+         return getProductVariants(productId);
+      }
+
+      // Function to create variants tabs for a product
+      function createVariantsTabs(productId, variants, roomId) {
+         return `
+        <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
+            <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
+                ${variants.map((variant, index) => `
+                    <button class="product-variant-tab ${index === 0 ? 'active' : ''}" 
+                            data-variant="${variant.id}" data-product="${productId}" data-room="${roomId}">
+                        <div class="product-variant-header">
+                            <span class="status-indicator status-empty"></span>
+                            <span class="product-variant-title">${variant.name}</span>
+                        </div>
+                    </button>
+                `).join('')}
+            </div>
+            <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
+                ${variants.map((variant, index) => `
+                    <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
+                         id="variant-${productId}-${variant.id}-room${roomId}">
+                        ${createVariantContent(productId, variant, roomId)}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        `;
+      }
+
+      // Function to create standard material content (non-pillow categories)
+      function createStandardMaterialContent(productId, variant, category, roomId) {
+         return `
+        <div class="material-inputs-compact">
+            <div class="material-compact-image">
+                <i class="fa fa-image"></i>
+            </div>
+            <div class="material-compact-fields">
+                <div class="material-input">
+                    <label>Material Grade</label>
+                    <select class="form-control material-grade" 
+                            data-variant="${variant.id}" data-category="${category.id}">
+                        <option value="">Select Grade</option>
+                        <option value="standard">Standard</option>
+                        <option value="premium">Premium</option>
+                        <option value="economy">Economy</option>
+                    </select>
+                </div>
+                <div class="material-input">
+                    <label>Material Type</label>
+                    <select class="form-control material-type-select" 
+                            data-variant="${variant.id}" data-category="${category.id}">
+                        <option value="">Select Material</option>
+                        ${category.defaultMaterials.map(material => `
+                            <option value="${material.id}">${material.name}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div class="material-input">
+                    <label>Area/Weight</label>
+                    <input type="text" class="form-control area-weight" 
+                           placeholder="Enter area or weight"
+                           data-variant="${variant.id}" data-category="${category.id}">
+                </div>
+            </div>
+        </div>
+    `;
+      }
+      // Function to create content for variants (both size and set)
+      function createVariantContent(productId, variant, roomId) {
+         return `
+        <div class="variant-details">
+            <div class="compact-product-details">
+                <div class="compact-section-header">
+                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
+                </div>
+                <div class="compact-details-with-image">
+                    <div class="compact-image-preview">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="compact-details-fields">
+                        <div class="compact-detail-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" 
+                                   placeholder="0.00" step="0.01" min="0" 
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Length (m)</label>
+                            <input type="number" class="form-control dimension-length" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Height (m)</label>
+                            <input type="number" class="form-control dimension-height" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" 
+                                   value="${variant.basePrice.toFixed(2)}" step="0.01" min="0" readonly
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" 
+                                   placeholder="0.00" step="0.01" min="0" readonly
+                                   data-variant="${variant.id}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Material Section for Variant - Pillow subcategories will be shown only when Pillow tab is active -->
+            <div class="material-section">
+                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map(category => `
+                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                                data-category="${category.id}">
+                            ${category.name}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map((category, index) => `
+                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                            ${category.id === 'pillow' ? 
+                                createPillowSubcategoriesForVariant(productId, variant, roomId) : 
+                                createStandardMaterialContent(productId, variant, category, roomId)
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+      }
+
+      // Function to create pillow subcategories for variant
+      function createPillowSubcategoriesForVariant(productId, variant, roomId) {
+         const pillowCategory = materialCategories.find(cat => cat.id === 'pillow');
+         if (!pillowCategory) return '';
+
+         return `
+        <div class="pillow-subcategories-section">
+            <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}-${variant.id}-room${roomId}">
+                ${pillowCategory.subcategories.map((subcat, index) => `
+                    <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
+                            data-subcategory="${subcat.id}" data-product="${productId}" data-variant="${variant.id}">
+                        <div class="pillow-subcategory-header">
+                            <span class="status-indicator status-empty"></span>
+                            <span class="pillow-subcategory-title">${subcat.name}</span>
+                        </div>
+                    </button>
+                `).join('')}
+            </div>
+            <div class="pillow-subcategories-content" id="pillowContent-${productId}-${variant.id}-room${roomId}">
+                ${pillowCategory.subcategories.map((subcat, index) => `
+                    <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
+                         id="pillowSubcategory-${productId}-${variant.id}-room${roomId}-${subcat.id}">
+                        <div class="pillow-subcategory-details">
+                            <div class="pillow-material-inputs-compact">
+                                <div class="pillow-material-compact-image">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <div class="pillow-material-compact-fields">
+                                    <div class="pillow-material-input">
+                                        <label>Material Grade</label>
+                                        <select class="form-control material-grade" 
+                                                data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                            <option value="">Select Grade</option>
+                                            <option value="standard">Standard</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="economy">Economy</option>
+                                        </select>
+                                    </div>
+                                    <div class="pillow-material-input">
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
+                                                data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                            <option value="">Select Material</option>
+                                            ${pillowCategory.defaultMaterials.map(material => `
+                                                <option value="${material.id}">${material.name}</option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="pillow-material-input">
+                                        <label>Area/Weight</label>
+                                        <input type="text" class="form-control area-weight" 
+                                               placeholder="Enter area or weight"
+                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                    </div>
+                                    <div class="pillow-material-input">
+                                        <label>Quantity</label>
+                                        <input type="number" class="form-control pillow-qty" 
+                                               placeholder="0" min="1" value="1"
+                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                    </div>
+                                    <div class="pillow-material-input">
+                                        <label>Unit Price ($)</label>
+                                        <input type="number" class="form-control pillow-unit-price" 
+                                               placeholder="0.00" step="0.01" min="0"
+                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                    </div>
+                                    <div class="pillow-material-input">
+                                        <label>Total Price ($)</label>
+                                        <input type="number" class="form-control pillow-total-price" 
+                                               placeholder="0.00" step="0.01" min="0" readonly
+                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
+                                <label>Additional Notes</label>
+                                <textarea class="form-control pillow-notes" 
+                                          placeholder="Enter additional notes for ${subcat.name}..." 
+                                          rows="2" data-subcategory="${subcat.id}" data-variant="${variant.id}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+      }
+
+      // Function to create content for size variants
+      function createSizeVariantContent(productId, variant, roomId) {
+         return `
+        <div class="variant-details">
+            <div class="compact-product-details">
+                <div class="compact-section-header">
+                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
+                </div>
+                <div class="compact-details-with-image">
+                    <div class="compact-image-preview">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="compact-details-fields">
+                        <div class="compact-detail-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" 
+                                   placeholder="0.00" step="0.01" min="0" 
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Length (m)</label>
+                            <input type="number" class="form-control dimension-length" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Height (m)</label>
+                            <input type="number" class="form-control dimension-height" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" 
+                                   placeholder="0.00" step="0.01" min="0" readonly
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" 
+                                   placeholder="0.00" step="0.01" min="0" readonly
+                                   data-variant="${variant.id}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Material Section for Size Variant -->
+            <div class="material-section">
+                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map(category => `
+                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                                data-category="${category.id}">
+                            ${category.name}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map((category, index) => `
+                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                            <div class="material-inputs-compact">
+                                <div class="material-compact-image">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <div class="material-compact-fields">
+                                    <div class="material-input">
+                                        <label>Material Grade</label>
+                                        <select class="form-control material-grade" 
+                                                data-variant="${variant.id}">
+                                            <option value="">Select Grade</option>
+                                            <option value="standard">Standard</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="economy">Economy</option>
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
+                                                data-variant="${variant.id}">
+                                            <option value="">Select Material</option>
+                                            ${category.defaultMaterials.map(material => `
+                                                <option value="${material.id}">${material.name}</option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Area/Weight</label>
+                                        <input type="text" class="form-control area-weight" 
+                                               placeholder="Enter area or weight"
+                                               data-variant="${variant.id}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+      }
+
+      // Function to create content for individual variants (size variants)
+      function createIndividualVariantContent(productId, variant, roomId) {
+         return `
+        <div class="variant-details">
+            <div class="compact-product-details">
+                <div class="compact-section-header">
+                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} Details</h6>
+                    <button type="button" class="btn btn-sm remove-variant-btn"
+                            data-product="${productId}" data-variant="${variant.id}" data-room="${roomId}">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="compact-details-with-image">
+                    <div class="compact-image-preview">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="compact-details-fields">
+                        <div class="compact-detail-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" 
+                                   placeholder="0.00" step="0.01" min="0" 
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Length (m)</label>
+                            <input type="number" class="form-control dimension-length" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Height (m)</label>
+                            <input type="number" class="form-control dimension-height" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Description</label>
+                            <input type="text" class="form-control variant-description" 
+                                   value="${variant.description}" 
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-variant="${variant.id}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" 
+                                   placeholder="0.00" step="0.01" min="0" readonly
+                                   data-variant="${variant.id}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Material Section for Individual Variant -->
+            <div class="material-section">
+                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map(category => `
+                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                                data-category="${category.id}">
+                            ${category.name}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+                    ${materialCategories.map((category, index) => `
+                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                            <div class="material-inputs-compact">
+                                <div class="material-compact-image">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <div class="material-compact-fields">
+                                    <div class="material-input">
+                                        <label>Material Grade</label>
+                                        <select class="form-control material-grade" 
+                                                data-variant="${variant.id}">
+                                            <option value="">Select Grade</option>
+                                            <option value="standard">Standard</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="economy">Economy</option>
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
+                                                data-variant="${variant.id}">
+                                            <option value="">Select Material</option>
+                                            ${category.defaultMaterials.map(material => `
+                                                <option value="${material.id}">${material.name}</option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Area/Weight</label>
+                                        <input type="text" class="form-control area-weight" 
+                                               placeholder="Enter area or weight"
+                                               data-variant="${variant.id}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+      }
+
+      // Function to create content for set variants
+      function createSetVariantContent(productId, variant, roomId) {
+         return `
+        <div class="set-variant-content">
+            <div class="set-variant-header">
+                <div class="set-variant-name">${variant.name} - ${variant.description}</div>
+            </div>
+            
+            <!-- Set Products Tabs -->
+            <div class="set-products-tabs" id="set-products-tabs-${productId}-${variant.id}-room${roomId}">
+                ${variant.products.map((product, index) => `
+                    <button class="set-product-tab ${index === 0 ? 'active' : ''}" 
+                            data-product="${product.id}" data-variant="${variant.id}" data-set="${productId}">
+                        <div class="product-variant-header">
+                            <span class="status-indicator status-empty"></span>
+                            <span class="product-variant-title">${product.name}</span>
+                        </div>
+                    </button>
+                `).join('')}
+            </div>
+            
+            <!-- Set Products Content -->
+            <div class="set-products-content" id="set-products-content-${productId}-${variant.id}-room${roomId}">
+                ${variant.products.map((product, index) => `
+                    <div class="set-product-content ${index === 0 ? 'active' : ''}" 
+                         id="set-product-${productId}-${variant.id}-${product.id}-room${roomId}">
+                        ${createSetProductContent(productId, variant.id, product, roomId)}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+      }
+      // Function to create individual product content within a set
+      function createSetProductContent(productId, variantId, product, roomId) {
+         const quantityField = product.quantity ? `
+        <div class="compact-detail-group">
+            <label>Quantity</label>
+            <input type="number" class="form-control product-quantity" 
+                   value="${product.quantity}" min="1" readonly
+                   data-product="${product.id}" data-variant="${variantId}">
+        </div>
+    ` : '';
+
+         return `
+        <div class="set-product-item">
+            <div class="compact-product-details">
+                <div class="compact-section-header">
+                    <h6><i class="fa fa-cube mr-2"></i>${product.name}</h6>
+                </div>
+                <div class="compact-details-with-image">
+                    <div class="compact-image-preview">
+                        <i class="fa fa-image"></i>
+                    </div>
+                    <div class="compact-details-fields">
+                        <div class="compact-detail-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" 
+                                   placeholder="0.00" step="0.01" min="0" 
+                                   data-product="${product.id}" data-variant="${variantId}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Length (m)</label>
+                            <input type="number" class="form-control dimension-length" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-product="${product.id}" data-variant="${variantId}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Height (m)</label>
+                            <input type="number" class="form-control dimension-height" 
+                                   placeholder="0.00" step="0.01" min="0"
+                                   data-product="${product.id}" data-variant="${variantId}">
+                        </div>
+                        ${quantityField}
+                        <div class="compact-detail-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" 
+                                   value="${product.basePrice.toFixed(2)}" step="0.01" min="0" readonly
+                                   data-product="${product.id}" data-variant="${variantId}">
+                        </div>
+                        <div class="compact-detail-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" 
+                                   placeholder="0.00" step="0.01" min="0" readonly
+                                   data-product="${product.id}" data-variant="${variantId}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Material Section for Individual Product in Set -->
+            <div class="material-section">
+                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${product.name}</h6>
+                <div class="material-tabs" id="materialTabs-${productId}-${variantId}-${product.id}-room${roomId}">
+                    ${materialCategories.map(category => `
+                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                                data-category="${category.id}">
+                            ${category.name}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variantId}-${product.id}-room${roomId}">
+                    ${materialCategories.map((category, index) => `
+                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                             id="materialContent-${productId}-${variantId}-${product.id}-room${roomId}-${category.id}">
+                            <div class="material-inputs-compact">
+                                <div class="material-compact-image">
+                                    <i class="fa fa-image"></i>
+                                </div>
+                                <div class="material-compact-fields">
+                                    <div class="material-input">
+                                        <label>Material Grade</label>
+                                        <select class="form-control material-grade" 
+                                                data-product="${product.id}" data-variant="${variantId}">
+                                            <option value="">Select Grade</option>
+                                            <option value="standard">Standard</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="economy">Economy</option>
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
+                                                data-product="${product.id}" data-variant="${variantId}">
+                                            <option value="">Select Material</option>
+                                            ${category.defaultMaterials.map(material => `
+                                                <option value="${material.id}">${material.name}</option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="material-input">
+                                        <label>Area/Weight</label>
+                                        <input type="text" class="form-control area-weight" 
+                                               placeholder="Enter area or weight"
+                                               data-product="${product.id}" data-variant="${variantId}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+      }
+
+      // Function to setup variants tabs functionality
+      function setupVariantsTabs(productId, roomId) {
+         const $variantsTabs = $(`#variants-tabs-${productId}-room${roomId}`);
+         const $variantsContent = $(`#variants-content-${productId}-room${roomId}`);
+
+         if (!$variantsTabs.length) return;
+
+         // Main variant tabs click handler
+         $variantsTabs.find('.product-variant-tab').on('click', function(e) {
+            e.preventDefault();
+            const variantId = $(this).data('variant');
+
+            // Deactivate all tabs and content
+            $variantsTabs.find('.product-variant-tab').removeClass('active');
+            $variantsContent.find('.product-variant-content').removeClass('active');
+
+            // Activate current tab and content
+            $(this).addClass('active');
+            $(`#variant-${productId}-${variantId}-room${roomId}`).addClass('active');
+
+            updateVariantStatus(productId, roomId, variantId);
+         });
+
+         // Setup calculations for variants
+         setupVariantCalculations(productId, roomId);
+
+         // Setup material tabs for variants
+         setupVariantMaterialTabs(productId, roomId);
+
+         // Setup pillow subcategory tabs for variants
+         setupVariantPillowSubcategoryTabs(productId, roomId);
+
+         // Activate the first tab by default
+         const $firstTab = $variantsTabs.find('.product-variant-tab').first();
+         if ($firstTab.length) {
+            $firstTab.trigger('click');
+         }
+      }
+
+      // Function to setup variant pillow subcategory tabs
+      function setupVariantPillowSubcategoryTabs(productId, roomId) {
+         const variants = getVariants(productId);
+
+         variants.forEach(variant => {
+            const pillowTabsId = `pillowTabs-${productId}-${variant.id}-room${roomId}`;
+            const $pillowTabs = $(`#${pillowTabsId}`);
+            const $pillowContent = $(`#pillowContent-${productId}-${variant.id}-room${roomId}`);
+
+            if (!$pillowTabs.length) return;
+
+            // Tab click handler
+            $pillowTabs.find('.pillow-subcategory-tab').on('click', function(e) {
+               e.preventDefault();
+               const subcategoryId = $(this).data('subcategory');
+
+               // Deactivate all tabs and content
+               $pillowTabs.find('.pillow-subcategory-tab').removeClass('active');
+               $pillowContent.find('.pillow-subcategory-content').removeClass('active');
+
+               // Activate current tab and content
+               $(this).addClass('active');
+               $(`#pillowSubcategory-${productId}-${variant.id}-room${roomId}-${subcategoryId}`).addClass('active');
+
+               updatePillowSubcategoryStatus(productId, variant.id, subcategoryId, roomId);
+            });
+
+            // Setup price calculations for pillow subcategories
+            $(`#pillowContent-${productId}-${variant.id}-room${roomId} .pillow-qty, #pillowContent-${productId}-${variant.id}-room${roomId} .pillow-unit-price`).on('input', function() {
+               const subcategoryId = $(this).data('subcategory');
+               updatePillowSubcategoryStatus(productId, variant.id, subcategoryId, roomId);
+            });
+
+            // Activate the first tab by default
+            const $firstTab = $pillowTabs.find('.pillow-subcategory-tab').first();
+            if ($firstTab.length) {
+               $firstTab.trigger('click');
+            }
+         });
+      }
+
+      // Function to setup set product tabs
+      function setupSetProductTabs(productId, roomId) {
+         const variants = getVariants(productId);
+
+         variants.forEach(variant => {
+            if (variant.products) {
+               const $setTabs = $(`#set-products-tabs-${productId}-${variant.id}-room${roomId}`);
+               const $setContent = $(`#set-products-content-${productId}-${variant.id}-room${roomId}`);
+
+               if ($setTabs.length) {
+                  $setTabs.find('.set-product-tab').on('click', function(e) {
+                     e.preventDefault();
+                     const productIdAttr = $(this).data('product');
+
+                     // Deactivate all tabs and content
+                     $setTabs.find('.set-product-tab').removeClass('active');
+                     $setContent.find('.set-product-content').removeClass('active');
+
+                     // Activate current tab and content
+                     $(this).addClass('active');
+                     $(`#set-product-${productId}-${variant.id}-${productIdAttr}-room${roomId}`).addClass('active');
+
+                     updateSetProductStatus(productId, variant.id, productIdAttr, roomId);
+                  });
+
+                  // Activate first set product tab
+                  const $firstSetTab = $setTabs.find('.set-product-tab').first();
+                  if ($firstSetTab.length) {
+                     $firstSetTab.trigger('click');
+                  }
+               }
+            }
+         });
+      }
+
+      // Function to setup variant calculations
+      function setupVariantCalculations(productId, roomId) {
+         // Dimension calculations for variants
+         $(`#variants-content-${productId}-room${roomId} .dimension-width, #variants-content-${productId}-room${roomId} .dimension-length`).on('input', function() {
+            const variantId = $(this).data('variant');
+            const width = parseFloat($(`#variants-content-${productId}-room${roomId} .dimension-width[data-variant="${variantId}"]`).val()) || 0;
+            const length = parseFloat($(`#variants-content-${productId}-room${roomId} .dimension-length[data-variant="${variantId}"]`).val()) || 0;
+            const unitPrice = parseFloat($(`#variants-content-${productId}-room${roomId} .unit-price[data-variant="${variantId}"]`).val()) || 0;
+            const area = width * length;
+            const totalPrice = unitPrice * area;
+
+            $(`#variants-content-${productId}-room${roomId} .total-price[data-variant="${variantId}"]`).val(totalPrice.toFixed(2));
+
+            updateVariantStatus(productId, roomId, variantId);
+         });
+
+         // Pillow subcategory calculations
+         $(`#variants-content-${productId}-room${roomId} .pillow-qty, #variants-content-${productId}-room${roomId} .pillow-unit-price`).on('input', function() {
+            const variantId = $(this).data('variant');
+            const subcategoryId = $(this).data('subcategory');
+            const qty = parseFloat($(`#variants-content-${productId}-room${roomId} .pillow-qty[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val()) || 0;
+            const unitPrice = parseFloat($(`#variants-content-${productId}-room${roomId} .pillow-unit-price[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val()) || 0;
+            const totalPrice = qty * unitPrice;
+
+            $(`#variants-content-${productId}-room${roomId} .pillow-total-price[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val(totalPrice.toFixed(2));
+
+            updatePillowSubcategoryStatus(productId, variantId, subcategoryId, roomId);
+         });
+      }
+
+      // Function to setup variant material tabs
+      function setupVariantMaterialTabs(productId, roomId) {
+         const variants = getVariants(productId);
+
+         variants.forEach(variant => {
+            const materialTabsId = `materialTabs-${productId}-${variant.id}-room${roomId}`;
+
+            setTimeout(() => {
+               if ($(`#${materialTabsId}`).length) {
+                  $(`#${materialTabsId} .material-tab`).off('click').on('click', function(e) {
+                     e.preventDefault();
+                     const categoryId = $(this).data('category');
+                     const materialTabsContentId = `materialTabsContent-${productId}-${variant.id}-room${roomId}`;
+
+                     $(`#${materialTabsId} .material-tab`).removeClass('active');
+                     $(this).addClass('active');
+
+                     $(`#${materialTabsContentId} .material-tab-content`).removeClass('active');
+                     $(`#materialContent-${productId}-${variant.id}-room${roomId}-${categoryId}`).addClass('active');
+
+                     updateVariantStatus(productId, roomId, variant.id);
+                  });
+               }
+            }, 100);
+         });
+      }
+
+      // Function to update set product status
+      function updateSetProductStatus(productId, variantId, productIdAttr, roomId) {
+         const $tab = $(`#set-products-tabs-${productId}-${variantId}-room${roomId} .set-product-tab[data-product="${productIdAttr}"]`);
+         const $statusIndicator = $tab.find('.status-indicator');
+
+         const $content = $(`#set-product-${productId}-${variantId}-${productIdAttr}-room${roomId}`);
+         const width = $content.find('.dimension-width').val();
+         const length = $content.find('.dimension-length').val();
+         const materialGrade = $content.find('.material-grade').val();
+         const materialType = $content.find('.material-type-select').val();
+
+         $statusIndicator.removeClass('status-empty status-incomplete status-complete');
+
+         if (!width && !length && !materialGrade && !materialType) {
+            $statusIndicator.addClass('status-empty');
+         } else if (width && length && materialGrade && materialType) {
+            $statusIndicator.addClass('status-complete');
+         } else {
+            $statusIndicator.addClass('status-incomplete');
+         }
+
+         // Update parent set status
+         updateVariantStatus(productId, roomId, variantId);
+      }
+
+      // Function to setup set product selection
+      function setupSetProductSelection(productId, roomId) {
+         const variants = getProductVariants(productId);
+
+         variants.forEach(variant => {
+            if (!variant.isIndividualProduct) {
+               const selectionId = `product-selection-${productId}-${variant.id}`;
+
+               $(`#${selectionId} .variant-product-option`).on('click', function() {
+                  $(this).toggleClass('selected');
+
+                  // Enable/disable add button based on selection
+                  const hasSelection = $(`#${selectionId} .variant-product-option.selected`).length > 0;
+                  $(`#variants-content-${productId}-room${roomId} .add-product-to-set-btn[data-variant="${variant.id}"]`).prop('disabled', !hasSelection);
+               });
+            }
+         });
+      }
+
+      // Function to update variant status indicator
+      function updateVariantStatus(productId, roomId, variantId) {
+         const $tab = $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab[data-variant="${variantId}"]`);
+         const $statusIndicator = $tab.find('.status-indicator');
+
+         const $content = $(`#variant-${productId}-${variantId}-room${roomId}`);
+
+         // Check main variant fields
+         const width = $content.find('.dimension-width').val();
+         const length = $content.find('.dimension-length').val();
+
+         // Check active material category
+         const activeMaterialTab = $content.find('.material-tab.active');
+         const activeCategory = activeMaterialTab.data('category');
+
+         let materialComplete = false;
+
+         if (activeCategory === 'pillow') {
+            // For pillow category, check if all pillow subcategories are complete
+            let allPillowComplete = true;
+            const $pillowTabs = $(`#pillowTabs-${productId}-${variantId}-room${roomId}`);
+            if ($pillowTabs.length) {
+               $pillowTabs.find('.pillow-subcategory-tab').each(function() {
+                  const $pillowStatus = $(this).find('.status-indicator');
+                  if (!$pillowStatus.hasClass('status-complete')) {
+                     allPillowComplete = false;
+                     return false; // break loop
+                  }
+               });
+               materialComplete = allPillowComplete;
+            }
+         } else {
+            // For other material categories
+            const materialGrade = $content.find(`.material-grade[data-category="${activeCategory}"]`).val();
+            const materialType = $content.find(`.material-type-select[data-category="${activeCategory}"]`).val();
+            materialComplete = !!(materialGrade && materialType);
+         }
+
+         $statusIndicator.removeClass('status-empty status-incomplete status-complete');
+
+         if (!width && !length && !materialComplete) {
+            $statusIndicator.addClass('status-empty');
+         } else if (width && length && materialComplete) {
+            $statusIndicator.addClass('status-complete');
+         } else {
+            $statusIndicator.addClass('status-incomplete');
+         }
+      }
+
+      // Function to add variants to product content
+      function addVariantsToProduct(productId, roomId) {
+         const $productContent = $(`#product-${productId}-room${roomId}`);
+
+         // Check if product has variants
+         if (productHasVariants(productId)) {
+            const variantsHTML = createVariantsTabs(productId, roomId);
+
+            // Remove existing variants section if any
+            $productContent.find('.product-variants-section').remove();
+
+            // Add variants section after the main product content
+            $productContent.find('.simple-product-content').after(variantsHTML);
+
+            // Setup variants functionality
+            setupVariantsTabs(productId, roomId);
+         }
+      }
+
+      // Event handlers for variant management
+      $(document).on('click', '.add-variant-btn', function() {
+         const productId = $(this).data('product');
+         const roomId = $(this).data('room');
+         const variantType = getProductVariantType(productId);
+
+         // In a real implementation, this would open a modal to add a new variant
+         alert(`Add new ${variantType} variant for ${productId} in room ${roomId}`);
+      });
+
+      $(document).on('click', '.manage-variants-btn', function() {
+         const productId = $(this).data('product');
+         const roomId = $(this).data('room');
+
+         // In a real implementation, this would open a modal to manage variants
+         alert(`Manage variants for ${productId} in room ${roomId}`);
+      });
+
+      $(document).on('click', '.remove-variant-btn', function() {
+         const productId = $(this).data('product');
+         const variantId = $(this).data('variant');
+         const roomId = $(this).data('room');
+
+         if (confirm('Are you sure you want to remove this variant?')) {
+            // Remove variant tab and content
+            $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab[data-variant="${variantId}"]`).remove();
+            $(`#variant-${productId}-${variantId}-room${roomId}`).remove();
+
+            // Activate first remaining tab
+            const $firstTab = $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab`).first();
+            if ($firstTab.length) {
+               $firstTab.trigger('click');
+            } else {
+               // No variants left, show empty state
+               $(`#variants-content-${productId}-room${roomId}`).html(`
+                <div class="empty-variants-state">
+                    <i class="fa fa-layer-group"></i>
+                    <p>No variants added yet</p>
+                </div>
+            `);
+            }
+         }
+      });
+
+      $(document).on('click', '.remove-set-btn', function() {
+         const productId = $(this).data('product');
+         const variantId = $(this).data('variant');
+         const roomId = $(this).data('room');
+
+         if (confirm('Are you sure you want to remove this set?')) {
+            // Remove set tab and content
+            $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab[data-variant="${variantId}"]`).remove();
+            $(`#variant-${productId}-${variantId}-room${roomId}`).remove();
+
+            // Activate first remaining tab
+            const $firstTab = $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab`).first();
+            if ($firstTab.length) {
+               $firstTab.trigger('click');
+            }
+         }
+      });
+
+      $(document).on('click', '.remove-product-from-set-btn', function(e) {
+         e.preventDefault();
+         const productId = $(this).data('product');
+         const variantId = $(this).data('variant');
+         const itemId = $(this).data('item');
+         const roomId = $(this).closest('.product-variant-content').attr('id').split('-room')[1];
+
+         if (confirm('Are you sure you want to remove this product from the set?')) {
+            $(`#set-products-${productId}-${variantId}-room${roomId} .set-product-item[data-product="${itemId}"]`).remove();
+            updateVariantStatus(productId, roomId, variantId);
+         }
+      });
+
+      $(document).on('click', '.add-product-to-set-btn', function() {
+         const productId = $(this).data('product');
+         const variantId = $(this).data('variant');
+         const roomId = $(this).data('room');
+         const selectionId = `product-selection-${productId}-${variantId}`;
+
+         // Get selected products
+         const selectedProducts = $(`#${selectionId} .variant-product-option.selected`);
+
+         selectedProducts.each(function() {
+            const selectedProductId = $(this).data('product-id');
+            const productData = availableProductsForSets.find(p => p.id === selectedProductId);
+
+            if (productData) {
+               // Create new product in set
+               const newProduct = {
+                  id: productData.id,
+                  name: productData.name,
+                  qualification: productData.qualification,
+                  type: 'furniture',
+                  quantity: 1
+               };
+
+               const productHTML = createSetProductContent(productId, variantId, newProduct, roomId);
+               $(`#set-products-${productId}-${variantId}-room${roomId}`).append(productHTML);
+
+               // Setup material tabs for new product
+               setupVariantMaterialTabs(productId, roomId);
+
+               // Setup calculations for new product
+               setupVariantCalculations(productId, roomId);
+
+               // Deselect the option
+               $(this).removeClass('selected');
+            }
+         });
+
+         // Disable add button after adding
+         $(this).prop('disabled', true);
+
+         updateVariantStatus(productId, roomId, variantId);
+      });
+
+      // Modified loadProductContent function to include variants
+      function loadProductContentWithVariants(contentId, product) {
+         const $content = $(`#${contentId}`);
+
+         if (product.type === 'complex') {
+            loadComplexProductContent($content, product);
+         } else if (product.type === 'curtains') {
+            loadCurtainProductContent($content, product);
+         } else {
+            loadSimpleProductContent($content, product);
+         }
+
+         // Add variants if the product has them
+         const roomId = $content.closest('.tab-pane').data('room');
+         addVariantsToProduct(product.id, roomId);
+
+         // Setup pillow subcategories if the product has them
+         setupPillowSubcategoryTabs(product.id);
+      }
+
 
       // Fitout products (Wall, Ceiling, Ground)
       const fitoutProducts = [{
@@ -2656,266 +4790,12 @@
          }
       ];
 
-      // Item data for complex products
-      const itemData = {
-         'wall': {
-            name: 'Wall Items',
-            categories: {
-               'construction': {
-                  name: 'Construction',
-                  items: [{
-                        id: 'drywall',
-                        name: 'Drywall',
-                        description: 'Standard drywall panels',
-                        icon: 'fa-layer-group',
-                        color: '#ff6b6b'
-                     },
-                     {
-                        id: 'studs',
-                        name: 'Wall Studs',
-                        description: 'Metal or wood studs',
-                        icon: 'fa-grip-lines',
-                        color: '#ee5a52'
-                     }
-                  ]
-               },
-               'finishing': {
-                  name: 'Finishing',
-                  items: [{
-                        id: 'paint',
-                        name: 'Wall Paint',
-                        description: 'Interior wall paint',
-                        icon: 'fa-paint-roller',
-                        color: '#4361ee'
-                     },
-                     {
-                        id: 'wallpaper',
-                        name: 'Wallpaper',
-                        description: 'Wall covering material',
-                        icon: 'fa-scroll',
-                        color: '#3a0ca3'
-                     }
-                  ]
-               }
-            }
-         },
-         'ceiling': {
-            name: 'Ceiling Items',
-            categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                        id: 'ceiling_tiles',
-                        name: 'Ceiling Tiles',
-                        description: 'Acoustic ceiling tiles',
-                        icon: 'fa-border-all',
-                        color: '#4ecdc4'
-                     },
-                     {
-                        id: 'gypsum',
-                        name: 'Gypsum Board',
-                        description: 'Ceiling gypsum boards',
-                        icon: 'fa-square',
-                        color: '#44a08d'
-                     }
-                  ]
-               }
-            }
-         },
-         'ground': {
-            name: 'Ground Items',
-            categories: {
-               'flooring': {
-                  name: 'Flooring',
-                  items: [{
-                        id: 'tiles',
-                        name: 'Floor Tiles',
-                        description: 'Ceramic or porcelain tiles',
-                        icon: 'fa-th-large',
-                        color: '#45b7d1'
-                     },
-                     {
-                        id: 'hardwood',
-                        name: 'Hardwood',
-                        description: 'Hardwood flooring',
-                        icon: 'fa-tree',
-                        color: '#8b4513'
-                     }
-                  ]
-               }
-            }
-         },
-         'electrical': {
-            name: 'Electrical Items',
-            categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                        id: 'switches',
-                        name: 'Switches',
-                        description: 'Electrical switches',
-                        icon: 'fa-toggle-on',
-                        color: '#ff9a00'
-                     },
-                     {
-                        id: 'outlets',
-                        name: 'Outlets',
-                        description: 'Power outlets',
-                        icon: 'fa-plug',
-                        color: '#ff6b6b'
-                     },
-                     {
-                        id: 'lighting',
-                        name: 'Lighting',
-                        description: 'Light fixtures',
-                        icon: 'fa-lightbulb',
-                        color: '#ffd166'
-                     }
-                  ]
-               }
-            }
-         },
-         'plumbing': {
-            name: 'Plumbing Items',
-            categories: {
-               'fixtures': {
-                  name: 'Fixtures',
-                  items: [{
-                        id: 'faucet',
-                        name: 'Faucet',
-                        description: 'Water faucet',
-                        icon: 'fa-faucet',
-                        color: '#4ecdc4'
-                     },
-                     {
-                        id: 'pipe',
-                        name: 'Pipe',
-                        description: 'Water pipe',
-                        icon: 'fa-pipe',
-                        color: '#45b7d1'
-                     },
-                     {
-                        id: 'valve',
-                        name: 'Valve',
-                        description: 'Water valve',
-                        icon: 'fa-toggle-off',
-                        color: '#4361ee'
-                     }
-                  ]
-               },
-               'drainage': {
-                  name: 'Drainage',
-                  items: [{
-                        id: 'drain',
-                        name: 'Drain',
-                        description: 'Drain pipe',
-                        icon: 'fa-water',
-                        color: '#3a0ca3'
-                     },
-                     {
-                        id: 'trap',
-                        name: 'Trap',
-                        description: 'Pipe trap',
-                        icon: 'fa-undo',
-                        color: '#7209b7'
-                     }
-                  ]
-               }
-            }
-         },
-         'painting': {
-            name: 'Painting Items',
-            categories: {
-               'materials': {
-                  name: 'Materials',
-                  items: [{
-                        id: 'paint_bucket',
-                        name: 'Paint Bucket',
-                        description: 'Paint container',
-                        icon: 'fa-fill-drip',
-                        color: '#a8e6cf'
-                     },
-                     {
-                        id: 'brush',
-                        name: 'Brush',
-                        description: 'Paint brush',
-                        icon: 'fa-paint-brush',
-                        color: '#56ab2f'
-                     },
-                     {
-                        id: 'roller',
-                        name: 'Roller',
-                        description: 'Paint roller',
-                        icon: 'fa-paint-roller',
-                        color: '#a8e6cf'
-                     }
-                  ]
-               }
-            }
-         }
-      };
-
-      // ADDED: Curtain accessory options
-      const curtainAccessories = [{
-            id: 'side-holder',
-            name: 'Side Holder',
-            description: 'Curtain side holders and accessories',
-            icon: 'fa-grip-lines-vertical',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            options: [{
-                  id: 'holder1',
-                  name: 'Classic Side Holder',
-                  description: 'Traditional side holder design',
-                  image: 'holder1.jpg'
-               },
-               {
-                  id: 'holder2',
-                  name: 'Modern Side Holder',
-                  description: 'Contemporary side holder design',
-                  image: 'holder2.jpg'
-               },
-               {
-                  id: 'holder3',
-                  name: 'Decorative Side Holder',
-                  description: 'Ornamental side holder design',
-                  image: 'holder3.jpg'
-               }
-            ]
-         },
-         {
-            id: 'black-out',
-            name: 'Black Out',
-            description: 'Black out lining and accessories',
-            icon: 'fa-moon',
-            color: 'linear-gradient(135deg, #2b2d42, #1d1e2c)',
-            options: [{
-                  id: 'blackout1',
-                  name: 'Standard Black Out',
-                  description: 'Basic black out lining',
-                  image: 'blackout1.jpg'
-               },
-               {
-                  id: 'blackout2',
-                  name: 'Thermal Black Out',
-                  description: 'Insulated black out lining',
-                  image: 'blackout2.jpg'
-               },
-               {
-                  id: 'blackout3',
-                  name: 'Premium Black Out',
-                  description: 'Luxury black out lining',
-                  image: 'blackout3.jpg'
-               }
-            ]
-         }
-      ];
-
       // Initialize qualification modal
       function initializeQualificationModal() {
          const $optionsContainer = $('#qualificationOptions');
          $optionsContainer.empty();
 
-         productOptions.forEach(qual => {
+         qualifications.forEach(qual => {
             const $option = $(`
             <div class="qualification-option" data-qualification="${qual.id}">
                <div class="qualification-option-header">
@@ -2937,15 +4817,8 @@
          $optionsContainer.empty();
          state.selectedProducts = [];
 
-         let productsToShow = [];
-
-         if (qualification.id === 'fitout') {
-            productsToShow = fitoutProducts;
-         } else if (qualification.id === 'curtains') {
-            productsToShow = curtainProducts;
-         } else {
-            productsToShow = [qualification];
-         }
+         // Get products for this qualification
+         const productsToShow = getProductsByQualification(qualification.id);
 
          productsToShow.forEach(product => {
             const $option = $(`
@@ -3166,24 +5039,14 @@
          $('#multiSelectModal').removeData('roomId');
       }
 
-      function showItemSelectionModal(productType) {
-         console.log('Opening item selection modal for product:', productType);
-         state.currentProductType = productType;
+      function showItemSelectionModal(productId) {
+         console.log('Opening item selection modal for product:', productId);
+         state.currentProductId = productId;
 
-         // FIX: Get the current room and product context from the active product tab
+         // Get the current room context
          const $activeProductTab = $('.product-tab.active');
          if ($activeProductTab.length) {
-            const productId = $activeProductTab.data('product');
-            const $tabPane = $activeProductTab.closest('.tab-pane');
-            const roomId = $tabPane.data('room');
-
-            console.log('Found active product tab context:', {
-               productId: productId,
-               roomId: roomId,
-               tabPane: $tabPane.length
-            });
-
-            // Store the current context in the modal
+            const roomId = $activeProductTab.closest('.tab-pane').data('room');
             $('#itemSelectionModal').data('current-room', roomId);
             $('#itemSelectionModal').data('current-product', productId);
 
@@ -3204,11 +5067,18 @@
          $categoryTabs.empty();
          $itemOptions.empty();
 
-         const productData = itemData[productType] || itemData.electrical;
-         const categories = productData.categories;
+         // Get items for this product
+         const categories = getItemCategories(productId);
+         const categoryKeys = Object.keys(categories);
+
+         if (categoryKeys.length === 0) {
+            $itemOptions.html('<div class="no-items-message">No items available for this product</div>');
+            $('#confirmSelectItem').prop('disabled', true);
+            $modal.fadeIn(300);
+            return;
+         }
 
          let firstCategory = null;
-         const categoryKeys = Object.keys(categories);
 
          if (categoryKeys.length > 1) {
             categoryKeys.forEach((catKey, index) => {
@@ -3216,10 +5086,10 @@
                if (index === 0) firstCategory = catKey;
 
                const $tab = $(`
-                <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
-                   ${categoryInfo.name}
-                </div>
-            `);
+            <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
+               ${categoryInfo.name}
+            </div>
+        `);
                $categoryTabs.append($tab);
             });
          } else {
@@ -3231,10 +5101,7 @@
             loadItemCategory(firstCategory, categories[firstCategory]);
          }
 
-         // ADDED: Clear search input and show all items
          $('#itemSearch').val('');
-         $('.item-option').show();
-
          $modal.fadeIn(300);
          $('#confirmSelectItem').prop('disabled', true);
       }
@@ -3349,7 +5216,6 @@
 
          $contentArea.append($content);
 
-         // FIX: Always activate the new tab when it's added
          activateProductTab($tab);
 
          setTimeout(() => {
@@ -3378,6 +5244,16 @@
       function loadProductContent(contentId, product) {
          const $content = $(`#${contentId}`);
 
+         // Check if product has variants
+         if (product.hasVariants) {
+            const variants = getProductVariants(product.id);
+            if (variants.length > 0) {
+               loadProductWithVariants($content, product, variants);
+               return;
+            }
+         }
+
+         // Load based on product type
          if (product.type === 'complex') {
             loadComplexProductContent($content, product);
          } else if (product.type === 'curtains') {
@@ -3386,70 +5262,120 @@
             loadSimpleProductContent($content, product);
          }
 
-         // Setup pillow subcategories if the product has them
-         setupPillowSubcategoryTabs(product.id);
+         // Setup material tabs
+         const roomId = $content.closest('.tab-pane').data('room');
+         setupMaterialTabs(product.id);
+
+         // Setup pillow subcategories if needed
+         if (!productHasVariants(product.id)) {
+            setupPillowSubcategoryTabs(product.id);
+         }
       }
 
-      function loadComplexProductContent($content, product) {
-         const buttonText = `Add Item to ${product.name}`;
-
-         // Get room ID from the content container
+      function loadProductWithVariants($content, product, variants) {
          const roomId = $content.closest('.tab-pane').data('room');
 
+         // Create basic details section + variants tabs
+         const basicDetailsHTML = createBasicDetailsSection(product, roomId);
+         const variantsHTML = createVariantsTabs(product.id, variants, roomId);
+
          const $wrapper = $(`
-        <div class="product-details-wrapper">
-            <div class="complex-product-layout">
-                <div class="items-tabs-sidebar">
-                    <div class="items-tabs-header">
-                        <h6><i class="fa fa-list mr-2"></i>Items</h6>
-                        <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
-                            <i class="fa fa-plus mr-1"></i> ${buttonText}
-                        </button>
-                    </div>
-                    <div class="items-tabs-container">
-                        <div class="empty-items-tabs">
-                            <i class="fa fa-cube"></i>
-                            <p>No items added yet</p>
-                        </div>
-                    </div>
+    <div class="product-with-variants">
+        ${basicDetailsHTML}
+        <div class="product-variants-section">
+            ${variantsHTML}
+        </div>
+    </div>
+    `);
+
+         $content.html($wrapper);
+         setupVariantsTabs(product.id, roomId);
+      }
+
+      function createBasicDetailsSection(product, roomId) {
+         return `
+    <div class="basic-details-section">
+        <div class="compact-product-details">
+            <div class="compact-section-header">
+                <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+            </div>
+            <div class="compact-details-with-image">
+                <div class="compact-image-preview">
+                    <i class="fa fa-image"></i>
                 </div>
-                <div class="item-details-content">
-                    <div class="product-details-header">
-                        <div class="product-header-with-image">
-                            <div class="header-image-preview">
-                                <i class="fa ${product.icon}"></i>
-                            </div>
-                            <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
-                        </div>
-                        <div class="compact-header-details">
-                            <div class="compact-header-group">
-                                <label>Width (m)</label>
-                                <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Length/Height (m)</label>
-                                <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Unit Price ($)</label>
-                                <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="compact-header-group">
-                                <label>Total Price ($)</label>
-                                <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                            </div>
-                        </div>
+                <div class="compact-details-fields">
+                    <div class="compact-detail-group">
+                        <label>Unit Price ($)</label>
+                        <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
                     </div>
-                    <!-- This is the main product-details-body that will contain item details -->
-                    <div class="product-details-body">
-                        <div class="empty-item-selection">
-                            <i class="fa fa-hand-pointer"></i>
-                            <p>Select an item to view and edit details</p>
-                        </div>
+                    <div class="compact-detail-group">
+                        <label>Total Price ($)</label>
+                        <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    `;
+      }
+
+      function loadComplexProductContent($content, product) {
+         const buttonText = `Add Item to ${product.name}`;
+         const roomId = $content.closest('.tab-pane').data('room');
+
+         const $wrapper = $(`
+    <div class="product-details-wrapper">
+        <div class="complex-product-layout">
+            <div class="items-tabs-sidebar">
+                <div class="items-tabs-header">
+                    <h6><i class="fa fa-list mr-2"></i>Items</h6>
+                    <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
+                        <i class="fa fa-plus mr-1"></i> ${buttonText}
+                    </button>
+                </div>
+                <div class="items-tabs-container">
+                    <div class="empty-items-tabs">
+                        <i class="fa fa-cube"></i>
+                        <p>No items added yet</p>
+                    </div>
+                </div>
+            </div>
+            <div class="item-details-content">
+                <div class="product-details-header">
+                    <div class="product-header-with-image">
+                        <div class="header-image-preview">
+                            <i class="fa ${product.icon}"></i>
+                        </div>
+                        <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
+                    </div>
+                    <div class="compact-header-details">
+                        <div class="compact-header-group">
+                            <label>Width (m)</label>
+                            <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Length/Height (m)</label>
+                            <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Unit Price ($)</label>
+                            <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="compact-header-group">
+                            <label>Total Price ($)</label>
+                            <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-details-body">
+                    <div class="empty-item-selection">
+                        <i class="fa fa-hand-pointer"></i>
+                        <p>Select an item to view and edit details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     `);
 
          $content.html($wrapper);
@@ -3720,7 +5646,6 @@
 
          return `
         <div class="pillow-subcategories-section">
-            <h6><i class="fa fa-couch mr-2"></i>Pillow Components</h6>
             <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}">
                 ${pillowCategory.subcategories.map((subcat, index) => `
                     <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
@@ -3863,7 +5788,6 @@
 
          return `
         <div class="pillow-subcategories-section">
-            <h6><i class="fa fa-couch mr-2"></i>Pillow Components</h6>
             <div class="pillow-subcategories-tabs" id="pillowTabs-${itemId}-${productId}-room${roomId}">
                 ${pillowCategory.subcategories.map((subcat, index) => `
                     <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
@@ -3992,11 +5916,11 @@
       }
 
       // NEW: Function to update pillow subcategory status
-      function updatePillowSubcategoryStatus(productId, subcategoryId) {
-         const $tab = $(`#pillowTabs-${productId} .pillow-subcategory-tab[data-subcategory="${subcategoryId}"]`);
+      function updatePillowSubcategoryStatus(productId, variantId, subcategoryId, roomId) {
+         const $tab = $(`#pillowTabs-${productId}-${variantId}-room${roomId} .pillow-subcategory-tab[data-subcategory="${subcategoryId}"]`);
          const $statusIndicator = $tab.find('.status-indicator');
 
-         const $content = $(`#pillowSubcategory-${productId}-${subcategoryId}`);
+         const $content = $(`#pillowSubcategory-${productId}-${variantId}-room${roomId}-${subcategoryId}`);
          const materialGrade = $content.find('.material-grade').val();
          const materialType = $content.find('.material-type-select').val();
          const areaWeight = $content.find('.area-weight').val();
@@ -4012,6 +5936,9 @@
          } else {
             $statusIndicator.addClass('status-incomplete');
          }
+
+         // Update parent variant status
+         updateVariantStatus(productId, roomId, variantId);
       }
 
       function setupDimensionCalculations(productId) {
@@ -4612,7 +6539,7 @@
          });
 
          if (state.selectedQualification && state.currentRoom) {
-            const qualification = productOptions.find(q => q.id === state.selectedQualification);
+            const qualification = qualifications.find(q => q.id === state.selectedQualification);
             if (qualification) {
                const roomId = state.currentRoom;
 
@@ -4628,87 +6555,61 @@
 
       $(document).on('click', '.multi-select-option', function() {
          const productId = $(this).data('product-id');
-         console.log('Multi-select option clicked:', productId);
+         console.log('Product option clicked:', productId);
 
-         $(this).toggleClass('selected');
+         // Single selection
+         $('.multi-select-option').removeClass('selected');
+         $(this).addClass('selected');
 
-         if ($(this).hasClass('selected')) {
-            if (!state.selectedProducts.includes(productId)) {
-               state.selectedProducts.push(productId);
-            }
-         } else {
-            state.selectedProducts = state.selectedProducts.filter(id => id !== productId);
-         }
+         // Store single product ID
+         state.selectedProducts = [productId];
 
-         $('#confirmMultiSelect').prop('disabled', state.selectedProducts.length === 0);
+         $('#confirmMultiSelect').prop('disabled', false);
       });
 
       $('#confirmMultiSelect').on('click', function() {
-         console.log('Confirm multi-select clicked');
+         console.log('Confirm product selection clicked');
 
          const qualification = $('#multiSelectModal').data('qualification');
          const roomId = $('#multiSelectModal').data('roomId');
 
-         console.log('Data for multi-select addition:', {
+         console.log('Data for product addition:', {
             qualification: qualification,
             roomId: roomId,
             selectedProducts: state.selectedProducts
          });
 
          if (state.selectedProducts.length > 0 && roomId && qualification) {
-            let products = [];
+            const selectedProductId = state.selectedProducts[0];
 
-            if (qualification.id === 'fitout') {
-               products = fitoutProducts.filter(product => state.selectedProducts.includes(product.id));
-            } else if (qualification.id === 'curtains') {
-               products = curtainProducts.filter(product => state.selectedProducts.includes(product.id));
+            // Find the selected product
+            const selectedProduct = products.find(product => product.id === selectedProductId);
+
+            console.log('Selected product to add:', selectedProduct);
+
+            if (selectedProduct) {
+               addProductTab(roomId, selectedProduct);
+               hideMultiSelectModal();
             } else {
-               products = [qualification];
+               console.error('Could not find selected product');
+               alert('Error: Could not find the selected product.');
             }
-
-            console.log('Adding products:', products);
-            products.forEach(product => {
-               addProductTab(roomId, product);
-            });
-            hideMultiSelectModal();
          } else {
-            console.error('Missing data for multi-select addition');
-            alert('Please select at least one product to continue.');
+            console.error('Missing data for product addition');
+            alert('Please select a product to continue.');
          }
-      });
-
-      $(document).on('click', '.item-option', function() {
-         console.log('Item option clicked:', $(this).data('item-id'));
-         $('.item-option').removeClass('selected');
-         $(this).addClass('selected');
-
-         const itemId = $(this).data('item-id');
-         const productData = itemData[state.currentProductType] || itemData.electrical;
-
-         state.selectedItem = null;
-         Object.keys(productData.categories).forEach(catKey => {
-            const category = productData.categories[catKey];
-            const item = category.items.find(i => i.id === itemId);
-            if (item) {
-               state.selectedItem = item;
-            }
-         });
-
-         $('#confirmSelectItem').prop('disabled', false);
       });
 
       $('#confirmSelectItem').on('click', function() {
          console.log('Confirm item selection clicked');
 
-         // FIX: Get context from modal data
          const roomId = $('#itemSelectionModal').data('current-room');
          const productId = $('#itemSelectionModal').data('current-product');
 
          console.log('Context from modal:', {
             roomId: roomId,
             productId: productId,
-            selectedItem: state.selectedItem,
-            currentProductType: state.currentProductType
+            selectedItem: state.selectedItem
          });
 
          if (state.selectedItem && roomId && productId) {
@@ -4721,26 +6622,28 @@
             addItemToProduct(roomId, productId, state.selectedItem);
             hideItemSelectionModal();
          } else {
-            console.error('Missing data for item selection:', {
-               hasItem: !!state.selectedItem,
-               hasRoomId: !!roomId,
-               hasProductId: !!productId
-            });
+            console.error('Missing data for item selection');
             alert('Error: Missing context information. Please try again.');
          }
       });
 
-      // ADDED: Accessory selection handlers
+      // Accessory selection handlers
       $(document).on('click', '.item-option', function() {
-         if ($(this).closest('#accessoryOptions').length) {
-            console.log('Accessory option clicked:', $(this).data('accessory-id'));
-            $('.item-option').removeClass('selected');
-            $(this).addClass('selected');
+         console.log('Item option clicked:', $(this).data('item-id'));
+         $('.item-option').removeClass('selected');
+         $(this).addClass('selected');
 
-            const accessoryId = $(this).data('accessory-id');
-            state.selectedAccessory = curtainAccessories.find(acc => acc.id === accessoryId);
+         const itemId = $(this).data('item-id');
 
-            $('#confirmSelectAccessory').prop('disabled', false);
+         // FIX: Use products array instead of itemData
+         state.selectedItem = products.find(item => item.id === itemId);
+
+         if (state.selectedItem) {
+            console.log('Selected item:', state.selectedItem);
+            $('#confirmSelectItem').prop('disabled', false);
+         } else {
+            console.error('Could not find selected item with ID:', itemId);
+            $('#confirmSelectItem').prop('disabled', true);
          }
       });
 
@@ -4776,21 +6679,19 @@
          $('.item-category-tab').removeClass('active');
          $(this).addClass('active');
 
-         const productData = itemData[state.currentProductType] || itemData.electrical;
-         loadItemCategory(categoryKey, productData.categories[categoryKey]);
+         const productId = $('#itemSelectionModal').data('current-product');
+         const categories = getItemCategories(productId);
+         loadItemCategory(categoryKey, categories[categoryKey]);
 
-         // ADDED: Clear search when switching categories
          $('#itemSearch').val('');
       });
 
       $(document).on('click', '.add-product-item-btn', function() {
          const productId = $(this).data('product');
 
-         // FIX: Multiple ways to get roomId to ensure we always have context
+         // Get room context
          let roomId = $(this).data('room');
-
          if (!roomId) {
-            // Try to get from the product content
             const $productContent = $(this).closest('.product-content');
             if ($productContent.length) {
                const contentId = $productContent.attr('id');
@@ -4799,18 +6700,9 @@
             }
          }
 
-         if (!roomId) {
-            // Try to get from the tab pane
-            const $tabPane = $(this).closest('.tab-pane');
-            if ($tabPane.length) {
-               roomId = $tabPane.data('room');
-            }
-         }
-
          console.log('Add product item button clicked - Context:', {
             productId: productId,
-            roomId: roomId,
-            button: $(this)
+            roomId: roomId
          });
 
          if (roomId && productId) {
@@ -4930,7 +6822,7 @@
       initializeQualificationModal();
       setupQualificationSearch();
       setupProductSearch();
-      setupItemSearch(); // ADDED: Initialize item search
+      setupItemSearch();
       setupImageUpload();
       addRoomToState(1);
       updateRoomStatus('room1');
