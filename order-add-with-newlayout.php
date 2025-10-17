@@ -3176,8 +3176,9 @@ include PATH . '/inc/footer.php';
       ];
 
       // Product data - ADDED CURTAINS QUALIFICATION
-      const productOptions = [{
-            id: 'fitout',
+      const productOptions = [
+         {
+            id: 1,
             name: 'Fitout',
             description: 'Interior construction, walls, ceilings, and flooring',
             icon: 'fa-paint-roller',
@@ -3186,7 +3187,7 @@ include PATH . '/inc/footer.php';
             hasVariants: false
          },
          {
-            id: 'curtains',
+            id: 2,
             name: 'Curtains',
             description: 'Window treatments, blinds, and curtain systems',
             icon: 'fa-window-restore',
@@ -3195,7 +3196,7 @@ include PATH . '/inc/footer.php';
             hasVariants: false
          },
          {
-            id: 'beds',
+            id: 3,
             name: 'Beds',
             description: 'Bed frames, mattresses, and bedroom furniture',
             icon: 'fa-bed',
@@ -3203,31 +3204,32 @@ include PATH . '/inc/footer.php';
             type: 'simple',
             hasVariants: true,
             variantType: 'size',
-            variants: [{
-                  id: 'size1',
+            variants: [
+               {
+                  id: 301,
                   name: 'Size 1',
                   description: 'Single Bed 90x190cm',
-                  qualification: 'beds',
+                  qualification: 3,
                   basePrice: 299.00
                },
                {
-                  id: 'size2',
+                  id: 302,
                   name: 'Size 2',
                   description: 'Double Bed 140x190cm',
-                  qualification: 'beds',
+                  qualification: 3,
                   basePrice: 399.00
                },
                {
-                  id: 'size3',
+                  id: 303,
                   name: 'Size 3',
                   description: 'Queen Bed 160x200cm',
-                  qualification: 'beds',
+                  qualification: 3,
                   basePrice: 499.00
                }
             ]
          },
          {
-            id: 'dining-sets',
+            id: 4,
             name: 'Dining Sets',
             description: 'Complete dining room furniture sets',
             icon: 'fa-utensils',
@@ -3235,31 +3237,32 @@ include PATH . '/inc/footer.php';
             type: 'simple',
             hasVariants: true,
             variantType: 'set',
-            variants: [{
-                  id: 'set1',
+            variants: [
+               {
+                  id: 401,
                   name: 'Set 1',
                   description: 'Basic 6-seater dining set',
-                  qualification: 'dining-sets',
+                  qualification: 4,
                   basePrice: 899.00
                },
                {
-                  id: 'set2',
+                  id: 402,
                   name: 'Set 2',
                   description: 'Premium 8-seater dining set',
-                  qualification: 'dining-sets',
+                  qualification: 4,
                   basePrice: 1499.00
                },
                {
-                  id: 'set3',
+                  id: 403,
                   name: 'Set 3',
                   description: 'Luxury dining set with extras',
-                  qualification: 'dining-sets',
+                  qualification: 4,
                   basePrice: 2299.00
                }
             ]
          },
          {
-            id: 'sofa-sets',
+            id: 5,
             name: 'Sofa Sets',
             description: 'Living room sofa and furniture sets',
             icon: 'fa-couch',
@@ -3267,24 +3270,25 @@ include PATH . '/inc/footer.php';
             type: 'simple',
             hasVariants: true,
             variantType: 'set',
-            variants: [{
-                  id: 'set1',
+            variants: [
+               {
+                  id: 501,
                   name: 'Set 1',
                   description: '3-piece sofa set',
-                  qualification: 'sofa-sets',
+                  qualification: 5,
                   basePrice: 1299.00
                },
                {
-                  id: 'set2',
+                  id: 502,
                   name: 'Set 2',
                   description: '4-piece sofa set with coffee table',
-                  qualification: 'sofa-sets',
+                  qualification: 5,
                   basePrice: 1899.00
                }
             ]
          },
          {
-            id: 'wardrobes',
+            id: 6,
             name: 'Wardrobes',
             description: 'Bedroom wardrobes and storage solutions',
             icon: 'fa-archive',
@@ -3292,25 +3296,26 @@ include PATH . '/inc/footer.php';
             type: 'simple',
             hasVariants: true,
             variantType: 'size',
-            variants: [{
-                  id: 'size1',
+            variants: [
+               {
+                  id: 601,
                   name: 'Size 1',
                   description: 'Small Wardrobe 120x200cm',
-                  qualification: 'wardrobes',
+                  qualification: 6,
                   basePrice: 399.00
                },
                {
-                  id: 'size2',
+                  id: 602,
                   name: 'Size 2',
                   description: 'Medium Wardrobe 180x200cm',
-                  qualification: 'wardrobes',
+                  qualification: 6,
                   basePrice: 599.00
                },
                {
-                  id: 'size3',
+                  id: 603,
                   name: 'Size 3',
                   description: 'Large Wardrobe 240x200cm',
-                  qualification: 'wardrobes',
+                  qualification: 6,
                   basePrice: 799.00
                }
             ]
@@ -6792,3 +6797,4 @@ include PATH . '/inc/footer.php';
       console.log('System initialized successfully with pillow subcategories horizontal tabs');
    });
 </script>
+
