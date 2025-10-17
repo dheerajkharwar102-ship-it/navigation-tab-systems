@@ -2979,7 +2979,305 @@ include PATH . '/inc/footer.php';
          currentProductId: null
       };
 
-      // Updated material categories data with pillow subcategories
+      // SEPARATED: Qualifications table (parent table)
+      const qualifications = [{
+            id: 1,
+            name: 'Fitout',
+            description: 'Interior construction, walls, ceilings, and flooring',
+            icon: 'fa-paint-roller',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
+         },
+         {
+            id: 2,
+            name: 'Curtains',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 3,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)'
+         },
+         {
+            id: 4,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)'
+         },
+         {
+            id: 5,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 6,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
+         }
+      ];
+
+      // SINGLE PRODUCTS TABLE with parent_id for variants/set items
+      const products = [
+         // Main Products (parent_id: null)
+         {
+            id: 1,
+            qualification_id: 1,
+            parent_id: null,
+            name: 'Fitout',
+            description: 'Interior construction, walls, ceilings, and flooring',
+            icon: 'fa-paint-roller',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'complex',
+            hasVariants: false
+         },
+         {
+            id: 2,
+            qualification_id: 2,
+            parent_id: null,
+            name: 'Curtains',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'curtains',
+            hasVariants: false
+         },
+         {
+            id: 3,
+            qualification_id: 3,
+            parent_id: null,
+            name: 'Beds',
+            description: 'Bed frames, mattresses, and bedroom furniture',
+            icon: 'fa-bed',
+            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size'
+         },
+         {
+            id: 4,
+            qualification_id: 4,
+            parent_id: null,
+            name: 'Dining Sets',
+            description: 'Complete dining room furniture sets',
+            icon: 'fa-utensils',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set'
+         },
+         {
+            id: 5,
+            qualification_id: 5,
+            parent_id: null,
+            name: 'Sofa Sets',
+            description: 'Living room sofa and furniture sets',
+            icon: 'fa-couch',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'set'
+         },
+         {
+            id: 6,
+            qualification_id: 6,
+            parent_id: null,
+            name: 'Wardrobes',
+            description: 'Bedroom wardrobes and storage solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            hasVariants: true,
+            variantType: 'size'
+         },
+
+         // Fitout sub-products (parent_id: 1)
+         {
+            id: 101,
+            qualification_id: 1,
+            parent_id: 1,
+            name: 'Wall',
+            description: 'Wall construction and finishing',
+            icon: 'fa-wall',
+            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+            type: 'complex',
+            hasVariants: false
+         },
+         {
+            id: 102,
+            qualification_id: 1,
+            parent_id: 1,
+            name: 'Ceiling',
+            description: 'Ceiling systems and fixtures',
+            icon: 'fa-border-all',
+            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            type: 'complex',
+            hasVariants: false
+         },
+         {
+            id: 103,
+            qualification_id: 1,
+            parent_id: 1,
+            name: 'Ground',
+            description: 'Flooring and ground works',
+            icon: 'fa-square',
+            color: 'linear-gradient(135deg, #45b7d1, #4a7bd6)',
+            type: 'complex',
+            hasVariants: false
+         },
+
+         // Curtain sub-products (parent_id: 2)
+         {
+            id: 201,
+            qualification_id: 2,
+            parent_id: 2,
+            name: 'Blinds',
+            description: 'Window blinds and shades',
+            icon: 'fa-grip-lines',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
+            type: 'curtains',
+            hasVariants: false
+         },
+         {
+            id: 202,
+            qualification_id: 2,
+            parent_id: 2,
+            name: 'Chiffon',
+            description: 'Sheer chiffon curtains',
+            icon: 'fa-scroll',
+            color: 'linear-gradient(135deg, #f72585, #b5179e)',
+            type: 'curtains',
+            hasVariants: false
+         },
+         {
+            id: 203,
+            qualification_id: 2,
+            parent_id: 2,
+            name: 'Main Curtains',
+            description: 'Primary curtain panels',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'curtains',
+            hasVariants: false
+         },
+
+         // Bed variants (parent_id: 3)
+         {
+            id: 301,
+            qualification_id: 3,
+            parent_id: 3,
+            name: 'Size 1',
+            description: 'Single Bed 90x190cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 299.00
+         },
+         {
+            id: 302,
+            qualification_id: 3,
+            parent_id: 3,
+            name: 'Size 2',
+            description: 'Double Bed 140x190cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 399.00
+         },
+         {
+            id: 303,
+            qualification_id: 3,
+            parent_id: 3,
+            name: 'Size 3',
+            description: 'Queen Bed 160x200cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 499.00
+         },
+
+         // Dining Set variants (parent_id: 4)
+         {
+            id: 401,
+            qualification_id: 4,
+            parent_id: 4,
+            name: 'Set 1',
+            description: 'Basic 6-seater dining set',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 899.00
+         },
+         {
+            id: 402,
+            qualification_id: 4,
+            parent_id: 4,
+            name: 'Set 2',
+            description: 'Premium 8-seater dining set',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 1499.00
+         },
+
+         // Sofa Set variants (parent_id: 5)
+         {
+            id: 501,
+            qualification_id: 5,
+            parent_id: 5,
+            name: 'Set 1',
+            description: '3-piece sofa set',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 1299.00
+         },
+         {
+            id: 502,
+            qualification_id: 5,
+            parent_id: 5,
+            name: 'Set 2',
+            description: '4-piece sofa set with coffee table',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 1899.00
+         },
+
+         // Wardrobe variants (parent_id: 6)
+         {
+            id: 601,
+            qualification_id: 6,
+            parent_id: 6,
+            name: 'Size 1',
+            description: 'Small Wardrobe 120x200cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 399.00
+         },
+         {
+            id: 602,
+            qualification_id: 6,
+            parent_id: 6,
+            name: 'Size 2',
+            description: 'Medium Wardrobe 180x200cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 599.00
+         },
+         {
+            id: 603,
+            qualification_id: 6,
+            parent_id: 6,
+            name: 'Size 3',
+            description: 'Large Wardrobe 240x200cm',
+            type: 'simple',
+            hasVariants: false,
+            basePrice: 799.00
+         }
+      ];
+
+      // Material categories data (unchanged)
       const materialCategories = [{
             id: 'metal',
             name: 'Metal',
@@ -2995,128 +3293,6 @@ include PATH . '/inc/footer.php';
                   id: 'aluminum',
                   name: 'Aluminum',
                   description: 'Lightweight aluminum'
-               },
-               {
-                  id: 'brass',
-                  name: 'Brass',
-                  description: 'Brass alloy material'
-               },
-               {
-                  id: 'copper',
-                  name: 'Copper',
-                  description: 'Copper material'
-               }
-            ]
-         },
-         {
-            id: 'wood-wallpaper',
-            name: 'Wood & Wallpaper',
-            description: 'Wood materials and wall covering papers',
-            icon: 'fa-tree',
-            color: 'linear-gradient(135deg, #8b4513, #a0522d)',
-            defaultMaterials: [{
-                  id: 'oak',
-                  name: 'Oak Wood',
-                  description: 'Solid oak wood'
-               },
-               {
-                  id: 'pine',
-                  name: 'Pine Wood',
-                  description: 'Pine wood material'
-               },
-               {
-                  id: 'vinyl-wallpaper',
-                  name: 'Vinyl Wallpaper',
-                  description: 'Vinyl wall covering'
-               },
-               {
-                  id: 'fabric-wallpaper',
-                  name: 'Fabric Wallpaper',
-                  description: 'Fabric-based wallpaper'
-               }
-            ]
-         },
-         {
-            id: 'marble',
-            name: 'Marble',
-            description: 'Natural and engineered marble stones',
-            icon: 'fa-gem',
-            color: 'linear-gradient(135deg, #c0c0c0, #a9a9a9)',
-            defaultMaterials: [{
-                  id: 'carrara',
-                  name: 'Carrara Marble',
-                  description: 'White Carrara marble'
-               },
-               {
-                  id: 'calacatta',
-                  name: 'Calacatta Marble',
-                  description: 'Luxury Calacatta marble'
-               },
-               {
-                  id: 'engineered-marble',
-                  name: 'Engineered Marble',
-                  description: 'Composite marble'
-               },
-               {
-                  id: 'travertine',
-                  name: 'Travertine',
-                  description: 'Natural travertine stone'
-               }
-            ]
-         },
-         {
-            id: 'glass',
-            name: 'Glass',
-            description: 'Various types of glass materials',
-            icon: 'fa-wine-glass',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-            defaultMaterials: [{
-                  id: 'clear-glass',
-                  name: 'Clear Glass',
-                  description: 'Transparent glass'
-               },
-               {
-                  id: 'tinted-glass',
-                  name: 'Tinted Glass',
-                  description: 'Colored glass'
-               },
-               {
-                  id: 'tempered-glass',
-                  name: 'Tempered Glass',
-                  description: 'Safety tempered glass'
-               },
-               {
-                  id: 'frosted-glass',
-                  name: 'Frosted Glass',
-                  description: 'Frosted finish glass'
-               }
-            ]
-         },
-         {
-            id: 'fabric-rope',
-            name: 'Fabric & Rope',
-            description: 'Textiles, fabrics, and rope materials',
-            icon: 'fa-scroll',
-            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
-            defaultMaterials: [{
-                  id: 'cotton',
-                  name: 'Cotton Fabric',
-                  description: 'Natural cotton material'
-               },
-               {
-                  id: 'polyester',
-                  name: 'Polyester Fabric',
-                  description: 'Synthetic polyester'
-               },
-               {
-                  id: 'nylon-rope',
-                  name: 'Nylon Rope',
-                  description: 'Strong nylon rope'
-               },
-               {
-                  id: 'hemp-rope',
-                  name: 'Hemp Rope',
-                  description: 'Natural hemp rope'
                }
             ]
          },
@@ -3137,18 +3313,6 @@ include PATH . '/inc/footer.php';
                   name: 'Pillow Face',
                   description: 'Pillow front surface material',
                   icon: 'fa-square'
-               },
-               {
-                  id: 'pillow-back',
-                  name: 'Pillow Back',
-                  description: 'Pillow back surface material',
-                  icon: 'fa-square'
-               },
-               {
-                  id: 'piping',
-                  name: 'Piping',
-                  description: 'Pillow piping and edges',
-                  icon: 'fa-grip-lines'
                }
             ],
             defaultMaterials: [{
@@ -3160,250 +3324,70 @@ include PATH . '/inc/footer.php';
                   id: 'poly-fill',
                   name: 'Polyester Fill',
                   description: 'Synthetic pillow filling'
-               },
-               {
-                  id: 'feathers',
-                  name: 'Feathers',
-                  description: 'Natural feather filling'
-               },
-               {
-                  id: 'cotton-cover',
-                  name: 'Cotton Cover',
-                  description: 'Cotton pillow cover'
                }
             ]
          }
       ];
 
-      // Product data - ADDED CURTAINS QUALIFICATION
-      const productOptions = [
-         {
-            id: 1,
-            name: 'Fitout',
-            description: 'Interior construction, walls, ceilings, and flooring',
-            icon: 'fa-paint-roller',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
-            type: 'complex',
-            hasVariants: false
-         },
-         {
-            id: 2,
-            name: 'Curtains',
-            description: 'Window treatments, blinds, and curtain systems',
-            icon: 'fa-window-restore',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            type: 'curtains',
-            hasVariants: false
-         },
-         {
-            id: 3,
-            name: 'Beds',
-            description: 'Bed frames, mattresses, and bedroom furniture',
-            icon: 'fa-bed',
-            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'size',
-            variants: [
-               {
-                  id: 301,
-                  name: 'Size 1',
-                  description: 'Single Bed 90x190cm',
-                  qualification: 3,
-                  basePrice: 299.00
-               },
-               {
-                  id: 302,
-                  name: 'Size 2',
-                  description: 'Double Bed 140x190cm',
-                  qualification: 3,
-                  basePrice: 399.00
-               },
-               {
-                  id: 303,
-                  name: 'Size 3',
-                  description: 'Queen Bed 160x200cm',
-                  qualification: 3,
-                  basePrice: 499.00
-               }
-            ]
-         },
-         {
-            id: 4,
-            name: 'Dining Sets',
-            description: 'Complete dining room furniture sets',
-            icon: 'fa-utensils',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'set',
-            variants: [
-               {
-                  id: 401,
-                  name: 'Set 1',
-                  description: 'Basic 6-seater dining set',
-                  qualification: 4,
-                  basePrice: 899.00
-               },
-               {
-                  id: 402,
-                  name: 'Set 2',
-                  description: 'Premium 8-seater dining set',
-                  qualification: 4,
-                  basePrice: 1499.00
-               },
-               {
-                  id: 403,
-                  name: 'Set 3',
-                  description: 'Luxury dining set with extras',
-                  qualification: 4,
-                  basePrice: 2299.00
-               }
-            ]
-         },
-         {
-            id: 5,
-            name: 'Sofa Sets',
-            description: 'Living room sofa and furniture sets',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'set',
-            variants: [
-               {
-                  id: 501,
-                  name: 'Set 1',
-                  description: '3-piece sofa set',
-                  qualification: 5,
-                  basePrice: 1299.00
-               },
-               {
-                  id: 502,
-                  name: 'Set 2',
-                  description: '4-piece sofa set with coffee table',
-                  qualification: 5,
-                  basePrice: 1899.00
-               }
-            ]
-         },
-         {
-            id: 6,
-            name: 'Wardrobes',
-            description: 'Bedroom wardrobes and storage solutions',
-            icon: 'fa-archive',
-            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
-            type: 'simple',
-            hasVariants: true,
-            variantType: 'size',
-            variants: [
-               {
-                  id: 601,
-                  name: 'Size 1',
-                  description: 'Small Wardrobe 120x200cm',
-                  qualification: 6,
-                  basePrice: 399.00
-               },
-               {
-                  id: 602,
-                  name: 'Size 2',
-                  description: 'Medium Wardrobe 180x200cm',
-                  qualification: 6,
-                  basePrice: 599.00
-               },
-               {
-                  id: 603,
-                  name: 'Size 3',
-                  description: 'Large Wardrobe 240x200cm',
-                  qualification: 6,
-                  basePrice: 799.00
-               }
-            ]
-         }
-      ];
+      // Function to check if a product is a main product (no parent)
+      function isMainProduct(product) {
+         return product.parent_id === null;
+      }
 
-      const availableProductsForSets = [{
-            id: 'dining-table-basic',
-            name: 'Basic Dining Table',
-            qualification: 'tables',
-            description: 'Standard dining table',
-            icon: 'fa-table',
-            color: 'linear-gradient(135deg, #8b4513, #a0522d)'
-         },
-         {
-            id: 'dining-table-premium',
-            name: 'Premium Dining Table',
-            qualification: 'tables',
-            description: 'High-end dining table',
-            icon: 'fa-table',
-            color: 'linear-gradient(135deg, #654321, #8b4513)'
-         },
-         {
-            id: 'dining-chair-basic',
-            name: 'Basic Dining Chair',
-            qualification: 'chairs',
-            description: 'Standard dining chair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #4ecdc4, #44a08d)'
-         },
-         {
-            id: 'dining-chair-premium',
-            name: 'Premium Dining Chair',
-            qualification: 'chairs',
-            description: 'Comfortable dining chair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #56ab2f, #a8e6cf)'
-         },
-         {
-            id: 'sideboard-premium',
-            name: 'Premium Sideboard',
-            qualification: 'storage',
-            description: 'Elegant sideboard',
-            icon: 'fa-archive',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
-         },
-         {
-            id: 'sofa-3seat',
-            name: '3-Seater Sofa',
-            qualification: 'sofas',
-            description: 'Comfortable 3-seater sofa',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)'
-         },
-         {
-            id: 'loveseat',
-            name: 'Loveseat',
-            qualification: 'sofas',
-            description: 'Compact two-seater sofa',
-            icon: 'fa-couch',
-            color: 'linear-gradient(135deg, #ff9a00, #ff6b6b)'
-         },
-         {
-            id: 'armchair',
-            name: 'Armchair',
-            qualification: 'chairs',
-            description: 'Comfortable armchair',
-            icon: 'fa-chair',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
+      // NEW: Function to check if a product is a variant/set item (has parent)
+      function isVariantProduct(product) {
+         return product.parent_id !== null;
+      }
+
+      // NEW: Function to get main products (no parent_id)
+      function getMainProducts() {
+         return products.filter(product => product.parent_id === null);
+      }
+
+      // NEW: Function to get variants by parent product ID
+      function getVariantsByProductId(productId) {
+         return products.filter(product => product.parent_id === productId);
+      }
+
+      // NEW: Function to get products by qualification ID (only main products)
+      function getProductsByQualification(qualificationId) {
+         // For fitout and curtains, return sub-products
+         if (qualificationId === 1) { // Fitout
+            return getVariantsByProductId(1); // Return fitout sub-products
+         } else if (qualificationId === 2) { // Curtains
+            return getVariantsByProductId(2); // Return curtain sub-products
+         } else {
+            // For other qualifications, return the main product itself
+            const mainProduct = products.find(p => p.qualification_id === qualificationId && p.parent_id === null);
+            return mainProduct ? [mainProduct] : [];
          }
-      ];
+      }
+
+      // NEW: Function to get qualification by ID
+      function getQualificationById(qualificationId) {
+         return qualifications.find(qual => qual.id === qualificationId);
+      }
+
+      // NEW: Function to get product by ID
+      function getProductById(productId) {
+         return products.find(product => product.id === productId);
+      }
 
       // Function to check if a product has variants
       function productHasVariants(productId) {
-         const product = productOptions.find(p => p.id === productId);
+         const product = getProductById(productId);
          return product ? product.hasVariants : false;
       }
 
       // Function to get product variant type
       function getProductVariantType(productId) {
-         const product = productOptions.find(p => p.id === productId);
+         const product = getProductById(productId);
          return product ? product.variantType : null;
       }
 
       // Function to get variants for a product
       function getVariants(productId) {
-         const product = productOptions.find(p => p.id === productId);
-         return product ? product.variants : [];
+         return getVariantsByProductId(productId);
       }
 
       // Function to get default variants for a product
@@ -3414,11 +3398,10 @@ include PATH . '/inc/footer.php';
 
       // Function to create variants tabs for a product
       function createVariantsTabs(productId, roomId) {
-         const product = productOptions.find(p => p.id === productId);
+         const product = getProductById(productId);
          if (!product || !product.hasVariants) return '';
 
-         const variantType = product.variantType;
-         const variants = product.variants;
+         const variants = getVariants(productId);
 
          return `
         <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
@@ -3454,18 +3437,17 @@ include PATH . '/inc/footer.php';
             </div>
             <div class="material-compact-fields">
                 <div class="material-input">
-                    <label>Material Grade</label>
-                    <select class="form-control material-grade" 
+                    <label>Material Type</label>
+                    <select class="form-control material-type-select" 
                             data-variant="${variant.id}" data-category="${category.id}">
-                        <option value="">Select Grade</option>
-                        <option value="standard">Standard</option>
-                        <option value="premium">Premium</option>
-                        <option value="economy">Economy</option>
+                        <option value="">Select Material</option>
+                        <option value="main">Main Material</option>
+                        <option value="secondary">Secondary Material</option>
                     </select>
                 </div>
                 <div class="material-input">
-                    <label>Material Type</label>
-                    <select class="form-control material-type-select" 
+                    <label>Material</label>
+                    <select class="form-control material-select" 
                             data-variant="${variant.id}" data-category="${category.id}">
                         <option value="">Select Material</option>
                         ${category.defaultMaterials.map(material => `
@@ -3586,18 +3568,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="pillow-material-compact-fields">
                                     <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-subcategory="${subcat.id}" data-variant="${variant.id}">
                                             <option value="">Select Material</option>
                                             ${pillowCategory.defaultMaterials.map(material => `
@@ -3609,24 +3590,6 @@ include PATH . '/inc/footer.php';
                                         <label>Area/Weight</label>
                                         <input type="text" class="form-control area-weight" 
                                                placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
                                                data-subcategory="${subcat.id}" data-variant="${variant.id}">
                                     </div>
                                 </div>
@@ -3713,18 +3676,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="material-compact-fields">
                                     <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-variant="${variant.id}">
                                             <option value="">Select Material</option>
                                             ${category.defaultMaterials.map(material => `
@@ -3826,18 +3788,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="material-compact-fields">
                                     <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-variant="${variant.id}">
                                             <option value="">Select Material</option>
                                             ${category.defaultMaterials.map(material => `
@@ -3972,18 +3933,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="material-compact-fields">
                                     <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-product="${product.id}" data-variant="${variantId}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-product="${product.id}" data-variant="${variantId}">
                                             <option value="">Select Material</option>
                                             ${category.defaultMaterials.map(material => `
@@ -4187,8 +4147,8 @@ include PATH . '/inc/footer.php';
          const $content = $(`#set-product-${productId}-${variantId}-${productIdAttr}-room${roomId}`);
          const width = $content.find('.dimension-width').val();
          const length = $content.find('.dimension-length').val();
-         const materialGrade = $content.find('.material-grade').val();
-         const materialType = $content.find('.material-type-select').val();
+         const materialGrade = $content.find('.material-type-select').val();
+         const materialType = $content.find('.material-select').val();
 
          $statusIndicator.removeClass('status-empty status-incomplete status-complete');
 
@@ -4256,8 +4216,8 @@ include PATH . '/inc/footer.php';
             }
          } else {
             // For other material categories
-            const materialGrade = $content.find(`.material-grade[data-category="${activeCategory}"]`).val();
-            const materialType = $content.find(`.material-type-select[data-category="${activeCategory}"]`).val();
+            const materialGrade = $content.find(`.material-type-select[data-category="${activeCategory}"]`).val();
+            const materialType = $content.find(`.material-select[data-category="${activeCategory}"]`).val();
             materialComplete = !!(materialGrade && materialType);
          }
 
@@ -4767,7 +4727,7 @@ include PATH . '/inc/footer.php';
          const $optionsContainer = $('#qualificationOptions');
          $optionsContainer.empty();
 
-         productOptions.forEach(qual => {
+         qualifications.forEach(qual => {
             const $option = $(`
             <div class="qualification-option" data-qualification="${qual.id}">
                <div class="qualification-option-header">
@@ -4789,17 +4749,10 @@ include PATH . '/inc/footer.php';
          $optionsContainer.empty();
          state.selectedProducts = [];
 
-         let productsToShow = [];
+         // Get products for this qualification
+         const productsForQualification = getProductsByQualification(qualification.id);
 
-         if (qualification.id === 'fitout') {
-            productsToShow = fitoutProducts;
-         } else if (qualification.id === 'curtains') {
-            productsToShow = curtainProducts;
-         } else {
-            productsToShow = [qualification];
-         }
-
-         productsToShow.forEach(product => {
+         productsForQualification.forEach(product => {
             const $option = $(`
             <div class="multi-select-option" data-product-id="${product.id}">
                <div class="multi-select-option-header">
@@ -5201,7 +5154,7 @@ include PATH . '/inc/footer.php';
 
          $contentArea.append($content);
 
-         // FIX: Always activate the new tab when it's added
+         // Activate the new tab when it's added
          activateProductTab($tab);
 
          setTimeout(() => {
@@ -5375,17 +5328,16 @@ include PATH . '/inc/footer.php';
                               </div>
                               <div class="material-compact-fields">
                                  <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
+                                    <label>Material Type</label>
+                                    <select class="form-control material-type-select">
+                                       <option value="">Select Material</option>
+                                       <option value="main">Main Material</option>
+                                       <option value="secondary">Secondary Material</option>
                                     </select>
                                  </div>
                                  <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
+                                    <label>Material</label>
+                                    <select class="form-control material-select">
                                        <option value="">Select Material</option>
                                        ${category.defaultMaterials.map(material => `
                                           <option value="${material.id}">${material.name}</option>
@@ -5472,17 +5424,16 @@ include PATH . '/inc/footer.php';
                               </div>
                               <div class="material-compact-fields">
                                  <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
+                                    <label>Material Type</label>
+                                    <select class="form-control material-type-select">
+                                       <option value="">Select Material</option>
+                                       <option value="main">Main Material</option>
+                                       <option value="secondary">Secondary Material</option>
                                     </select>
                                  </div>
                                  <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
+                                    <label>Material</label>
+                                    <select class="form-control material-select">
                                        <option value="">Select Material</option>
                                        ${category.defaultMaterials.map(material => `
                                           <option value="${material.id}">${material.name}</option>
@@ -5600,18 +5551,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="pillow-material-compact-fields">
                                     <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-subcategory="${subcat.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-subcategory="${subcat.id}">
                                             <option value="">Select Material</option>
                                             ${pillowCategory.defaultMaterials.map(material => `
@@ -5623,24 +5573,6 @@ include PATH . '/inc/footer.php';
                                         <label>Area/Weight</label>
                                         <input type="text" class="form-control area-weight" 
                                                placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
                                                data-subcategory="${subcat.id}">
                                     </div>
                                 </div>
@@ -5683,17 +5615,16 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="material-compact-fields">
                                     <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select">
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select">
+                                        <label>Material</label>
+                                        <select class="form-control material-select">
                                             <option value="">Select Material</option>
                                             ${category.defaultMaterials.map(material => `
                                                 <option value="${material.id}">${material.name}</option>
@@ -5742,18 +5673,17 @@ include PATH . '/inc/footer.php';
                                 </div>
                                 <div class="pillow-material-compact-fields">
                                     <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
+                                        <label>Material Type</label>
+                                        <select class="form-control material-type-select" 
                                                 data-subcategory="${subcat.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
+                                            <option value="">Select Material</option>
+                                            <option value="main">Main Material</option>
+                                            <option value="secondary">Secondary Material</option>
                                         </select>
                                     </div>
                                     <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
+                                        <label>Material</label>
+                                        <select class="form-control material-select" 
                                                 data-subcategory="${subcat.id}">
                                             <option value="">Select Material</option>
                                             ${pillowCategory.defaultMaterials.map(material => `
@@ -5765,24 +5695,6 @@ include PATH . '/inc/footer.php';
                                         <label>Area/Weight</label>
                                         <input type="text" class="form-control area-weight" 
                                                placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
                                                data-subcategory="${subcat.id}">
                                     </div>
                                 </div>
@@ -5853,8 +5765,8 @@ include PATH . '/inc/footer.php';
          const $statusIndicator = $tab.find('.status-indicator');
 
          const $content = $(`#pillowSubcategory-${productId}-${variantId}-room${roomId}-${subcategoryId}`);
-         const materialGrade = $content.find('.material-grade').val();
-         const materialType = $content.find('.material-type-select').val();
+         const materialGrade = $content.find('.material-type-select').val();
+         const materialType = $content.find('.material-select').val();
          const areaWeight = $content.find('.area-weight').val();
          const qty = $content.find('.pillow-qty').val();
          const unitPrice = $content.find('.pillow-unit-price').val();
@@ -5981,10 +5893,6 @@ include PATH . '/inc/footer.php';
                             <div class="detail-group">
                                 <label>Height (m)</label>
                                 <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="detail-group">
-                                <label>Material</label>
-                                <input type="text" class="form-control item-material" placeholder="Material type">
                             </div>
                         </div>
                     </div>
@@ -6789,12 +6697,11 @@ include PATH . '/inc/footer.php';
       initializeQualificationModal();
       setupQualificationSearch();
       setupProductSearch();
-      setupItemSearch(); // ADDED: Initialize item search
+      setupItemSearch();
       setupImageUpload();
       addRoomToState(1);
       updateRoomStatus('room1');
 
-      console.log('System initialized successfully with pillow subcategories horizontal tabs');
+      console.log('System initialized successfully');
    });
 </script>
-
