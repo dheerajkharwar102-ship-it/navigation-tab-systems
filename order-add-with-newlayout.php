@@ -2132,6 +2132,110 @@ $togle_temp_count = 0;
       font-size: 1.1rem;
    }
 
+   .preview-header {
+      background: linear-gradient(135deg, #4361ee, #3a0ca3);
+      color: white;
+      padding: 8px 12px;
+   }
+
+   .preview-header h6 {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+   }
+
+   /* Accessory Total Price Field */
+   .accessory-total-price {
+      border-top: 1px solid #e9ecef;
+   }
+
+   .accessory-total-price label {
+      font-weight: 600;
+      color: #495057;
+   }
+
+   .accessory-total-price .form-control {
+      font-weight: 600;
+      color: #4361ee;
+      background: #f8f9fa;
+   }
+
+   /* new css */
+   /* Accessory Selection with Preview Layout */
+   .accessory-type-with-preview {
+      grid-column: 1 / -1;
+   }
+
+   .accessory-selection-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+   }
+
+   .accessory-type-select {
+      width: 100%;
+   }
+
+   .accessory-option-preview {
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      padding: 12px;
+      min-height: 80px;
+   }
+
+   .preview-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+   }
+
+   .preview-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      border: 1px solid #dee2e6;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+   }
+
+   .preview-image i {
+      color: #6c757d;
+      font-size: 1.1rem;
+   }
+
+   .preview-details {
+      flex: 1;
+   }
+
+   .preview-name {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+   }
+
+   .preview-description {
+      color: #6c757d;
+      font-size: 0.75rem;
+      line-height: 1.3;
+   }
+
+   /* Style when an option is selected */
+   .accessory-option-preview.has-selection {
+      border-color: #4361ee;
+      background: linear-gradient(135deg, #4361ee08 0%, #3a0ca308 100%);
+   }
+
+   .accessory-option-preview.has-selection .preview-name {
+      color: #4361ee;
+   }
+
+   /* Responsive Adjustments */
    @media (max-width: 1200px) {
       .qualification-options {
          grid-template-columns: 1fr;
@@ -2309,6 +2413,20 @@ $togle_temp_count = 0;
 
       .variant-product-selection {
          grid-template-columns: 1fr;
+      }
+
+      .accessory-selection-container {
+         grid-template-columns: 1fr;
+         gap: 12px;
+      }
+
+      .accessory-option-preview {
+         min-height: 60px;
+      }
+
+      .preview-image {
+         width: 40px;
+         height: 40px;
       }
    }
 
@@ -6398,10 +6516,6 @@ include PATH . '/inc/footer.php';
                                 <label>Height (m)</label>
                                 <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
                             </div>
-                            <div class="detail-group">
-                                <label>Material</label>
-                                <input type="text" class="form-control item-material" placeholder="Material type">
-                            </div>
                         </div>
                     </div>
                     <div class="detail-group" style="margin-top: 12px;">
@@ -6517,47 +6631,55 @@ include PATH . '/inc/footer.php';
 
          // Accessory details content
          const $detailsContent = $(`
-        <div class="accessory-details" id="${tabId}" style="display: none;">
-           <div class="enhanced-category-item">
-              <div class="enhanced-item-header">
-                 <div class="enhanced-item-name">${accessory.name}</div>
-              </div>
-              <div class="enhanced-details-with-image">
-                 <div class="enhanced-image-preview">
+    <div class="accessory-details" id="${tabId}" style="display: none;">
+        <div class="enhanced-category-item">
+            <div class="enhanced-item-header">
+                <div class="enhanced-item-name">${accessory.name}</div>
+            </div>
+            <div class="enhanced-details-with-image">
+                <div class="enhanced-image-preview">
                     <i class="fa fa-image"></i>
-                 </div>
-                 <div class="enhanced-details-fields">
-                    <div class="detail-group">
-                       <label>Quantity</label>
-                       <input type="number" class="form-control accessory-qty" placeholder="0" min="1" value="1">
+                </div>
+                <div class="enhanced-details-fields">
+                    <div class="detail-group accessory-type-with-preview">
+                        <label>Accessory Type</label>
+                        <div class="accessory-selection-container">
+                            <select class="form-control accessory-type-select">
+                                <option value="">Select ${accessory.name} Type</option>
+                                ${accessory.options.map(option => `
+                                    <option value="${option.id}">${option.name}</option>
+                                `).join('')}
+                            </select>
+                            <div class="accessory-option-preview" id="${accessory.id}-preview">
+                                <div class="preview-content">
+                                    <div class="preview-image">
+                                        <i class="fa fa-image"></i>
+                                    </div>
+                                    <div class="preview-details">
+                                        <div class="preview-name">No selection</div>
+                                        <div class="preview-description">Select an option to see preview</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="detail-group">
-                       <label>Unit Price</label>
-                       <input type="number" class="form-control accessory-price" placeholder="0.00" min="0" step="0.01" value="0.00">
+                        <label>Quantity</label>
+                        <input type="number" class="form-control accessory-qty" placeholder="0" min="1" value="1">
                     </div>
                     <div class="detail-group">
-                       <label>Accessory Type</label>
-                       <select class="form-control accessory-type-select">
-                          <option value="">Select ${accessory.name} Type</option>
-                          ${accessory.options.map(option => `
-                             <option value="${option.id}">${option.name}</option>
-                          `).join('')}
-                       </select>
+                        <label>Unit Price ($)</label>
+                        <input type="number" class="form-control accessory-price" placeholder="0.00" min="0" step="0.01" value="0.00">
                     </div>
-                 </div>
-              </div>
-              <div class="accessory-option" id="${accessory.id}-preview" style="display: none; margin-top: 12px;">
-                 <div class="accessory-option-image">
-                    <i class="fa fa-image"></i>
-                 </div>
-                 <div class="accessory-option-details">
-                    <div class="accessory-option-name"></div>
-                    <div class="accessory-option-description"></div>
-                 </div>
-              </div>
-           </div>
+                    <div class="detail-group accessory-total-price">
+                        <label>Total Price ($)</label>
+                        <input type="number" class="form-control accessory-total" placeholder="0.00" step="0.01" min="0" readonly>
+                    </div>
+                </div>
+            </div>
         </div>
-     `);
+    </div>
+`);
 
          if ($emptyDetails.length) {
             $emptyDetails.remove();
@@ -6567,7 +6689,7 @@ include PATH . '/inc/footer.php';
 
          activateAccessoryTab($tab, roomId, productId);
 
-         // Setup accessory type selection preview
+         // Accessory type selection handler
          $(`#${tabId} .accessory-type-select`).on('change', function() {
             const selectedOptionId = $(this).val();
             const previewId = `${accessory.id}-preview`;
@@ -6575,13 +6697,24 @@ include PATH . '/inc/footer.php';
             if (selectedOptionId) {
                const selectedOption = accessory.options.find(opt => opt.id === selectedOptionId);
                if (selectedOption) {
-                  $(`#${tabId} #${previewId} .accessory-option-name`).text(selectedOption.name);
-                  $(`#${tabId} #${previewId} .accessory-option-description`).text(selectedOption.description);
-                  $(`#${tabId} #${previewId}`).show();
+                  $(`#${tabId} #${previewId} .preview-name`).text(selectedOption.name);
+                  $(`#${tabId} #${previewId} .preview-description`).text(selectedOption.description);
+                  $(`#${tabId} #${previewId}`).addClass('has-selection');
                }
             } else {
-               $(`#${tabId} #${previewId}`).hide();
+               $(`#${tabId} #${previewId} .preview-name`).text('No selection');
+               $(`#${tabId} #${previewId} .preview-description`).text('Select an option to see preview');
+               $(`#${tabId} #${previewId}`).removeClass('has-selection');
             }
+         });
+
+         // Calculation for accessory total price
+         $(`#${tabId} .accessory-qty, #${tabId} .accessory-price`).on('input', function() {
+            const qty = parseFloat($(`#${tabId} .accessory-qty`).val()) || 0;
+            const price = parseFloat($(`#${tabId} .accessory-price`).val()) || 0;
+            const total = qty * price;
+
+            $(`#${tabId} .accessory-total`).val(total.toFixed(2));
          });
 
          $tab.find('.accessory-tab-close').on('click', function(e) {
@@ -6592,21 +6725,60 @@ include PATH . '/inc/footer.php';
 
       // Setup material tabs for specific item
       function setupMaterialTabsForItem(itemId, productId, roomId) {
-         const materialTabsId = `materialTabs-${itemId}-${productId}-room${roomId}`;
+         const materialTabsId = `
+               materialTabs - $ {
+                  itemId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `;
 
          // Use a small delay to ensure DOM is ready
          setTimeout(() => {
-            if ($(`#${materialTabsId}`).length) {
-               $(`#${materialTabsId} .material-tab`).off('click').on('click', function(e) {
+            if ($(`
+               #$ {
+                  materialTabsId
+               }
+               `).length) {
+               $(`
+               #$ {
+                  materialTabsId
+               }.material - tab`).off('click').on('click', function(e) {
                   e.preventDefault();
                   const categoryId = $(this).data('category');
-                  const materialTabsContentId = `materialTabsContent-${itemId}-${productId}-room${roomId}`;
+                  const materialTabsContentId = `
+               materialTabsContent - $ {
+                  itemId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `;
 
-                  $(`#${materialTabsId} .material-tab`).removeClass('active');
+                  $(`
+               #$ {
+                  materialTabsId
+               }.material - tab`).removeClass('active');
                   $(this).addClass('active');
 
-                  $(`#${materialTabsContentId} .material-tab-content`).removeClass('active');
-                  $(`#materialContent-${itemId}-${productId}-room${roomId}-${categoryId}`).addClass('active');
+                  $(`
+               #$ {
+                  materialTabsContentId
+               }.material - tab - content`).removeClass('active');
+                  $(`
+               #materialContent - $ {
+                  itemId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               } - $ {
+                  categoryId
+               }
+               `).addClass('active');
                });
             }
          }, 100);
@@ -6639,8 +6811,20 @@ include PATH . '/inc/footer.php';
          // Activate current tab and show its details
          $tab.addClass('active');
 
-         const detailsId = `item-${itemId}-${productId}-room${roomId}`;
-         const $details = $(`#${detailsId}`);
+         const detailsId = `
+               item - $ {
+                  itemId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `;
+         const $details = $(`
+               #$ {
+                  detailsId
+               }
+               `);
 
          if ($details.length) {
             $details.show();
@@ -6650,7 +6834,7 @@ include PATH . '/inc/footer.php';
          }
       }
 
-      // ADDED: Activate accessory tab
+      // Activate accessory tab
       function activateAccessoryTab($tab, roomId, productId) {
          const accessoryId = $tab.data('accessory-id');
          const $productContent = $(`#product-${productId}-room${roomId}`);
@@ -6681,33 +6865,51 @@ include PATH . '/inc/footer.php';
          $tab.remove();
 
          // Remove the details content
-         const detailsId = `item-${itemId}-${productId}-room${roomId}`;
-         $(`#${detailsId}`).remove();
+         const detailsId = `
+               item - $ {
+                  itemId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `;
+         $(`
+               #$ {
+                  detailsId
+               }
+               `).remove();
 
          const $tabsContainer = $productContent.find('.items-tabs-container');
          const $detailsBody = $productContent.find('.product-details-body');
          const $tabs = $tabsContainer.find('.items-tab');
 
          if ($tabs.length === 0) {
-            $tabsContainer.html(`
-            <div class="empty-items-tabs">
-                <i class="fa fa-cube"></i>
-                <p>No items added yet</p>
-            </div>
-        `);
+            $tabsContainer.html(` <
+               div class = "empty-items-tabs" >
+               <
+               i class = "fa fa-cube" > < /i> <
+               p > No items added yet < /p> <
+                  /div>
+               `);
 
-            $detailsBody.html(`
-            <div class="empty-item-selection">
-                <i class="fa fa-hand-pointer"></i>
-                <p>Select an item to view and edit details</p>
-            </div>
-        `);
+            $detailsBody.html(` <
+               div class = "empty-item-selection" >
+               <
+               i class = "fa fa-hand-pointer" > < /i> <
+               p > Select an item to view and edit details < /p> <
+                  /div>
+               `);
          } else {
             const $firstTab = $tabs.first();
             activateItemTab($firstTab);
          }
 
-         updateRoomStatus(`room${roomId}`);
+         updateRoomStatus(`
+               room$ {
+                  roomId
+               }
+               `);
       }
 
       // ADDED: Remove accessory from product
@@ -6715,27 +6917,43 @@ include PATH . '/inc/footer.php';
          console.log('Removing accessory from product');
 
          $tab.remove();
-         $(`#accessory-${accessoryId}-${productId}-room${roomId}`).remove();
+         $(`
+               #accessory - $ {
+                  accessoryId
+               } - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `).remove();
 
-         const $productContent = $(`#product-${productId}-room${roomId}`);
+         const $productContent = $(`
+               #product - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `);
          const $tabsContainer = $productContent.find('.accessory-tabs-container');
          const $detailsBody = $productContent.find('.accessory-details-body');
          const $tabs = $tabsContainer.find('.accessory-tab');
 
          if ($tabs.length === 0) {
-            $tabsContainer.html(`
-            <div class="empty-accessory-tabs">
-               <i class="fa fa-puzzle-piece"></i>
-               <p>No accessories added yet</p>
-            </div>
-         `);
+            $tabsContainer.html(` <
+               div class = "empty-accessory-tabs" >
+               <
+               i class = "fa fa-puzzle-piece" > < /i> <
+               p > No accessories added yet < /p> <
+                  /div>
+               `);
 
-            $detailsBody.html(`
-            <div class="empty-accessory-selection">
-               <i class="fa fa-hand-pointer"></i>
-               <p>Select an accessory to view and edit details</p>
-            </div>
-         `);
+            $detailsBody.html(` <
+               div class = "empty-accessory-selection" >
+               <
+               i class = "fa fa-hand-pointer" > < /i> <
+               p > Select an accessory to view and edit details < /p> <
+                  /div>
+               `);
          } else {
             const $firstTab = $tabs.first();
             activateAccessoryTab($firstTab, roomId, productId);
@@ -6743,8 +6961,15 @@ include PATH . '/inc/footer.php';
       }
 
       function updateRoomStatus(roomId) {
-         const $roomPane = $(`#${roomId}`);
-         const $statusIndicator = $(`#${roomId}-tab .status-indicator`);
+         const $roomPane = $(`
+               #$ {
+                  roomId
+               }
+               `);
+         const $statusIndicator = $(`
+               #$ {
+                  roomId
+               } - tab.status - indicator`);
 
          let hasItems = false;
          let allComplete = true;
@@ -6779,71 +7004,128 @@ include PATH . '/inc/footer.php';
          const roomNumber = getNextRoomNumber();
          const roomId = 'room' + roomNumber;
 
-         const $tabLi = $(`
-        <li class="nav-item">
-           <a class="nav-link room-tab" id="${roomId}-tab" data-toggle="tab" href="#${roomId}" role="tab" aria-controls="${roomId}" data-room="${roomNumber}">
-              <div class="room-header">
-                 <span class="status-indicator status-empty"></span>
-                 <span class="room-title">Room ${roomNumber}</span>
-                 <span class="close-room ml-2" title="Remove room">
-                    <i class="fa fa-times"></i>
-                 </span>
-              </div>
-           </a>
-        </li>
-     `);
+         const $tabLi = $(` <
+                  li class = "nav-item" >
+                  <
+                  a class = "nav-link room-tab"
+               id = "${roomId}-tab"
+               data - toggle = "tab"
+               href = "#${roomId}"
+               role = "tab"
+               aria - controls = "${roomId}"
+               data - room = "${roomNumber}" >
+                  <
+                  div class = "room-header" >
+                  <
+                  span class = "status-indicator status-empty" > < /span> <
+                  span class = "room-title" > Room $ {
+                     roomNumber
+                  } < /span> <
+                  span class = "close-room ml-2"
+               title = "Remove room" >
+                  <
+                  i class = "fa fa-times" > < /i> <
+                  /span> <
+                  /div> <
+                  /a> <
+                  /li>
+               `);
          $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
 
-         const $pane = $(`
-        <div class="tab-pane fade" id="${roomId}" role="tabpanel" aria-labelledby="${roomId}-tab" data-room="${roomNumber}">
-           <div class="product-tabs-wrapper">
-              <div class="product-tabs-header">
-                 <div class="room-info-form">
-                    <div class="form-group-small">
-                       <label for="floorName-${roomId}">Floor Name</label>
-                       <input type="text" class="form-control-small" id="floorName-${roomId}" placeholder="Enter floor name">
-                    </div>
-                    <div class="form-group-small">
-                       <label for="roomName-${roomId}">Room Name</label>
-                       <input type="text" class="form-control-small" id="roomName-${roomId}" placeholder="Enter room name">
-                    </div>
-                    <div class="form-group-small">
-                       <label>Room Image</label>
-                       <div class="image-upload-container">
-                          <div class="image-preview" id="imagePreview-${roomId}">
-                             <i class="fa fa-image"></i>
-                          </div>
-                          <div class="file-input-wrapper">
-                             <button type="button" class="btn btn-sm btn-outline-primary">
-                                <i class="fa fa-upload mr-1"></i> Upload
-                             </button>
-                             <input type="file" class="room-image-input" id="roomImage-${roomId}" data-file-type="image" data-room="${roomNumber}">
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-                 <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="${roomNumber}">
-                    <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
-                 </button>
-              </div>
-              <div class="product-tabs-container" id="productTabs-room${roomNumber}">
-                 <div class="product-empty-state">
-                    <i class="fa fa-cube"></i>
-                    <p>No products added yet</p>
-                 </div>
-              </div>
-              <div class="product-content-area" id="productContent-room${roomNumber}">
-                 <div class="product-empty-state">
-                    <i class="fa fa-hand-pointer"></i>
-                    <p>Select a product to configure details</p>
-                 </div>
-              </div>
-           </div>
-        </div>
-     `);
+         const $pane = $(` <
+               div class = "tab-pane fade"
+               id = "${roomId}"
+               role = "tabpanel"
+               aria - labelledby = "${roomId}-tab"
+               data - room = "${roomNumber}" >
+                  <
+                  div class = "product-tabs-wrapper" >
+                  <
+                  div class = "product-tabs-header" >
+                  <
+                  div class = "room-info-form" >
+                  <
+                  div class = "form-group-small" >
+                  <
+                  label
+               for = "floorName-${roomId}" > Floor Name < /label> <
+                  input type = "text"
+               class = "form-control-small"
+               id = "floorName-${roomId}"
+               placeholder = "Enter floor name" >
+                  <
+                  /div> <
+                  div class = "form-group-small" >
+                  <
+                  label
+               for = "roomName-${roomId}" > Room Name < /label> <
+                  input type = "text"
+               class = "form-control-small"
+               id = "roomName-${roomId}"
+               placeholder = "Enter room name" >
+                  <
+                  /div> <
+                  div class = "form-group-small" >
+                  <
+                  label > Room Image < /label> <
+                  div class = "image-upload-container" >
+                  <
+                  div class = "image-preview"
+               id = "imagePreview-${roomId}" >
+                  <
+                  i class = "fa fa-image" > < /i> <
+                  /div> <
+                  div class = "file-input-wrapper" >
+                  <
+                  button type = "button"
+               class = "btn btn-sm btn-outline-primary" >
+               <
+               i class = "fa fa-upload mr-1" > < /i> Upload <
+               /button> <
+               input type = "file"
+               class = "room-image-input"
+               id = "roomImage-${roomId}"
+               data - file - type = "image"
+               data - room = "${roomNumber}" >
+                  <
+                  /div> <
+                  /div> <
+                  /div> <
+                  /div> <
+                  button type = "button"
+               class = "btn btn-sm btn-primary add-item-to-room-btn"
+               data - room = "${roomNumber}" >
+                  <
+                  i class = "fa fa-plus mr-1" > < /i> Add Item To Room ${roomNumber} <
+                  /button> <
+                  /div> <
+                  div class = "product-tabs-container"
+               id = "productTabs-room${roomNumber}" >
+                  <
+                  div class = "product-empty-state" >
+                  <
+                  i class = "fa fa-cube" > < /i> <
+                  p > No products added yet < /p> <
+                  /div> <
+                  /div> <
+                  div class = "product-content-area"
+               id = "productContent-room${roomNumber}" >
+                  <
+                  div class = "product-empty-state" >
+                  <
+                  i class = "fa fa-hand-pointer" > < /i> <
+                  p > Select a product to configure details < /p> <
+                  /div> <
+                  /div> <
+                  /div> <
+                  /div>
+               `);
 
          $('#roomTabsContent').append($pane);
-         $(`#${roomId}-tab`).tab('show');
+         $(`
+               #$ {
+                  roomId
+               } - tab`).tab('show');
          updateRoomStatus(roomId);
          addRoomToState(roomNumber);
       });
@@ -7111,7 +7393,11 @@ include PATH . '/inc/footer.php';
          const isActive = $tab.hasClass('active');
 
          $tab.closest('.nav-item').remove();
-         $(`#${roomId}`).remove();
+         $(`
+               #$ {
+                  roomId
+               }
+               `).remove();
 
          renumberRooms();
 
@@ -7143,7 +7429,13 @@ include PATH . '/inc/footer.php';
          const productId = $tab.data('product');
          const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
 
-         $(`#product-${productId}-room${roomId}`).remove();
+         $(`
+               #product - $ {
+                  productId
+               } - room$ {
+                  roomId
+               }
+               `).remove();
          $tab.remove();
 
          if ($tab.hasClass('active')) {
