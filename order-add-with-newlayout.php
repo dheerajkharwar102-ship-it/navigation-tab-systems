@@ -1570,7 +1570,7 @@ $togle_temp_count = 0;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       width: 90%;
       max-width: 700px;
-      max-height: 80vh;
+      max-height: 90vh;
       overflow: hidden;
    }
 
@@ -1958,6 +1958,178 @@ $togle_temp_count = 0;
       color: #6c757d;
       font-size: 0.75rem;
       line-height: 1.3;
+   }
+
+   /* Radio Button Variant Selection Styles */
+   .variant-radio-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      border-radius: 6px 6px 0 0;
+   }
+
+   .variant-radio-header h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.9rem;
+   }
+
+   .variant-radio-container {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      flex-wrap: wrap;
+   }
+
+   .variant-radio-option {
+      display: flex;
+      align-items: center;
+   }
+
+   .variant-radio-input {
+      display: none;
+   }
+
+   .variant-radio-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+   }
+
+   .variant-radio-label:hover {
+      border-color: #4361ee;
+      background: #f8f9fa;
+   }
+
+   .variant-radio-input:checked+.variant-radio-label {
+      border-color: #4361ee;
+      background: linear-gradient(135deg, #4361ee08 0%, #3a0ca308 100%);
+      box-shadow: 0 2px 6px rgba(67, 97, 238, 0.2);
+   }
+
+   .variant-radio-name {
+      font-weight: 500;
+      color: #495057;
+      font-size: 0.85rem;
+   }
+
+   /* Compact Product Totals Section */
+   .product-totals-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-end;
+   }
+
+   .product-totals-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8f9fa;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+   }
+
+   .product-totals-label {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+   }
+
+   .product-totals-amount {
+      font-weight: 700;
+      color: #4361ee;
+      font-size: 1rem;
+   }
+
+   .product-total-price {
+      min-width: 80px;
+      display: inline-block;
+      text-align: right;
+   }
+
+   /* Grand Totals Section */
+   .grand-totals-wrapper {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #4361ee;
+   }
+
+   .grand-totals-section {
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+   }
+
+   .grand-totals-header {
+      background: linear-gradient(135deg, #4361ee, #3a0ca3);
+      color: white;
+      padding: 12px 20px;
+   }
+
+   .grand-totals-header h5 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+   }
+
+   .grand-totals-content {
+      padding: 20px;
+   }
+
+   .grand-totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f8f9fa;
+   }
+
+   .grand-totals-row:last-child {
+      border-bottom: none;
+   }
+
+   .grand-totals-label {
+      font-weight: 500;
+      color: #495057;
+      font-size: 0.95rem;
+   }
+
+   .grand-totals-amount {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.95rem;
+   }
+
+   .grand-total-final {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 2px solid #e9ecef;
+   }
+
+   .grand-total-final .grand-totals-label {
+      font-weight: 700;
+      color: #4361ee;
+      font-size: 1.1rem;
+   }
+
+   .grand-total-final .grand-totals-amount {
+      font-weight: 700;
+      color: #4361ee;
+      font-size: 1.1rem;
    }
 
    @media (max-width: 1200px) {
@@ -3022,6 +3194,13 @@ include PATH . '/inc/footer.php';
             description: 'Bedroom wardrobes and storage solutions',
             icon: 'fa-archive',
             color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
+         },
+         {
+            id: 7,
+            name: 'Armchairs',
+            description: 'Armchair solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
          }
       ];
 
@@ -3360,6 +3539,7 @@ include PATH . '/inc/footer.php';
             parent_id: null,
             qualification_id: 6
          },
+
          // Wardrobe Variants (children with parent_id)
          {
             id: 602,
@@ -3393,6 +3573,19 @@ include PATH . '/inc/footer.php';
             parent_id: 601,
             qualification_id: 6,
             basePrice: 799.00
+         },
+         // Armchair (single product)
+         {
+            id: 605,
+            name: 'Armchair',
+            description: 'Armchair solutions',
+            icon: 'fa-archive',
+            color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            type: 'simple',
+            hasVariants: false,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 7
          }
       ];
 
@@ -3685,6 +3878,17 @@ include PATH . '/inc/footer.php';
          return product ? product.hasVariants : false;
       }
 
+      // Helper functions to detect variant type
+      function isSizeVariantProduct(productId) {
+         const product = products.find(p => p.id === productId);
+         return product && product.variantType === 'size';
+      }
+
+      function isSetVariantProduct(productId) {
+         const product = products.find(p => p.id === productId);
+         return product && product.variantType === 'set';
+      }
+
       function productHasItems(productId) {
          return getProductItems(productId).length > 0;
       }
@@ -3703,28 +3907,28 @@ include PATH . '/inc/footer.php';
       // Function to create variants tabs for a product
       function createVariantsTabs(productId, variants, roomId) {
          return `
-        <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
-            <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
-                ${variants.map((variant, index) => `
-                    <button class="product-variant-tab ${index === 0 ? 'active' : ''}" 
-                            data-variant="${variant.id}" data-product="${productId}" data-room="${roomId}">
-                        <div class="product-variant-header">
-                            <span class="status-indicator status-empty"></span>
-                            <span class="product-variant-title">${variant.name}</span>
-                        </div>
-                    </button>
-                `).join('')}
-            </div>
-            <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
-                ${variants.map((variant, index) => `
-                    <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
-                         id="variant-${productId}-${variant.id}-room${roomId}">
-                        ${createVariantContent(productId, variant, roomId)}
+    <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
+        <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
+            ${variants.map((variant, index) => `
+                <button class="product-variant-tab ${index === 0 ? 'active' : ''}" 
+                        data-variant="${variant.id}" data-product="${productId}" data-room="${roomId}">
+                    <div class="product-variant-header">
+                        <span class="status-indicator status-empty"></span>
+                        <span class="product-variant-title">${variant.name}</span>
                     </div>
-                `).join('')}
-            </div>
+                </button>
+            `).join('')}
         </div>
-        `;
+        <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
+            ${variants.map((variant, index) => `
+                <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
+                     id="variant-${productId}-${variant.id}-room${roomId}">
+                    ${createVariantContent(productId, variant, roomId)}
+                </div>
+            `).join('')}
+        </div>
+    </div>
+    `;
       }
 
       // Function to create standard material content (non-pillow categories)
@@ -4507,23 +4711,33 @@ include PATH . '/inc/footer.php';
 
       // Function to update variant status indicator
       function updateVariantStatus(productId, roomId, variantId) {
-         const $tab = $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab[data-variant="${variantId}"]`);
-         const $statusIndicator = $tab.find('.status-indicator');
+         let $statusIndicator;
+
+         if (isSizeVariantProduct(productId)) {
+            // For radio buttons
+            $statusIndicator = $(`#variant-radio-${productId}-${variantId}-room${roomId}`)
+               .closest('.variant-radio-label')
+               .find('.status-indicator');
+         } else {
+            // For tabs
+            $statusIndicator = $(`#variants-tabs-${productId}-room${roomId} .product-variant-tab[data-variant="${variantId}"]`)
+               .find('.status-indicator');
+         }
 
          const $content = $(`#variant-${productId}-${variantId}-room${roomId}`);
 
-         // Check main variant fields
+         // Check main variant fields (SAME LOGIC FOR BOTH)
          const width = $content.find('.dimension-width').val();
          const length = $content.find('.dimension-length').val();
 
-         // Check active material category
+         // Check active material category (SAME LOGIC FOR BOTH)
          const activeMaterialTab = $content.find('.material-tab.active');
          const activeCategory = activeMaterialTab.data('category');
 
          let materialComplete = false;
 
          if (activeCategory === 'pillow') {
-            // For pillow category, check if all pillow subcategories are complete
+            // For pillow category (SAME LOGIC FOR BOTH)
             let allPillowComplete = true;
             const $pillowTabs = $(`#pillowTabs-${productId}-${variantId}-room${roomId}`);
             if ($pillowTabs.length) {
@@ -4531,13 +4745,13 @@ include PATH . '/inc/footer.php';
                   const $pillowStatus = $(this).find('.status-indicator');
                   if (!$pillowStatus.hasClass('status-complete')) {
                      allPillowComplete = false;
-                     return false; // break loop
+                     return false;
                   }
                });
                materialComplete = allPillowComplete;
             }
          } else {
-            // For other material categories
+            // For other material categories (SAME LOGIC FOR BOTH)
             const materialGrade = $content.find(`.material-grade[data-category="${activeCategory}"]`).val();
             const materialType = $content.find(`.material-type-select[data-category="${activeCategory}"]`).val();
             materialComplete = !!(materialGrade && materialType);
@@ -5219,10 +5433,11 @@ include PATH . '/inc/footer.php';
          activateProductTab($tab);
 
          setTimeout(() => {
-            loadProductContent(productId, product);
+            loadProductContent(productId, product, roomId);
          }, 500);
       }
 
+      // Activate product tab
       function activateProductTab($tab) {
          const productId = $tab.data('product');
          const roomId = $tab.closest('.tab-pane').data('room');
@@ -5241,14 +5456,17 @@ include PATH . '/inc/footer.php';
          $(`#product-${productId}-room${roomId}`).show();
       }
 
-      function loadProductContent(contentId, product) {
+      // Load product content based on type and variants
+      function loadProductContent(contentId, product, roomId) {
          const $content = $(`#${contentId}`);
+         const totalsHTML = createTotalsSection(product, roomId);
 
          // Check if product has variants
          if (product.hasVariants) {
             const variants = getProductVariants(product.id);
             if (variants.length > 0) {
                loadProductWithVariants($content, product, variants);
+               $content.append(totalsHTML);
                return;
             }
          }
@@ -5263,21 +5481,33 @@ include PATH . '/inc/footer.php';
          }
 
          // Setup material tabs
-         const roomId = $content.closest('.tab-pane').data('room');
          setupMaterialTabs(product.id);
 
          // Setup pillow subcategories if needed
          if (!productHasVariants(product.id)) {
             setupPillowSubcategoryTabs(product.id);
          }
+
+         $content.append(totalsHTML);
       }
 
+      // Load product with variants
       function loadProductWithVariants($content, product, variants) {
          const roomId = $content.closest('.tab-pane').data('room');
 
-         // Create basic details section + variants tabs
-         const basicDetailsHTML = createBasicDetailsSection(product, roomId);
-         const variantsHTML = createVariantsTabs(product.id, variants, roomId);
+         // Create basic details section + variants
+         var basicDetailsHTML = createBasicDetailsSection(product, roomId);
+         if (isSizeVariantProduct(product.id) || product.hasVariants === false) {
+            basicDetailsHTML = '';
+         }
+
+         // Choose between radio buttons (size) or tabs (set) based on variant type
+         let variantsHTML;
+         if (isSizeVariantProduct(product.id)) {
+            variantsHTML = createVariantsRadioSelection(product.id, variants, roomId);
+         } else {
+            variantsHTML = createVariantsTabs(product.id, variants, roomId);
+         }
 
          const $wrapper = $(`
     <div class="product-with-variants">
@@ -5289,28 +5519,146 @@ include PATH . '/inc/footer.php';
     `);
 
          $content.html($wrapper);
-         setupVariantsTabs(product.id, roomId);
+
+         // Setup the appropriate variant selection method
+         if (isSizeVariantProduct(product.id)) {
+            setupVariantsRadioSelection(product.id, roomId);
+         } else {
+            setupVariantsTabs(product.id, roomId);
+         }
       }
 
+      // Setup variants radio selection (for size variants)
+      function setupVariantsRadioSelection(productId, roomId) {
+         const $variantsRadio = $(`#variants-radio-${productId}-room${roomId}`);
+         const $variantsContent = $(`#variants-content-${productId}-room${roomId}`);
+
+         if (!$variantsRadio.length) return;
+
+         // Radio button change handler
+         $variantsRadio.find('.variant-radio-input').on('change', function() {
+            const variantId = $(this).val();
+
+            // Hide all variant content
+            $variantsContent.find('.product-variant-content').removeClass('active');
+
+            // Show selected variant content
+            $(`#variant-${productId}-${variantId}-room${roomId}`).addClass('active');
+
+            updateVariantStatus(productId, roomId, variantId);
+         });
+
+         // Setup calculations for variants
+         setupVariantCalculations(productId, roomId);
+
+         // Setup material tabs for variants
+         setupVariantMaterialTabs(productId, roomId);
+
+         // Setup pillow subcategory tabs for variants
+         setupVariantPillowSubcategoryTabs(productId, roomId);
+
+         // Activate the first radio by default
+         const $firstRadio = $variantsRadio.find('.variant-radio-input').first();
+         if ($firstRadio.length) {
+            $firstRadio.trigger('change');
+         }
+      }
+
+      // Create variants radio selection (for size variants)
+      function createVariantsRadioSelection(productId, variants, roomId) {
+         return `
+    <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
+        <div class="variant-radio-header">
+            <h6><i class="fa fa-ruler mr-2"></i>Select Size</h6>
+        </div>
+        <div class="variant-radio-container" id="variants-radio-${productId}-room${roomId}">
+            ${variants.map((variant, index) => `
+                <div class="variant-radio-option">
+                    <input type="radio" 
+                           id="variant-radio-${productId}-${variant.id}-room${roomId}" 
+                           name="variant-selection-${productId}-room${roomId}" 
+                           value="${variant.id}" 
+                           ${index === 0 ? 'checked' : ''}
+                           class="variant-radio-input">
+                    <label for="variant-radio-${productId}-${variant.id}-room${roomId}" 
+                           class="variant-radio-label">
+                        <span class="variant-radio-name">${variant.name}</span>
+                        <span class="status-indicator status-empty"></span>
+                    </label>
+                </div>
+            `).join('')}
+        </div>
+        <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
+            ${variants.map((variant, index) => `
+                <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
+                     id="variant-${productId}-${variant.id}-room${roomId}">
+                    ${createVariantContent(productId, variant, roomId)}
+                </div>
+            `).join('')}
+        </div>
+    </div>
+    `;
+      }
+      // Basic details section for products with variants
       function createBasicDetailsSection(product, roomId) {
          return `
-    <div class="basic-details-section">
-        <div class="compact-product-details">
-            <div class="compact-section-header">
-                <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+      <div class="basic-details-section">
+         <div class="compact-product-details">
+               <div class="compact-section-header">
+                  <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+               </div>
+               <div class="compact-details-with-image">
+                  <div class="compact-image-preview">
+                     <i class="fa fa-image"></i>
+                  </div>
+                  <div class="compact-details-fields">
+                     <div class="compact-detail-group">
+                     <span class="detail-label">${product.name}</span>
+                     </div>
+                  </div>
+               </div>
+         </div>
+      </div>
+      `;
+      }
+
+      function createTotalsSection(product, roomId) {
+         return `
+    <div class="product-totals-section" id="product-totals-${product.id}-room${roomId}">
+        <div class="product-totals-row">
+            <div class="product-totals-label">Total:</div>
+            <div class="product-totals-amount">
+                $<span class="product-total-price" id="product-total-${product.id}-room${roomId}">0.00</span>
             </div>
-            <div class="compact-details-with-image">
-                <div class="compact-image-preview">
-                    <i class="fa fa-image"></i>
-                </div>
-                <div class="compact-details-fields">
-                    <div class="compact-detail-group">
-                        <label>Unit Price ($)</label>
-                        <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+        </div>
+    </div>
+    `;
+      }
+
+      function createGrandTotalsSection() {
+         return `
+    <div class="grand-totals-wrapper">
+        <div class="grand-totals-section" id="grand-totals-section">
+            <div class="grand-totals-header">
+                <h5><i class="fa fa-receipt mr-2"></i>Order Summary</h5>
+            </div>
+            <div class="grand-totals-content">
+                <div class="grand-totals-row">
+                    <div class="grand-totals-label">Subtotal:</div>
+                    <div class="grand-totals-amount">
+                        $<span class="grand-subtotal" id="grand-subtotal">0.00</span>
                     </div>
-                    <div class="compact-detail-group">
-                        <label>Total Price ($)</label>
-                        <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                </div>
+                <div class="grand-totals-row">
+                    <div class="grand-totals-label">Tax (<span id="tax-percentage">0</span>%):</div>
+                    <div class="grand-totals-amount">
+                        $<span class="grand-tax" id="grand-tax">0.00</span>
+                    </div>
+                </div>
+                <div class="grand-totals-row grand-total-final">
+                    <div class="grand-totals-label">Grand Total:</div>
+                    <div class="grand-totals-amount">
+                        $<span class="grand-total" id="grand-total">0.00</span>
                     </div>
                 </div>
             </div>
@@ -6854,6 +7202,10 @@ include PATH . '/inc/footer.php';
       setupImageUpload();
       addRoomToState(1);
       updateRoomStatus('room1');
+
+      $(document).ready(function() {
+         $('.room-wrapper').after(createGrandTotalsSection());
+      });
 
       console.log('System initialized successfully with pillow subcategories horizontal tabs');
    });
