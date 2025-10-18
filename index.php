@@ -1333,7 +1333,7 @@ $togle_temp_count = 0;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       width: 90%;
       max-width: 500px;
-      max-height: 70vh;
+      max-height: 80vh;
       overflow: hidden;
    }
 
@@ -2823,7 +2823,7 @@ $togle_temp_count = 0;
                                           </div>
                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="1">
+                                    <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="1">
                                        <i class="fa fa-plus mr-1"></i> Add Item To Room 1
                                     </button>
                                  </div>
@@ -6474,7 +6474,7 @@ include PATH . '/inc/footer.php';
                        </div>
                     </div>
                  </div>
-                 <button type="button" class="btn btn-sm add-item-to-room-btn" data-room="${roomNumber}">
+                 <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="${roomNumber}">
                     <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
                  </button>
               </div>
@@ -6628,9 +6628,9 @@ include PATH . '/inc/footer.php';
       });
 
       // Accessory selection handlers
-      $(document).on('click', '.item-option', function() {
+      $(document).on('click', '#itemOptions .item-option', function() {
          console.log('Item option clicked:', $(this).data('item-id'));
-         $('.item-option').removeClass('selected');
+         $('#itemOptions .item-option').removeClass('selected');
          $(this).addClass('selected');
 
          const itemId = $(this).data('item-id');
@@ -6647,13 +6647,40 @@ include PATH . '/inc/footer.php';
          }
       });
 
+      // FIX: Add accessory option selection handler
+      $(document).on('click', '#accessoryOptions .item-option', function() {
+         console.log('Accessory option clicked:', $(this).data('accessory-id'));
+
+         // Remove selection from all accessory options
+         $('#accessoryOptions .item-option').removeClass('selected');
+
+         // Add selection to clicked option
+         $(this).addClass('selected');
+
+         const accessoryId = $(this).data('accessory-id');
+
+         // Find the selected accessory
+         state.selectedAccessory = curtainAccessories.find(accessory => accessory.id === accessoryId);
+
+         if (state.selectedAccessory) {
+            console.log('Selected accessory:', state.selectedAccessory);
+            $('#confirmSelectAccessory').prop('disabled', false);
+         } else {
+            console.error('Could not find selected accessory with ID:', accessoryId);
+            $('#confirmSelectAccessory').prop('disabled', true);
+         }
+      });
+
+      // UPDATE: Also fix the confirmSelectAccessory handler to get the correct context
       $('#confirmSelectAccessory').on('click', function() {
          console.log('Confirm accessory selection clicked');
 
          if (state.selectedAccessory && state.currentProductId) {
+            // Get the active product tab to determine room and product context
             const $activeProductTab = $('.product-tab.active');
             if ($activeProductTab.length === 0) {
                console.error('No active product tab found');
+               alert('Please select a product tab first.');
                return;
             }
 
@@ -6661,15 +6688,16 @@ include PATH . '/inc/footer.php';
             const roomId = $activeProductTab.closest('.tab-pane').data('room');
 
             console.log('Adding accessory to:', {
-               productId,
-               roomId,
+               productId: productId,
+               roomId: roomId,
                accessory: state.selectedAccessory
             });
 
             addAccessoryToProduct(roomId, productId, state.selectedAccessory);
             hideAccessorySelectionModal();
          } else {
-            console.error('Missing accessory for selection');
+            console.error('Missing accessory or product context for selection');
+            alert('Please select an accessory to add.');
          }
       });
 
