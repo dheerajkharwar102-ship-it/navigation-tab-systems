@@ -4214,31 +4214,7 @@ include PATH . '/inc/footer.php';
                                   placeholder="Enter area or weight"
                                   data-subcategory="${subcat.id}" data-variant="${variant.id}">
                         </div>
-                        <div class="pillow-material-input">
-                           <label>Quantity</label>
-                           <input type="number" class="form-control pillow-qty" 
-                                  placeholder="0" min="1" value="1"
-                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                        </div>
-                        <div class="pillow-material-input">
-                           <label>Unit Price ($)</label>
-                           <input type="number" class="form-control pillow-unit-price" 
-                                  placeholder="0.00" step="0.01" min="0"
-                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                        </div>
-                        <div class="pillow-material-input">
-                           <label>Total Price ($)</label>
-                           <input type="number" class="form-control pillow-total-price" 
-                                  placeholder="0.00" step="0.01" min="0" readonly
-                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                        </div>
                      </div>
-                  </div>
-                  <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                     <label>Additional Notes</label>
-                     <textarea class="form-control pillow-notes" 
-                               placeholder="Enter additional notes for ${subcat.name}..." 
-                               rows="2" data-subcategory="${subcat.id}" data-variant="${variant.id}"></textarea>
                   </div>
                </div>
             </div>
@@ -4677,12 +4653,6 @@ include PATH . '/inc/footer.php';
                updatePillowSubcategoryStatus(productId, variant.id, subcategoryId, roomId);
             });
 
-            // Setup price calculations for pillow subcategories
-            $(`#pillowContent-${productId}-${variant.id}-room${roomId} .pillow-qty, #pillowContent-${productId}-${variant.id}-room${roomId} .pillow-unit-price`).on('input', function() {
-               const subcategoryId = $(this).data('subcategory');
-               updatePillowSubcategoryStatus(productId, variant.id, subcategoryId, roomId);
-            });
-
             // Activate the first tab by default
             const $firstTab = $pillowTabs.find('.pillow-subcategory-tab').first();
             if ($firstTab.length) {
@@ -4740,19 +4710,6 @@ include PATH . '/inc/footer.php';
             $(`#variants-content-${productId}-room${roomId} .total-price[data-variant="${variantId}"]`).val(totalPrice.toFixed(2));
 
             updateVariantStatus(productId, roomId, variantId);
-         });
-
-         // Pillow subcategory calculations
-         $(`#variants-content-${productId}-room${roomId} .pillow-qty, #variants-content-${productId}-room${roomId} .pillow-unit-price`).on('input', function() {
-            const variantId = $(this).data('variant');
-            const subcategoryId = $(this).data('subcategory');
-            const qty = parseFloat($(`#variants-content-${productId}-room${roomId} .pillow-qty[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val()) || 0;
-            const unitPrice = parseFloat($(`#variants-content-${productId}-room${roomId} .pillow-unit-price[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val()) || 0;
-            const totalPrice = qty * unitPrice;
-
-            $(`#variants-content-${productId}-room${roomId} .pillow-total-price[data-subcategory="${subcategoryId}"][data-variant="${variantId}"]`).val(totalPrice.toFixed(2));
-
-            updatePillowSubcategoryStatus(productId, variantId, subcategoryId, roomId);
          });
       }
 
@@ -5850,7 +5807,7 @@ include PATH . '/inc/footer.php';
          setupPriceCalculations(product.id);
       }
 
-      // UPDATED: Material section with image on left, details on right and pillow subcategory tabs
+      // Material section with image on left, details on right and pillow subcategory tabs
       function loadSimpleProductContent($content, product) {
          const $wrapper = $(`
       <div class="simple-product-content">
@@ -5887,7 +5844,7 @@ include PATH . '/inc/footer.php';
             </div>
          </div>
          
-         <!-- UPDATED Material Section with Image on Left and Details on Right -->
+         <!-- Material Section with Image on Left and Details on Right -->
          <div class="material-section">
             <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
             <div class="material-tabs" id="materialTabs-${product.id}">
@@ -6159,31 +6116,7 @@ include PATH . '/inc/footer.php';
                                      placeholder="Enter area or weight"
                                      data-subcategory="${subcat.id}">
                            </div>
-                           <div class="pillow-material-input">
-                              <label>Quantity</label>
-                              <input type="number" class="form-control pillow-qty" 
-                                     placeholder="0" min="1" value="1"
-                                     data-subcategory="${subcat.id}">
-                           </div>
-                           <div class="pillow-material-input">
-                              <label>Unit Price ($)</label>
-                              <input type="number" class="form-control pillow-unit-price" 
-                                     placeholder="0.00" step="0.01" min="0"
-                                     data-subcategory="${subcat.id}">
-                           </div>
-                           <div class="pillow-material-input">
-                              <label>Total Price ($)</label>
-                              <input type="number" class="form-control pillow-total-price" 
-                                     placeholder="0.00" step="0.01" min="0" readonly
-                                     data-subcategory="${subcat.id}">
-                           </div>
                         </div>
-                     </div>
-                     <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                        <label>Additional Notes</label>
-                        <textarea class="form-control pillow-notes" 
-                                  placeholder="Enter additional notes for ${subcat.name}..." 
-                                  rows="2" data-subcategory="${subcat.id}"></textarea>
                      </div>
                   </div>
                </div>
@@ -6301,31 +6234,7 @@ include PATH . '/inc/footer.php';
                                      placeholder="Enter area or weight"
                                      data-subcategory="${subcat.id}">
                            </div>
-                           <div class="pillow-material-input">
-                              <label>Quantity</label>
-                              <input type="number" class="form-control pillow-qty" 
-                                     placeholder="0" min="1" value="1"
-                                     data-subcategory="${subcat.id}">
-                           </div>
-                           <div class="pillow-material-input">
-                              <label>Unit Price ($)</label>
-                              <input type="number" class="form-control pillow-unit-price" 
-                                     placeholder="0.00" step="0.01" min="0"
-                                     data-subcategory="${subcat.id}">
-                           </div>
-                           <div class="pillow-material-input">
-                              <label>Total Price ($)</label>
-                              <input type="number" class="form-control pillow-total-price" 
-                                     placeholder="0.00" step="0.01" min="0" readonly
-                                     data-subcategory="${subcat.id}">
-                           </div>
                         </div>
-                     </div>
-                     <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                        <label>Additional Notes</label>
-                        <textarea class="form-control pillow-notes" 
-                                  placeholder="Enter additional notes for ${subcat.name}..." 
-                                  rows="2" data-subcategory="${subcat.id}"></textarea>
                      </div>
                   </div>
                </div>
@@ -6358,30 +6267,12 @@ include PATH . '/inc/footer.php';
             updatePillowSubcategoryStatus(productId, subcategoryId);
          });
 
-         // Setup price calculations for pillow subcategories
-         setupPillowPriceCalculations(productId);
-
          // Activate the first tab by default
          const $firstTab = $pillowTabs.find('.pillow-subcategory-tab').first();
          if ($firstTab.length) {
             $firstTab.trigger('click');
          }
       }
-
-      // NEW: Function to setup pillow price calculations
-      function setupPillowPriceCalculations(productId) {
-         $(`#pillowContent-${productId} .pillow-qty, #pillowContent-${productId} .pillow-unit-price`).on('input', function() {
-            const subcategoryId = $(this).data('subcategory');
-            const qty = parseFloat($(`#pillowContent-${productId} .pillow-qty[data-subcategory="${subcategoryId}"]`).val()) || 0;
-            const unitPrice = parseFloat($(`#pillowContent-${productId} .pillow-unit-price[data-subcategory="${subcategoryId}"]`).val()) || 0;
-            const totalPrice = qty * unitPrice;
-
-            $(`#pillowContent-${productId} .pillow-total-price[data-subcategory="${subcategoryId}"]`).val(totalPrice.toFixed(2));
-
-            updatePillowSubcategoryStatus(productId, subcategoryId);
-         });
-      }
-
       // NEW: Function to update pillow subcategory status
       function updatePillowSubcategoryStatus(productId, variantId, subcategoryId, roomId) {
          const $tab = $(`#pillowTabs-${productId}-${variantId}-room${roomId} .pillow-subcategory-tab[data-subcategory="${subcategoryId}"]`);
@@ -6391,14 +6282,12 @@ include PATH . '/inc/footer.php';
          const materialGrade = $content.find('.material-grade').val();
          const materialType = $content.find('.material-type-select').val();
          const areaWeight = $content.find('.area-weight').val();
-         const qty = $content.find('.pillow-qty').val();
-         const unitPrice = $content.find('.pillow-unit-price').val();
 
          $statusIndicator.removeClass('status-empty status-incomplete status-complete');
 
-         if (!materialGrade && !materialType && !areaWeight && !qty && !unitPrice) {
+         if (!materialGrade && !materialType && !areaWeight) {
             $statusIndicator.addClass('status-empty');
-         } else if (materialGrade && materialType && areaWeight && qty && unitPrice) {
+         } else if (materialGrade && materialType && areaWeight) {
             $statusIndicator.addClass('status-complete');
          } else {
             $statusIndicator.addClass('status-incomplete');
@@ -6576,26 +6465,12 @@ include PATH . '/inc/footer.php';
                $(`#pillowSubcategory-${itemId}-${productId}-room${roomId}-${subcategoryId}`).addClass('active');
             });
 
-            // Setup price calculations for pillow subcategories
-            setupPillowPriceCalculationsForItem(itemId, productId, roomId);
-
             // Activate the first tab by default
             const $firstTab = $pillowTabs.find('.pillow-subcategory-tab').first();
             if ($firstTab.length) {
                $firstTab.trigger('click');
             }
          }, 100);
-      }
-
-      function setupPillowPriceCalculationsForItem(itemId, productId, roomId) {
-         $(`#pillowContent-${itemId}-${productId}-room${roomId} .pillow-qty, #pillowContent-${itemId}-${productId}-room${roomId} .pillow-unit-price`).on('input', function() {
-            const subcategoryId = $(this).data('subcategory');
-            const qty = parseFloat($(`#pillowContent-${itemId}-${productId}-room${roomId} .pillow-qty[data-subcategory="${subcategoryId}"]`).val()) || 0;
-            const unitPrice = parseFloat($(`#pillowContent-${itemId}-${productId}-room${roomId} .pillow-unit-price[data-subcategory="${subcategoryId}"]`).val()) || 0;
-            const totalPrice = qty * unitPrice;
-
-            $(`#pillowContent-${itemId}-${productId}-room${roomId} .pillow-total-price[data-subcategory="${subcategoryId}"]`).val(totalPrice.toFixed(2));
-         });
       }
 
       // ADDED: Add accessory to curtain product
