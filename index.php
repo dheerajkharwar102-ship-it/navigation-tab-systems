@@ -3252,10 +3252,8 @@ include PATH . '/inc/footer.php';
       if (btn) btn.click();
    });
 </script>
-
 <script>
    jQuery(function($) {
-      // State management
       // State management
       const state = {
          rooms: [],
@@ -4025,140 +4023,141 @@ include PATH . '/inc/footer.php';
       // Function to create variants tabs for a product
       function createVariantsTabs(productId, variants, roomId) {
          return `
-    <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
-        <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
-            ${variants.map((variant, index) => `
-                <button class="product-variant-tab ${index === 0 ? 'active' : ''}" 
-                        data-variant="${variant.id}" data-product="${productId}" data-room="${roomId}">
-                    <div class="product-variant-header">
-                        <span class="status-indicator status-empty"></span>
-                        <span class="product-variant-title">${variant.name}</span>
-                    </div>
-                </button>
-            `).join('')}
-        </div>
-        <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
-            ${variants.map((variant, index) => `
-                <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
-                     id="variant-${productId}-${variant.id}-room${roomId}">
-                    ${createVariantContent(productId, variant, roomId)}
-                </div>
-            `).join('')}
-        </div>
-    </div>
-    `;
+<div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
+   <div class="product-variants-tabs" id="variants-tabs-${productId}-room${roomId}">
+      ${variants.map((variant, index) => `
+         <button class="product-variant-tab ${index === 0 ? 'active' : ''}" 
+                 data-variant="${variant.id}" data-product="${productId}" data-room="${roomId}">
+            <div class="product-variant-header">
+               <span class="status-indicator status-empty"></span>
+               <span class="product-variant-title">${variant.name}</span>
+            </div>
+         </button>
+      `).join('')}
+   </div>
+   <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
+      ${variants.map((variant, index) => `
+         <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
+              id="variant-${productId}-${variant.id}-room${roomId}">
+            ${createVariantContent(productId, variant, roomId)}
+         </div>
+      `).join('')}
+   </div>
+</div>
+`;
       }
 
       // Function to create standard material content (non-pillow categories)
       function createStandardMaterialContent(productId, variant, category, roomId) {
          return `
-        <div class="material-inputs-compact">
-            <div class="material-compact-image">
-                <i class="fa fa-image"></i>
-            </div>
-            <div class="material-compact-fields">
-                <div class="material-input">
-                    <label>Material Grade</label>
-                    <select class="form-control material-grade" 
-                            data-variant="${variant.id}" data-category="${category.id}">
-                        <option value="">Select Grade</option>
-                        <option value="standard">Standard</option>
-                        <option value="premium">Premium</option>
-                        <option value="economy">Economy</option>
-                    </select>
-                </div>
-                <div class="material-input">
-                    <label>Material Type</label>
-                    <select class="form-control material-type-select" 
-                            data-variant="${variant.id}" data-category="${category.id}">
-                        <option value="">Select Material</option>
-                        ${category.defaultMaterials.map(material => `
-                            <option value="${material.id}">${material.name}</option>
-                        `).join('')}
-                    </select>
-                </div>
-                <div class="material-input">
-                    <label>Area/Weight</label>
-                    <input type="text" class="form-control area-weight" 
-                           placeholder="Enter area or weight"
-                           data-variant="${variant.id}" data-category="${category.id}">
-                </div>
-            </div>
-        </div>
-    `;
+   <div class="material-inputs-compact">
+      <div class="material-compact-image">
+         <i class="fa fa-image"></i>
+      </div>
+      <div class="material-compact-fields">
+         <div class="material-input">
+            <label>Material Grade</label>
+            <select class="form-control material-grade" 
+                    data-variant="${variant.id}" data-category="${category.id}">
+               <option value="">Select Grade</option>
+               <option value="standard">Standard</option>
+               <option value="premium">Premium</option>
+               <option value="economy">Economy</option>
+            </select>
+         </div>
+         <div class="material-input">
+            <label>Material Type</label>
+            <select class="form-control material-type-select" 
+                    data-variant="${variant.id}" data-category="${category.id}">
+               <option value="">Select Material</option>
+               ${category.defaultMaterials.map(material => `
+                  <option value="${material.id}">${material.name}</option>
+               `).join('')}
+            </select>
+         </div>
+         <div class="material-input">
+            <label>Area/Weight</label>
+            <input type="text" class="form-control area-weight" 
+                   placeholder="Enter area or weight"
+                   data-variant="${variant.id}" data-category="${category.id}">
+         </div>
+      </div>
+   </div>
+`;
       }
+
       // Function to create content for variants (both size and set)
       function createVariantContent(productId, variant, roomId) {
          return `
-        <div class="variant-details">
-            <div class="compact-product-details">
-                <div class="compact-section-header">
-                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
-                </div>
-                <div class="compact-details-with-image">
-                    <div class="compact-image-preview">
-                        <i class="fa fa-image"></i>
-                    </div>
-                    <div class="compact-details-fields">
-                        <div class="compact-detail-group">
-                            <label>Width (m)</label>
-                            <input type="number" class="form-control dimension-width" 
-                                   placeholder="0.00" step="0.01" min="0" 
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Length (m)</label>
-                            <input type="number" class="form-control dimension-length" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Height (m)</label>
-                            <input type="number" class="form-control dimension-height" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Unit Price ($)</label>
-                            <input type="number" class="form-control unit-price" 
-                                   value="${variant.basePrice.toFixed(2)}" step="0.01" min="0" readonly
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Total Price ($)</label>
-                            <input type="number" class="form-control total-price" 
-                                   placeholder="0.00" step="0.01" min="0" readonly
-                                   data-variant="${variant.id}">
-                        </div>
-                    </div>
-                </div>
+   <div class="variant-details">
+      <div class="compact-product-details">
+         <div class="compact-section-header">
+            <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
+         </div>
+         <div class="compact-details-with-image">
+            <div class="compact-image-preview">
+               <i class="fa fa-image"></i>
             </div>
-            
-            <!-- Material Section for Variant - Pillow subcategories will be shown only when Pillow tab is active -->
-            <div class="material-section">
-                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
-                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map(category => `
-                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
-                                data-category="${category.id}">
-                            ${category.name}
-                        </button>
-                    `).join('')}
-                </div>
-                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map((category, index) => `
-                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
-                            ${category.id === 'pillow' ? 
-                                createPillowSubcategoriesForVariant(productId, variant, roomId) : 
-                                createStandardMaterialContent(productId, variant, category, roomId)
-                            }
-                        </div>
-                    `).join('')}
-                </div>
+            <div class="compact-details-fields">
+               <div class="compact-detail-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" 
+                         placeholder="0.00" step="0.01" min="0" 
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Length (m)</label>
+                  <input type="number" class="form-control dimension-length" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Height (m)</label>
+                  <input type="number" class="form-control dimension-height" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" 
+                         value="${variant.basePrice.toFixed(2)}" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
             </div>
-        </div>
-    `;
+         </div>
+      </div>
+      
+      <!-- Material Section for Variant - Pillow subcategories will be shown only when Pillow tab is active -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+         <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                       data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                    id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                  ${category.id === 'pillow' ? 
+                     createPillowSubcategoriesForVariant(productId, variant, roomId) : 
+                     createStandardMaterialContent(productId, variant, category, roomId)
+                  }
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   </div>
+`;
       }
 
       // Function to create pillow subcategories for variant
@@ -4167,448 +4166,449 @@ include PATH . '/inc/footer.php';
          if (!pillowCategory) return '';
 
          return `
-        <div class="pillow-subcategories-section">
-            <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}-${variant.id}-room${roomId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
-                            data-subcategory="${subcat.id}" data-product="${productId}" data-variant="${variant.id}">
-                        <div class="pillow-subcategory-header">
-                            <span class="status-indicator status-empty"></span>
-                            <span class="pillow-subcategory-title">${subcat.name}</span>
+   <div class="pillow-subcategories-section">
+      <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}-${variant.id}-room${roomId}">
+         ${pillowCategory.subcategories.map((subcat, index) => `
+            <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
+                    data-subcategory="${subcat.id}" data-product="${productId}" data-variant="${variant.id}">
+               <div class="pillow-subcategory-header">
+                  <span class="status-indicator status-empty"></span>
+                  <span class="pillow-subcategory-title">${subcat.name}</span>
+               </div>
+            </button>
+         `).join('')}
+      </div>
+      <div class="pillow-subcategories-content" id="pillowContent-${productId}-${variant.id}-room${roomId}">
+         ${pillowCategory.subcategories.map((subcat, index) => `
+            <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
+                 id="pillowSubcategory-${productId}-${variant.id}-room${roomId}-${subcat.id}">
+               <div class="pillow-subcategory-details">
+                  <div class="pillow-material-inputs-compact">
+                     <div class="pillow-material-compact-image">
+                        <i class="fa fa-image"></i>
+                     </div>
+                     <div class="pillow-material-compact-fields">
+                        <div class="pillow-material-input">
+                           <label>Material Grade</label>
+                           <select class="form-control material-grade" 
+                                   data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                              <option value="">Select Grade</option>
+                              <option value="standard">Standard</option>
+                              <option value="premium">Premium</option>
+                              <option value="economy">Economy</option>
+                           </select>
                         </div>
-                    </button>
-                `).join('')}
-            </div>
-            <div class="pillow-subcategories-content" id="pillowContent-${productId}-${variant.id}-room${roomId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
-                         id="pillowSubcategory-${productId}-${variant.id}-room${roomId}-${subcat.id}">
-                        <div class="pillow-subcategory-details">
-                            <div class="pillow-material-inputs-compact">
-                                <div class="pillow-material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="pillow-material-compact-fields">
-                                    <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                            <option value="">Select Material</option>
-                                            ${pillowCategory.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
-                                               data-subcategory="${subcat.id}" data-variant="${variant.id}">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                                <label>Additional Notes</label>
-                                <textarea class="form-control pillow-notes" 
-                                          placeholder="Enter additional notes for ${subcat.name}..." 
-                                          rows="2" data-subcategory="${subcat.id}" data-variant="${variant.id}"></textarea>
-                            </div>
+                        <div class="pillow-material-input">
+                           <label>Material Type</label>
+                           <select class="form-control material-type-select" 
+                                   data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                              <option value="">Select Material</option>
+                              ${pillowCategory.defaultMaterials.map(material => `
+                                 <option value="${material.id}">${material.name}</option>
+                              `).join('')}
+                           </select>
                         </div>
-                    </div>
-                `).join('')}
+                        <div class="pillow-material-input">
+                           <label>Area/Weight</label>
+                           <input type="text" class="form-control area-weight" 
+                                  placeholder="Enter area or weight"
+                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                        </div>
+                        <div class="pillow-material-input">
+                           <label>Quantity</label>
+                           <input type="number" class="form-control pillow-qty" 
+                                  placeholder="0" min="1" value="1"
+                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                        </div>
+                        <div class="pillow-material-input">
+                           <label>Unit Price ($)</label>
+                           <input type="number" class="form-control pillow-unit-price" 
+                                  placeholder="0.00" step="0.01" min="0"
+                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                        </div>
+                        <div class="pillow-material-input">
+                           <label>Total Price ($)</label>
+                           <input type="number" class="form-control pillow-total-price" 
+                                  placeholder="0.00" step="0.01" min="0" readonly
+                                  data-subcategory="${subcat.id}" data-variant="${variant.id}">
+                        </div>
+                     </div>
+                  </div>
+                  <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
+                     <label>Additional Notes</label>
+                     <textarea class="form-control pillow-notes" 
+                               placeholder="Enter additional notes for ${subcat.name}..." 
+                               rows="2" data-subcategory="${subcat.id}" data-variant="${variant.id}"></textarea>
+                  </div>
+               </div>
             </div>
-        </div>
-    `;
+         `).join('')}
+      </div>
+   </div>
+`;
       }
 
       // Function to create content for size variants
       function createSizeVariantContent(productId, variant, roomId) {
          return `
-        <div class="variant-details">
-            <div class="compact-product-details">
-                <div class="compact-section-header">
-                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
-                </div>
-                <div class="compact-details-with-image">
-                    <div class="compact-image-preview">
+   <div class="variant-details">
+      <div class="compact-product-details">
+         <div class="compact-section-header">
+            <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
+         </div>
+         <div class="compact-details-with-image">
+            <div class="compact-image-preview">
+               <i class="fa fa-image"></i>
+            </div>
+            <div class="compact-details-fields">
+               <div class="compact-detail-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" 
+                         placeholder="0.00" step="0.01" min="0" 
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Length (m)</label>
+                  <input type="number" class="form-control dimension-length" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Height (m)</label>
+                  <input type="number" class="form-control dimension-height" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+            </div>
+         </div>
+      </div>
+      
+      <!-- Material Section for Size Variant -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+         <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                       data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                    id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                  <div class="material-inputs-compact">
+                     <div class="material-compact-image">
                         <i class="fa fa-image"></i>
-                    </div>
-                    <div class="compact-details-fields">
-                        <div class="compact-detail-group">
-                            <label>Width (m)</label>
-                            <input type="number" class="form-control dimension-width" 
-                                   placeholder="0.00" step="0.01" min="0" 
+                     </div>
+                     <div class="material-compact-fields">
+                        <div class="material-input">
+                           <label>Material Grade</label>
+                           <select class="form-control material-grade" 
                                    data-variant="${variant.id}">
+                              <option value="">Select Grade</option>
+                              <option value="standard">Standard</option>
+                              <option value="premium">Premium</option>
+                              <option value="economy">Economy</option>
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Length (m)</label>
-                            <input type="number" class="form-control dimension-length" 
-                                   placeholder="0.00" step="0.01" min="0"
+                        <div class="material-input">
+                           <label>Material Type</label>
+                           <select class="form-control material-type-select" 
                                    data-variant="${variant.id}">
+                              <option value="">Select Material</option>
+                              ${category.defaultMaterials.map(material => `
+                                 <option value="${material.id}">${material.name}</option>
+                              `).join('')}
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Height (m)</label>
-                            <input type="number" class="form-control dimension-height" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-variant="${variant.id}">
+                        <div class="material-input">
+                           <label>Area/Weight</label>
+                           <input type="text" class="form-control area-weight" 
+                                  placeholder="Enter area or weight"
+                                  data-variant="${variant.id}">
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Unit Price ($)</label>
-                            <input type="number" class="form-control unit-price" 
-                                   placeholder="0.00" step="0.01" min="0" readonly
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Total Price ($)</label>
-                            <input type="number" class="form-control total-price" 
-                                   placeholder="0.00" step="0.01" min="0" readonly
-                                   data-variant="${variant.id}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Material Section for Size Variant -->
-            <div class="material-section">
-                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
-                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map(category => `
-                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
-                                data-category="${category.id}">
-                            ${category.name}
-                        </button>
-                    `).join('')}
-                </div>
-                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map((category, index) => `
-                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
-                            <div class="material-inputs-compact">
-                                <div class="material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="material-compact-fields">
-                                    <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-variant="${variant.id}">
-                                            <option value="">Select Material</option>
-                                            ${category.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-variant="${variant.id}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   </div>
+`;
       }
 
       // Function to create content for individual variants (size variants)
       function createIndividualVariantContent(productId, variant, roomId) {
          return `
-        <div class="variant-details">
-            <div class="compact-product-details">
-                <div class="compact-section-header">
-                    <h6><i class="fa fa-cube mr-2"></i>${variant.name} Details</h6>
-                    <button type="button" class="btn btn-sm remove-variant-btn"
-                            data-product="${productId}" data-variant="${variant.id}" data-room="${roomId}">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </div>
-                <div class="compact-details-with-image">
-                    <div class="compact-image-preview">
+   <div class="variant-details">
+      <div class="compact-product-details">
+         <div class="compact-section-header">
+            <h6><i class="fa fa-cube mr-2"></i>${variant.name} Details</h6>
+            <button type="button" class="btn btn-sm remove-variant-btn"
+                    data-product="${productId}" data-variant="${variant.id}" data-room="${roomId}">
+               <i class="fa fa-times"></i>
+            </button>
+         </div>
+         <div class="compact-details-with-image">
+            <div class="compact-image-preview">
+               <i class="fa fa-image"></i>
+            </div>
+            <div class="compact-details-fields">
+               <div class="compact-detail-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" 
+                         placeholder="0.00" step="0.01" min="0" 
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Length (m)</label>
+                  <input type="number" class="form-control dimension-length" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Height (m)</label>
+                  <input type="number" class="form-control dimension-height" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Description</label>
+                  <input type="text" class="form-control variant-description" 
+                         value="${variant.description}" 
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+            </div>
+         </div>
+      </div>
+      
+      <!-- Material Section for Individual Variant -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+         <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                       data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                    id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                  <div class="material-inputs-compact">
+                     <div class="material-compact-image">
                         <i class="fa fa-image"></i>
-                    </div>
-                    <div class="compact-details-fields">
-                        <div class="compact-detail-group">
-                            <label>Width (m)</label>
-                            <input type="number" class="form-control dimension-width" 
-                                   placeholder="0.00" step="0.01" min="0" 
+                     </div>
+                     <div class="material-compact-fields">
+                        <div class="material-input">
+                           <label>Material Grade</label>
+                           <select class="form-control material-grade" 
                                    data-variant="${variant.id}">
+                              <option value="">Select Grade</option>
+                              <option value="standard">Standard</option>
+                              <option value="premium">Premium</option>
+                              <option value="economy">Economy</option>
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Length (m)</label>
-                            <input type="number" class="form-control dimension-length" 
-                                   placeholder="0.00" step="0.01" min="0"
+                        <div class="material-input">
+                           <label>Material Type</label>
+                           <select class="form-control material-type-select" 
                                    data-variant="${variant.id}">
+                              <option value="">Select Material</option>
+                              ${category.defaultMaterials.map(material => `
+                                 <option value="${material.id}">${material.name}</option>
+                              `).join('')}
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Height (m)</label>
-                            <input type="number" class="form-control dimension-height" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-variant="${variant.id}">
+                        <div class="material-input">
+                           <label>Area/Weight</label>
+                           <input type="text" class="form-control area-weight" 
+                                  placeholder="Enter area or weight"
+                                  data-variant="${variant.id}">
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Description</label>
-                            <input type="text" class="form-control variant-description" 
-                                   value="${variant.description}" 
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Unit Price ($)</label>
-                            <input type="number" class="form-control unit-price" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-variant="${variant.id}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Total Price ($)</label>
-                            <input type="number" class="form-control total-price" 
-                                   placeholder="0.00" step="0.01" min="0" readonly
-                                   data-variant="${variant.id}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Material Section for Individual Variant -->
-            <div class="material-section">
-                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
-                <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map(category => `
-                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
-                                data-category="${category.id}">
-                            ${category.name}
-                        </button>
-                    `).join('')}
-                </div>
-                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
-                    ${materialCategories.map((category, index) => `
-                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                             id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
-                            <div class="material-inputs-compact">
-                                <div class="material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="material-compact-fields">
-                                    <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-variant="${variant.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-variant="${variant.id}">
-                                            <option value="">Select Material</option>
-                                            ${category.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-variant="${variant.id}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   </div>
+`;
       }
 
       // Function to create content for set variants
       function createSetVariantContent(productId, variant, roomId) {
          return `
-        <div class="set-variant-content">
-            <div class="set-variant-header">
-                <div class="set-variant-name">${variant.name} - ${variant.description}</div>
+   <div class="set-variant-content">
+      <div class="set-variant-header">
+         <div class="set-variant-name">${variant.name} - ${variant.description}</div>
+      </div>
+      
+      <!-- Set Products Tabs -->
+      <div class="set-products-tabs" id="set-products-tabs-${productId}-${variant.id}-room${roomId}">
+         ${variant.products.map((product, index) => `
+            <button class="set-product-tab ${index === 0 ? 'active' : ''}" 
+                    data-product="${product.id}" data-variant="${variant.id}" data-set="${productId}">
+               <div class="product-variant-header">
+                  <span class="status-indicator status-empty"></span>
+                  <span class="product-variant-title">${product.name}</span>
+               </div>
+            </button>
+         `).join('')}
+      </div>
+      
+      <!-- Set Products Content -->
+      <div class="set-products-content" id="set-products-content-${productId}-${variant.id}-room${roomId}">
+         ${variant.products.map((product, index) => `
+            <div class="set-product-content ${index === 0 ? 'active' : ''}" 
+                 id="set-product-${productId}-${variant.id}-${product.id}-room${roomId}">
+               ${createSetProductContent(productId, variant.id, product, roomId)}
             </div>
-            
-            <!-- Set Products Tabs -->
-            <div class="set-products-tabs" id="set-products-tabs-${productId}-${variant.id}-room${roomId}">
-                ${variant.products.map((product, index) => `
-                    <button class="set-product-tab ${index === 0 ? 'active' : ''}" 
-                            data-product="${product.id}" data-variant="${variant.id}" data-set="${productId}">
-                        <div class="product-variant-header">
-                            <span class="status-indicator status-empty"></span>
-                            <span class="product-variant-title">${product.name}</span>
-                        </div>
-                    </button>
-                `).join('')}
-            </div>
-            
-            <!-- Set Products Content -->
-            <div class="set-products-content" id="set-products-content-${productId}-${variant.id}-room${roomId}">
-                ${variant.products.map((product, index) => `
-                    <div class="set-product-content ${index === 0 ? 'active' : ''}" 
-                         id="set-product-${productId}-${variant.id}-${product.id}-room${roomId}">
-                        ${createSetProductContent(productId, variant.id, product, roomId)}
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+         `).join('')}
+      </div>
+   </div>
+`;
       }
+
       // Function to create individual product content within a set
       function createSetProductContent(productId, variantId, product, roomId) {
          const quantityField = product.quantity ? `
-        <div class="compact-detail-group">
-            <label>Quantity</label>
-            <input type="number" class="form-control product-quantity" 
-                   value="${product.quantity}" min="1" readonly
-                   data-product="${product.id}" data-variant="${variantId}">
-        </div>
-    ` : '';
+   <div class="compact-detail-group">
+      <label>Quantity</label>
+      <input type="number" class="form-control product-quantity" 
+             value="${product.quantity}" min="1" readonly
+             data-product="${product.id}" data-variant="${variantId}">
+   </div>
+` : '';
 
          return `
-        <div class="set-product-item">
-            <div class="compact-product-details">
-                <div class="compact-section-header">
-                    <h6><i class="fa fa-cube mr-2"></i>${product.name}</h6>
-                </div>
-                <div class="compact-details-with-image">
-                    <div class="compact-image-preview">
+   <div class="set-product-item">
+      <div class="compact-product-details">
+         <div class="compact-section-header">
+            <h6><i class="fa fa-cube mr-2"></i>${product.name}</h6>
+         </div>
+         <div class="compact-details-with-image">
+            <div class="compact-image-preview">
+               <i class="fa fa-image"></i>
+            </div>
+            <div class="compact-details-fields">
+               <div class="compact-detail-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" 
+                         placeholder="0.00" step="0.01" min="0" 
+                         data-product="${product.id}" data-variant="${variantId}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Length (m)</label>
+                  <input type="number" class="form-control dimension-length" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-product="${product.id}" data-variant="${variantId}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Height (m)</label>
+                  <input type="number" class="form-control dimension-height" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-product="${product.id}" data-variant="${variantId}">
+               </div>
+               ${quantityField}
+               <div class="compact-detail-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" 
+                         value="${product.basePrice.toFixed(2)}" step="0.01" min="0" readonly
+                         data-product="${product.id}" data-variant="${variantId}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-product="${product.id}" data-variant="${variantId}">
+               </div>
+            </div>
+         </div>
+      </div>
+      
+      <!-- Material Section for Individual Product in Set -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${product.name}</h6>
+         <div class="material-tabs" id="materialTabs-${productId}-${variantId}-${product.id}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                       data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${productId}-${variantId}-${product.id}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                    id="materialContent-${productId}-${variantId}-${product.id}-room${roomId}-${category.id}">
+                  <div class="material-inputs-compact">
+                     <div class="material-compact-image">
                         <i class="fa fa-image"></i>
-                    </div>
-                    <div class="compact-details-fields">
-                        <div class="compact-detail-group">
-                            <label>Width (m)</label>
-                            <input type="number" class="form-control dimension-width" 
-                                   placeholder="0.00" step="0.01" min="0" 
+                     </div>
+                     <div class="material-compact-fields">
+                        <div class="material-input">
+                           <label>Material Grade</label>
+                           <select class="form-control material-grade" 
                                    data-product="${product.id}" data-variant="${variantId}">
+                              <option value="">Select Grade</option>
+                              <option value="standard">Standard</option>
+                              <option value="premium">Premium</option>
+                              <option value="economy">Economy</option>
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Length (m)</label>
-                            <input type="number" class="form-control dimension-length" 
-                                   placeholder="0.00" step="0.01" min="0"
+                        <div class="material-input">
+                           <label>Material Type</label>
+                           <select class="form-control material-type-select" 
                                    data-product="${product.id}" data-variant="${variantId}">
+                              <option value="">Select Material</option>
+                              ${category.defaultMaterials.map(material => `
+                                 <option value="${material.id}">${material.name}</option>
+                              `).join('')}
+                           </select>
                         </div>
-                        <div class="compact-detail-group">
-                            <label>Height (m)</label>
-                            <input type="number" class="form-control dimension-height" 
-                                   placeholder="0.00" step="0.01" min="0"
-                                   data-product="${product.id}" data-variant="${variantId}">
+                        <div class="material-input">
+                           <label>Area/Weight</label>
+                           <input type="text" class="form-control area-weight" 
+                                  placeholder="Enter area or weight"
+                                  data-product="${product.id}" data-variant="${variantId}">
                         </div>
-                        ${quantityField}
-                        <div class="compact-detail-group">
-                            <label>Unit Price ($)</label>
-                            <input type="number" class="form-control unit-price" 
-                                   value="${product.basePrice.toFixed(2)}" step="0.01" min="0" readonly
-                                   data-product="${product.id}" data-variant="${variantId}">
-                        </div>
-                        <div class="compact-detail-group">
-                            <label>Total Price ($)</label>
-                            <input type="number" class="form-control total-price" 
-                                   placeholder="0.00" step="0.01" min="0" readonly
-                                   data-product="${product.id}" data-variant="${variantId}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Material Section for Individual Product in Set -->
-            <div class="material-section">
-                <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${product.name}</h6>
-                <div class="material-tabs" id="materialTabs-${productId}-${variantId}-${product.id}-room${roomId}">
-                    ${materialCategories.map(category => `
-                        <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
-                                data-category="${category.id}">
-                            ${category.name}
-                        </button>
-                    `).join('')}
-                </div>
-                <div class="material-tabs-content" id="materialTabsContent-${productId}-${variantId}-${product.id}-room${roomId}">
-                    ${materialCategories.map((category, index) => `
-                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                             id="materialContent-${productId}-${variantId}-${product.id}-room${roomId}-${category.id}">
-                            <div class="material-inputs-compact">
-                                <div class="material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="material-compact-fields">
-                                    <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-product="${product.id}" data-variant="${variantId}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-product="${product.id}" data-variant="${variantId}">
-                                            <option value="">Select Material</option>
-                                            ${category.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-product="${product.id}" data-variant="${variantId}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   </div>
+`;
       }
 
       // Function to setup variants tabs functionality
@@ -4940,10 +4940,10 @@ include PATH . '/inc/footer.php';
             } else {
                // No variants left, show empty state
                $(`#variants-content-${productId}-room${roomId}`).html(`
-                <div class="empty-variants-state">
-                    <i class="fa fa-layer-group"></i>
-                    <p>No variants added yet</p>
-                </div>
+               <div class="empty-variants-state">
+                  <i class="fa fa-layer-group"></i>
+                  <p>No variants added yet</p>
+               </div>
             `);
             }
          }
@@ -5043,7 +5043,6 @@ include PATH . '/inc/footer.php';
          setupPillowSubcategoryTabs(product.id);
       }
 
-
       // Fitout products (Wall, Ceiling, Ground)
       const fitoutProducts = [{
             id: 'wall',
@@ -5129,16 +5128,16 @@ include PATH . '/inc/footer.php';
 
          qualifications.forEach(qual => {
             const $option = $(`
-            <div class="qualification-option" data-qualification="${qual.id}">
-               <div class="qualification-option-header">
-                  <div class="qualification-option-icon" style="background: ${qual.color};">
-                     <i class="fa ${qual.icon}"></i>
-                  </div>
-                  <div class="qualification-option-name">${qual.name}</div>
+         <div class="qualification-option" data-qualification="${qual.id}">
+            <div class="qualification-option-header">
+               <div class="qualification-option-icon" style="background: ${qual.color};">
+                  <i class="fa ${qual.icon}"></i>
                </div>
-               <div class="qualification-option-description">${qual.description}</div>
+               <div class="qualification-option-name">${qual.name}</div>
             </div>
-         `);
+            <div class="qualification-option-description">${qual.description}</div>
+         </div>
+      `);
             $optionsContainer.append($option);
          });
       }
@@ -5154,16 +5153,16 @@ include PATH . '/inc/footer.php';
 
          productsToShow.forEach(product => {
             const $option = $(`
-            <div class="multi-select-option" data-product-id="${product.id}">
-               <div class="multi-select-option-header">
-                  <div class="multi-select-option-icon" style="background: ${product.color};">
-                     <i class="fa ${product.icon}"></i>
-                  </div>
-                  <div class="multi-select-option-name">${product.name}</div>
+         <div class="multi-select-option" data-product-id="${product.id}">
+            <div class="multi-select-option-header">
+               <div class="multi-select-option-icon" style="background: ${product.color};">
+                  <i class="fa ${product.icon}"></i>
                </div>
-               <div class="multi-select-option-description">${product.description}</div>
+               <div class="multi-select-option-name">${product.name}</div>
             </div>
-         `);
+            <div class="multi-select-option-description">${product.description}</div>
+         </div>
+      `);
             $optionsContainer.append($option);
          });
       }
@@ -5421,7 +5420,7 @@ include PATH . '/inc/footer.php';
             <div class="item-category-tab ${index === 0 ? 'active' : ''}" data-category="${catKey}">
                ${categoryInfo.name}
             </div>
-        `);
+         `);
                $categoryTabs.append($tab);
             });
          } else {
@@ -5517,16 +5516,16 @@ include PATH . '/inc/footer.php';
          }
 
          const $tab = $(`
-        <div class="product-tab" data-product="${product.id}" id="${tabId}">
-           <div class="product-tab-icon" style="background: ${product.color};">
-              <i class="fa ${product.icon}"></i>
-           </div>
-           <span class="product-tab-name">${product.name}</span>
-           <div class="product-tab-close" title="Remove product">
-              <i class="fa fa-times"></i>
-           </div>
-        </div>
-     `);
+      <div class="product-tab" data-product="${product.id}" id="${tabId}">
+         <div class="product-tab-icon" style="background: ${product.color};">
+            <i class="fa ${product.icon}"></i>
+         </div>
+         <span class="product-tab-name">${product.name}</span>
+         <div class="product-tab-close" title="Remove product">
+            <i class="fa fa-times"></i>
+         </div>
+      </div>
+   `);
 
          $tabsContainer.append($tab);
 
@@ -5538,13 +5537,13 @@ include PATH . '/inc/footer.php';
          }
 
          const $content = $(`
-        <div class="product-content" id="${productId}" style="display: none;">
-           <div class="loading-state">
-              <i class="fa fa-spinner fa-spin fa-2x"></i>
-              <p>Loading ${product.name} details...</p>
-           </div>
-        </div>
-     `);
+      <div class="product-content" id="${productId}" style="display: none;">
+         <div class="loading-state">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
+            <p>Loading ${product.name} details...</p>
+         </div>
+      </div>
+   `);
 
          $contentArea.append($content);
 
@@ -5628,13 +5627,13 @@ include PATH . '/inc/footer.php';
          }
 
          const $wrapper = $(`
-    <div class="product-with-variants">
-        ${basicDetailsHTML}
-        <div class="product-variants-section">
-            ${variantsHTML}
-        </div>
-    </div>
-    `);
+<div class="product-with-variants">
+   ${basicDetailsHTML}
+   <div class="product-variants-section">
+      ${variantsHTML}
+   </div>
+</div>
+`);
 
          $content.html($wrapper);
 
@@ -5685,104 +5684,105 @@ include PATH . '/inc/footer.php';
       // Create variants radio selection (for size variants)
       function createVariantsRadioSelection(productId, variants, roomId) {
          return `
-    <div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
-        <div class="variant-radio-header">
-            <h6><i class="fa fa-ruler mr-2"></i>Select Size</h6>
-        </div>
-        <div class="variant-radio-container" id="variants-radio-${productId}-room${roomId}">
-            ${variants.map((variant, index) => `
-                <div class="variant-radio-option">
-                    <input type="radio" 
-                           id="variant-radio-${productId}-${variant.id}-room${roomId}" 
-                           name="variant-selection-${productId}-room${roomId}" 
-                           value="${variant.id}" 
-                           ${index === 0 ? 'checked' : ''}
-                           class="variant-radio-input">
-                    <label for="variant-radio-${productId}-${variant.id}-room${roomId}" 
-                           class="variant-radio-label">
-                        <span class="variant-radio-name">${variant.name}</span>
-                        <span class="status-indicator status-empty"></span>
-                    </label>
-                </div>
-            `).join('')}
-        </div>
-        <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
-            ${variants.map((variant, index) => `
-                <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
-                     id="variant-${productId}-${variant.id}-room${roomId}">
-                    ${createVariantContent(productId, variant, roomId)}
-                </div>
-            `).join('')}
-        </div>
-    </div>
-    `;
+<div class="product-variants-section" id="variants-section-${productId}-room${roomId}">
+   <div class="variant-radio-header">
+      <h6><i class="fa fa-ruler mr-2"></i>Select Size</h6>
+   </div>
+   <div class="variant-radio-container" id="variants-radio-${productId}-room${roomId}">
+      ${variants.map((variant, index) => `
+         <div class="variant-radio-option">
+            <input type="radio" 
+                   id="variant-radio-${productId}-${variant.id}-room${roomId}" 
+                   name="variant-selection-${productId}-room${roomId}" 
+                   value="${variant.id}" 
+                   ${index === 0 ? 'checked' : ''}
+                   class="variant-radio-input">
+            <label for="variant-radio-${productId}-${variant.id}-room${roomId}" 
+                   class="variant-radio-label">
+               <span class="variant-radio-name">${variant.name}</span>
+               <span class="status-indicator status-empty"></span>
+            </label>
+         </div>
+      `).join('')}
+   </div>
+   <div class="product-variants-content" id="variants-content-${productId}-room${roomId}">
+      ${variants.map((variant, index) => `
+         <div class="product-variant-content ${index === 0 ? 'active' : ''}" 
+              id="variant-${productId}-${variant.id}-room${roomId}">
+            ${createVariantContent(productId, variant, roomId)}
+         </div>
+      `).join('')}
+   </div>
+</div>
+`;
       }
+
       // Basic details section for products with variants
       function createBasicDetailsSection(product, roomId) {
          return `
-      <div class="basic-details-section">
-         <div class="compact-product-details">
-               <div class="compact-section-header">
-                  <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+   <div class="basic-details-section">
+      <div class="compact-product-details">
+            <div class="compact-section-header">
+               <h6><i class="fa fa-info-circle mr-2"></i>Basic Details</h6>
+            </div>
+            <div class="compact-details-with-image">
+               <div class="compact-image-preview">
+                  <i class="fa fa-image"></i>
                </div>
-               <div class="compact-details-with-image">
-                  <div class="compact-image-preview">
-                     <i class="fa fa-image"></i>
-                  </div>
-                  <div class="compact-details-fields">
-                     <div class="compact-detail-group">
-                     <span class="detail-label">${product.name}</span>
-                     </div>
+               <div class="compact-details-fields">
+                  <div class="compact-detail-group">
+                  <span class="detail-label">${product.name}</span>
                   </div>
                </div>
-         </div>
+            </div>
       </div>
-      `;
+   </div>
+   `;
       }
 
       function createTotalsSection(product, roomId) {
          return `
-    <div class="product-totals-section" id="product-totals-${product.id}-room${roomId}">
-        <div class="product-totals-row">
-            <div class="product-totals-label">Total:</div>
-            <div class="product-totals-amount">
-                $<span class="product-total-price" id="product-total-${product.id}-room${roomId}">0.00</span>
-            </div>
-        </div>
-    </div>
-    `;
+<div class="product-totals-section" id="product-totals-${product.id}-room${roomId}">
+   <div class="product-totals-row">
+      <div class="product-totals-label">Total:</div>
+      <div class="product-totals-amount">
+         $<span class="product-total-price" id="product-total-${product.id}-room${roomId}">0.00</span>
+      </div>
+   </div>
+</div>
+`;
       }
 
       function createGrandTotalsSection() {
          return `
-    <div class="grand-totals-wrapper">
-        <div class="grand-totals-section" id="grand-totals-section">
-            <div class="grand-totals-header">
-                <h5><i class="fa fa-receipt mr-2"></i>Order Summary</h5>
+<div class="grand-totals-wrapper">
+   <div class="grand-totals-section" id="grand-totals-section">
+      <div class="grand-totals-header">
+         <h5><i class="fa fa-receipt mr-2"></i>Order Summary</h5>
+      </div>
+      <div class="grand-totals-content">
+         <div class="grand-totals-row">
+            <div class="grand-totals-label">Subtotal:</div>
+            <div class="grand-totals-amount">
+               $<span class="grand-subtotal" id="grand-subtotal">0.00</span>
             </div>
-            <div class="grand-totals-content">
-                <div class="grand-totals-row">
-                    <div class="grand-totals-label">Subtotal:</div>
-                    <div class="grand-totals-amount">
-                        $<span class="grand-subtotal" id="grand-subtotal">0.00</span>
-                    </div>
-                </div>
-                <div class="grand-totals-row">
-                    <div class="grand-totals-label">Tax (<span id="tax-percentage">0</span>%):</div>
-                    <div class="grand-totals-amount">
-                        $<span class="grand-tax" id="grand-tax">0.00</span>
-                    </div>
-                </div>
-                <div class="grand-totals-row grand-total-final">
-                    <div class="grand-totals-label">Grand Total:</div>
-                    <div class="grand-totals-amount">
-                        $<span class="grand-total" id="grand-total">0.00</span>
-                    </div>
-                </div>
+         </div>
+         <div class="grand-totals-row">
+            <div class="grand-totals-label">Tax (<span id="tax-percentage">0</span>%):</div>
+            <div class="grand-totals-amount">
+               $<span class="grand-tax" id="grand-tax">0.00</span>
             </div>
-        </div>
-    </div>
-    `;
+         </div>
+         <div class="grand-totals-row grand-total-final">
+            <div class="grand-totals-label">Grand Total:</div>
+            <div class="grand-totals-amount">
+               $<span class="grand-total" id="grand-total">0.00</span>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+`;
       }
 
       function loadComplexProductContent($content, product) {
@@ -5790,59 +5790,59 @@ include PATH . '/inc/footer.php';
          const roomId = $content.closest('.tab-pane').data('room');
 
          const $wrapper = $(`
-    <div class="product-details-wrapper">
-        <div class="complex-product-layout">
-            <div class="items-tabs-sidebar">
-                <div class="items-tabs-header">
-                    <h6><i class="fa fa-list mr-2"></i>Items</h6>
-                    <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
-                        <i class="fa fa-plus mr-1"></i> ${buttonText}
-                    </button>
-                </div>
-                <div class="items-tabs-container">
-                    <div class="empty-items-tabs">
-                        <i class="fa fa-cube"></i>
-                        <p>No items added yet</p>
-                    </div>
-                </div>
+<div class="product-details-wrapper">
+   <div class="complex-product-layout">
+      <div class="items-tabs-sidebar">
+         <div class="items-tabs-header">
+            <h6><i class="fa fa-list mr-2"></i>Items</h6>
+            <button type="button" class="btn btn-sm btn-primary add-product-item-btn" data-product="${product.id}" data-room="${roomId}">
+               <i class="fa fa-plus mr-1"></i> ${buttonText}
+            </button>
+         </div>
+         <div class="items-tabs-container">
+            <div class="empty-items-tabs">
+               <i class="fa fa-cube"></i>
+               <p>No items added yet</p>
             </div>
-            <div class="item-details-content">
-                <div class="product-details-header">
-                    <div class="product-header-with-image">
-                        <div class="header-image-preview">
-                            <i class="fa ${product.icon}"></i>
-                        </div>
-                        <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
-                    </div>
-                    <div class="compact-header-details">
-                        <div class="compact-header-group">
-                            <label>Width (m)</label>
-                            <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                            <label>Length/Height (m)</label>
-                            <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                            <label>Unit Price ($)</label>
-                            <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-header-group">
-                            <label>Total Price ($)</label>
-                            <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                        </div>
-                    </div>
-                </div>
-                <div class="product-details-body">
-                    <div class="empty-item-selection">
-                        <i class="fa fa-hand-pointer"></i>
-                        <p>Select an item to view and edit details</p>
-                    </div>
-                </div>
+         </div>
+      </div>
+      <div class="item-details-content">
+         <div class="product-details-header">
+            <div class="product-header-with-image">
+               <div class="header-image-preview">
+                  <i class="fa ${product.icon}"></i>
+               </div>
+               <h6><i class="fa fa-info-circle mr-2"></i>${product.name} Details</h6>
             </div>
-        </div>
-    </div>
-    `);
+            <div class="compact-header-details">
+               <div class="compact-header-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+               </div>
+               <div class="compact-header-group">
+                  <label>Length/Height (m)</label>
+                  <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+               </div>
+               <div class="compact-header-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+               </div>
+               <div class="compact-header-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+               </div>
+            </div>
+         </div>
+         <div class="product-details-body">
+            <div class="empty-item-selection">
+               <i class="fa fa-hand-pointer"></i>
+               <p>Select an item to view and edit details</p>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+`);
 
          $content.html($wrapper);
 
@@ -5853,92 +5853,92 @@ include PATH . '/inc/footer.php';
       // UPDATED: Material section with image on left, details on right and pillow subcategory tabs
       function loadSimpleProductContent($content, product) {
          const $wrapper = $(`
-        <div class="simple-product-content">
-           <div class="compact-product-details">
-              <div class="compact-section-header">
-                 <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
-              </div>
-              <div class="compact-details-with-image">
-                 <div class="compact-image-preview">
-                    <i class="fa fa-image"></i>
-                 </div>
-                 <div class="compact-details-fields">
-                    <div class="compact-detail-group">
-                       <label>Width (m)</label>
-                       <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Length (m)</label>
-                       <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Height (m)</label>
-                       <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Unit Price ($)</label>
-                       <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Total Price ($)</label>
-                       <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                    </div>
-                 </div>
-              </div>
-           </div>
-           
-           <!-- UPDATED Material Section with Image on Left and Details on Right -->
-           <div class="material-section">
-              <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-              <div class="material-tabs" id="materialTabs-${product.id}">
-                 ${materialCategories.map(category => `
-                    <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
-                       ${category.name}
-                    </button>
-                 `).join('')}
-              </div>
-              <div class="material-tabs-content" id="materialTabsContent-${product.id}">
-                 ${materialCategories.map((category, index) => `
-                    <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.id}-${category.id}">
-                       ${category.id === 'pillow' ? 
-                          loadPillowSubcategories(product.id) : 
-                          // Standard material layout for non-pillow categories (Image on left, details on right)
-                          `<div class="material-inputs-compact">
-                              <div class="material-compact-image">
-                                 <i class="fa fa-image"></i>
+      <div class="simple-product-content">
+         <div class="compact-product-details">
+            <div class="compact-section-header">
+               <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
+            </div>
+            <div class="compact-details-with-image">
+               <div class="compact-image-preview">
+                  <i class="fa fa-image"></i>
+               </div>
+               <div class="compact-details-fields">
+                  <div class="compact-detail-group">
+                     <label>Width (m)</label>
+                     <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Length (m)</label>
+                     <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Height (m)</label>
+                     <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Unit Price ($)</label>
+                     <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Total Price ($)</label>
+                     <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+         <!-- UPDATED Material Section with Image on Left and Details on Right -->
+         <div class="material-section">
+            <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
+            <div class="material-tabs" id="materialTabs-${product.id}">
+               ${materialCategories.map(category => `
+                  <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
+                     ${category.name}
+                  </button>
+               `).join('')}
+            </div>
+            <div class="material-tabs-content" id="materialTabsContent-${product.id}">
+               ${materialCategories.map((category, index) => `
+                  <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.id}-${category.id}">
+                     ${category.id === 'pillow' ? 
+                        loadPillowSubcategories(product.id) : 
+                        // Standard material layout for non-pillow categories (Image on left, details on right)
+                        `<div class="material-inputs-compact">
+                           <div class="material-compact-image">
+                              <i class="fa fa-image"></i>
+                           </div>
+                           <div class="material-compact-fields">
+                              <div class="material-input">
+                                 <label>Material Grade</label>
+                                 <select class="form-control material-grade">
+                                    <option value="">Select Grade</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="premium">Premium</option>
+                                    <option value="economy">Economy</option>
+                                 </select>
                               </div>
-                              <div class="material-compact-fields">
-                                 <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
-                                       <option value="">Select Material</option>
-                                       ${category.defaultMaterials.map(material => `
-                                          <option value="${material.id}">${material.name}</option>
-                                       `).join('')}
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Area/Weight</label>
-                                    <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
-                                 </div>
+                              <div class="material-input">
+                                 <label>Material Type</label>
+                                 <select class="form-control material-type-select">
+                                    <option value="">Select Material</option>
+                                    ${category.defaultMaterials.map(material => `
+                                       <option value="${material.id}">${material.name}</option>
+                                    `).join('')}
+                                 </select>
                               </div>
-                           </div>`
-                       }
-                    </div>
-                 `).join('')}
-              </div>
-           </div>
-        </div>
-     `);
+                              <div class="material-input">
+                                 <label>Area/Weight</label>
+                                 <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                              </div>
+                           </div>
+                        </div>`
+                     }
+                  </div>
+               `).join('')}
+            </div>
+         </div>
+      </div>
+   `);
 
          $content.html($wrapper);
 
@@ -5950,153 +5950,153 @@ include PATH . '/inc/footer.php';
       // ADDED: Curtain product content with accessory section working like items section
       function loadCurtainProductContent($content, product) {
          const $wrapper = $(`
-        <div class="simple-product-content">
-           <div class="compact-product-details">
-              <div class="compact-section-header">
-                 <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
-              </div>
-              <div class="compact-details-with-image">
-                 <div class="compact-image-preview">
-                    <i class="fa fa-image"></i>
-                 </div>
-                 <div class="compact-details-fields">
-                    <div class="compact-detail-group">
-                       <label>Width (m)</label>
-                       <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Length (m)</label>
-                       <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Height (m)</label>
-                       <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Unit Price ($)</label>
-                       <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="compact-detail-group">
-                       <label>Total Price ($)</label>
-                       <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
-                    </div>
-                 </div>
-              </div>
-           </div>
-           
-           <!-- UPDATED Material Section with Image on Left and Details on Right -->
-           <div class="material-section">
-              <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-              <div class="material-tabs" id="materialTabs-${product.id}">
-                 ${materialCategories.map(category => `
-                    <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
-                       ${category.name}
-                    </button>
-                 `).join('')}
-              </div>
-              <div class="material-tabs-content" id="materialTabsContent-${product.id}">
-                 ${materialCategories.map((category, index) => `
-                    <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.id}-${category.id}">
-                       ${category.id === 'pillow' ? 
-                          loadPillowSubcategories(product.id) : 
-                          // Standard material layout for non-pillow categories (Image on left, details on right)
-                          `<div class="material-inputs-compact">
-                              <div class="material-compact-image">
-                                 <i class="fa fa-image"></i>
+      <div class="simple-product-content">
+         <div class="compact-product-details">
+            <div class="compact-section-header">
+               <h6><i class="fa fa-cube mr-2"></i>${product.name} Details</h6>
+            </div>
+            <div class="compact-details-with-image">
+               <div class="compact-image-preview">
+                  <i class="fa fa-image"></i>
+               </div>
+               <div class="compact-details-fields">
+                  <div class="compact-detail-group">
+                     <label>Width (m)</label>
+                     <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Length (m)</label>
+                     <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Height (m)</label>
+                     <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Unit Price ($)</label>
+                     <input type="number" class="form-control unit-price" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <div class="compact-detail-group">
+                     <label>Total Price ($)</label>
+                     <input type="number" class="form-control total-price" placeholder="0.00" step="0.01" min="0" readonly>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+         <!-- UPDATED Material Section with Image on Left and Details on Right -->
+         <div class="material-section">
+            <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
+            <div class="material-tabs" id="materialTabs-${product.id}">
+               ${materialCategories.map(category => `
+                  <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
+                     ${category.name}
+                  </button>
+               `).join('')}
+            </div>
+            <div class="material-tabs-content" id="materialTabsContent-${product.id}">
+               ${materialCategories.map((category, index) => `
+                  <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.id}-${category.id}">
+                     ${category.id === 'pillow' ? 
+                        loadPillowSubcategories(product.id) : 
+                        // Standard material layout for non-pillow categories (Image on left, details on right)
+                        `<div class="material-inputs-compact">
+                           <div class="material-compact-image">
+                              <i class="fa fa-image"></i>
+                           </div>
+                           <div class="material-compact-fields">
+                              <div class="material-input">
+                                 <label>Material Grade</label>
+                                 <select class="form-control material-grade">
+                                    <option value="">Select Grade</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="premium">Premium</option>
+                                    <option value="economy">Economy</option>
+                                 </select>
                               </div>
-                              <div class="material-compact-fields">
-                                 <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
-                                       <option value="">Select Material</option>
-                                       ${category.defaultMaterials.map(material => `
-                                          <option value="${material.id}">${material.name}</option>
-                                       `).join('')}
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Area/Weight</label>
-                                    <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
-                                 </div>
+                              <div class="material-input">
+                                 <label>Material Type</label>
+                                 <select class="form-control material-type-select">
+                                    <option value="">Select Material</option>
+                                    ${category.defaultMaterials.map(material => `
+                                       <option value="${material.id}">${material.name}</option>
+                                    `).join('')}
+                                 </select>
                               </div>
-                           </div>`
-                       }
-                    </div>
-                 `).join('')}
-              </div>
-           </div>
-           
-           <!-- UPDATED: Curtain Options Section with Accessory Layout like Items Section -->
-           <div class="curtain-options-section">
-              <h6><i class="fa fa-cog mr-2"></i>Curtain Options</h6>
-              <div class="curtain-controls">
-                 <div class="curtain-control">
-                    <label>Opening Direction</label>
-                    <select class="form-control opening-direction">
-                       <option value="">Select Direction</option>
-                       <option value="left">Left Opening</option>
-                       <option value="right">Right Opening</option>
-                       <option value="center">Center Opening</option>
-                       <option value="top">Top Opening</option>
-                    </select>
-                 </div>
-                 <div class="curtain-control">
-                    <label>Open With</label>
-                    <select class="form-control open-with">
-                       <option value="">Select Option</option>
-                       <option value="cord">Cord</option>
-                       <option value="wand">Wand</option>
-                       <option value="motorized">Motorized</option>
-                       <option value="manual">Manual</option>
-                    </select>
-                 </div>
-              </div>
-              
-              <h6 style="margin-top: 16px;"><i class="fa fa-plus-circle mr-2"></i>Accessories</h6>
-              <div class="accessory-layout">
-                 <div class="accessory-tabs-sidebar">
-                    <div class="accessory-tabs-header">
-                       <h6><i class="fa fa-list mr-2"></i>Accessories</h6>
-                       <button type="button" class="btn btn-sm btn-primary add-accessory-btn" data-product="${product.id}">
-                          <i class="fa fa-plus mr-1"></i> Add Accessory
-                       </button>
-                    </div>
-                    <div class="accessory-tabs-container">
-                       <div class="empty-accessory-tabs">
-                          <i class="fa fa-puzzle-piece"></i>
-                          <p>No accessories added yet</p>
-                       </div>
-                    </div>
-                 </div>
-                 <div class="accessory-details-content">
-                    <div class="accessory-details-header">
-                       <div class="product-header-with-image">
-                          <div class="header-image-preview">
-                             <i class="fa fa-puzzle-piece"></i>
-                          </div>
-                          <h6><i class="fa fa-info-circle mr-2"></i>Accessory Details</h6>
-                       </div>
-                    </div>
-                    <div class="accessory-details-body">
-                       <div class="empty-accessory-selection">
-                          <i class="fa fa-hand-pointer"></i>
-                          <p>Select an accessory to view and edit details</p>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-     `);
+                              <div class="material-input">
+                                 <label>Area/Weight</label>
+                                 <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                              </div>
+                           </div>
+                        </div>`
+                     }
+                  </div>
+               `).join('')}
+            </div>
+         </div>
+         
+         <!-- UPDATED: Curtain Options Section with Accessory Layout like Items Section -->
+         <div class="curtain-options-section">
+            <h6><i class="fa fa-cog mr-2"></i>Curtain Options</h6>
+            <div class="curtain-controls">
+               <div class="curtain-control">
+                  <label>Opening Direction</label>
+                  <select class="form-control opening-direction">
+                     <option value="">Select Direction</option>
+                     <option value="left">Left Opening</option>
+                     <option value="right">Right Opening</option>
+                     <option value="center">Center Opening</option>
+                     <option value="top">Top Opening</option>
+                  </select>
+               </div>
+               <div class="curtain-control">
+                  <label>Open With</label>
+                  <select class="form-control open-with">
+                     <option value="">Select Option</option>
+                     <option value="cord">Cord</option>
+                     <option value="wand">Wand</option>
+                     <option value="motorized">Motorized</option>
+                     <option value="manual">Manual</option>
+                  </select>
+               </div>
+            </div>
+            
+            <h6 style="margin-top: 16px;"><i class="fa fa-plus-circle mr-2"></i>Accessories</h6>
+            <div class="accessory-layout">
+               <div class="accessory-tabs-sidebar">
+                  <div class="accessory-tabs-header">
+                     <h6><i class="fa fa-list mr-2"></i>Accessories</h6>
+                     <button type="button" class="btn btn-sm btn-primary add-accessory-btn" data-product="${product.id}">
+                        <i class="fa fa-plus mr-1"></i> Add Accessory
+                     </button>
+                  </div>
+                  <div class="accessory-tabs-container">
+                     <div class="empty-accessory-tabs">
+                        <i class="fa fa-puzzle-piece"></i>
+                        <p>No accessories added yet</p>
+                     </div>
+                  </div>
+               </div>
+               <div class="accessory-details-content">
+                  <div class="accessory-details-header">
+                     <div class="product-header-with-image">
+                        <div class="header-image-preview">
+                           <i class="fa fa-puzzle-piece"></i>
+                        </div>
+                        <h6><i class="fa fa-info-circle mr-2"></i>Accessory Details</h6>
+                     </div>
+                  </div>
+                  <div class="accessory-details-body">
+                     <div class="empty-accessory-selection">
+                        <i class="fa fa-hand-pointer"></i>
+                        <p>Select an accessory to view and edit details</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   `);
 
          $content.html($wrapper);
 
@@ -6111,141 +6111,141 @@ include PATH . '/inc/footer.php';
          if (!pillowCategory) return '';
 
          return `
-        <div class="pillow-subcategories-section">
-            <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
-                            data-subcategory="${subcat.id}" data-product="${productId}">
-                        <div class="pillow-subcategory-header">
-                            <span class="status-indicator status-empty"></span>
-                            <span class="pillow-subcategory-title">${subcat.name}</span>
+      <div class="pillow-subcategories-section">
+         <div class="pillow-subcategories-tabs" id="pillowTabs-${productId}">
+            ${pillowCategory.subcategories.map((subcat, index) => `
+               <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
+                       data-subcategory="${subcat.id}" data-product="${productId}">
+                  <div class="pillow-subcategory-header">
+                     <span class="status-indicator status-empty"></span>
+                     <span class="pillow-subcategory-title">${subcat.name}</span>
+                  </div>
+               </button>
+            `).join('')}
+         </div>
+         <div class="pillow-subcategories-content" id="pillowContent-${productId}">
+            ${pillowCategory.subcategories.map((subcat, index) => `
+               <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
+                    id="pillowSubcategory-${productId}-${subcat.id}">
+                  <div class="pillow-subcategory-details">
+                     <div class="pillow-material-inputs-compact">
+                        <div class="pillow-material-compact-image">
+                           <i class="fa fa-image"></i>
                         </div>
-                    </button>
-                `).join('')}
-            </div>
-            <div class="pillow-subcategories-content" id="pillowContent-${productId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
-                         id="pillowSubcategory-${productId}-${subcat.id}">
-                        <div class="pillow-subcategory-details">
-                            <div class="pillow-material-inputs-compact">
-                                <div class="pillow-material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="pillow-material-compact-fields">
-                                    <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-subcategory="${subcat.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-subcategory="${subcat.id}">
-                                            <option value="">Select Material</option>
-                                            ${pillowCategory.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                                <label>Additional Notes</label>
-                                <textarea class="form-control pillow-notes" 
-                                          placeholder="Enter additional notes for ${subcat.name}..." 
-                                          rows="2" data-subcategory="${subcat.id}"></textarea>
-                            </div>
+                        <div class="pillow-material-compact-fields">
+                           <div class="pillow-material-input">
+                              <label>Material Grade</label>
+                              <select class="form-control material-grade" 
+                                      data-subcategory="${subcat.id}">
+                                 <option value="">Select Grade</option>
+                                 <option value="standard">Standard</option>
+                                 <option value="premium">Premium</option>
+                                 <option value="economy">Economy</option>
+                              </select>
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Material Type</label>
+                              <select class="form-control material-type-select" 
+                                      data-subcategory="${subcat.id}">
+                                 <option value="">Select Material</option>
+                                 ${pillowCategory.defaultMaterials.map(material => `
+                                    <option value="${material.id}">${material.name}</option>
+                                 `).join('')}
+                              </select>
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Area/Weight</label>
+                              <input type="text" class="form-control area-weight" 
+                                     placeholder="Enter area or weight"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Quantity</label>
+                              <input type="number" class="form-control pillow-qty" 
+                                     placeholder="0" min="1" value="1"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Unit Price ($)</label>
+                              <input type="number" class="form-control pillow-unit-price" 
+                                     placeholder="0.00" step="0.01" min="0"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Total Price ($)</label>
+                              <input type="number" class="form-control pillow-total-price" 
+                                     placeholder="0.00" step="0.01" min="0" readonly
+                                     data-subcategory="${subcat.id}">
+                           </div>
                         </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+                     </div>
+                     <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
+                        <label>Additional Notes</label>
+                        <textarea class="form-control pillow-notes" 
+                                  placeholder="Enter additional notes for ${subcat.name}..." 
+                                  rows="2" data-subcategory="${subcat.id}"></textarea>
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   `;
       }
 
       function createMaterialSectionForItem(itemId, productId, roomId) {
          return `
-        <!-- Material Tabs Section -->
-        <div class="material-section">
-            <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-            <div class="material-tabs" id="materialTabs-${itemId}-${productId}-room${roomId}">
-                ${materialCategories.map(category => `
-                    <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
-                        ${category.name}
-                    </button>
-                `).join('')}
-            </div>
-            <div class="material-tabs-content" id="materialTabsContent-${itemId}-${productId}-room${roomId}">
-                ${materialCategories.map((category, index) => `
-                    <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${itemId}-${productId}-room${roomId}-${category.id}">
-                        ${category.id === 'pillow' ? 
-                            loadPillowSubcategoriesForItem(itemId, productId, roomId) : 
-                            // Standard material layout for non-pillow categories
-                            `<div class="material-inputs-compact">
-                                <div class="material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="material-compact-fields">
-                                    <div class="material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select">
-                                            <option value="">Select Material</option>
-                                            ${category.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
-                                    </div>
-                                </div>
-                            </div>`
-                        }
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+      <!-- Material Tabs Section -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
+         <div class="material-tabs" id="materialTabs-${itemId}-${productId}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${itemId}-${productId}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${itemId}-${productId}-room${roomId}-${category.id}">
+                  ${category.id === 'pillow' ? 
+                     loadPillowSubcategoriesForItem(itemId, productId, roomId) : 
+                     // Standard material layout for non-pillow categories
+                     `<div class="material-inputs-compact">
+                        <div class="material-compact-image">
+                           <i class="fa fa-image"></i>
+                        </div>
+                        <div class="material-compact-fields">
+                           <div class="material-input">
+                              <label>Material Grade</label>
+                              <select class="form-control material-grade">
+                                 <option value="">Select Grade</option>
+                                 <option value="standard">Standard</option>
+                                 <option value="premium">Premium</option>
+                                 <option value="economy">Economy</option>
+                              </select>
+                           </div>
+                           <div class="material-input">
+                              <label>Material Type</label>
+                              <select class="form-control material-type-select">
+                                 <option value="">Select Material</option>
+                                 ${category.defaultMaterials.map(material => `
+                                    <option value="${material.id}">${material.name}</option>
+                                 `).join('')}
+                              </select>
+                           </div>
+                           <div class="material-input">
+                              <label>Area/Weight</label>
+                              <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
+                           </div>
+                        </div>
+                     </div>`
+                  }
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   `;
       }
 
       function loadPillowSubcategoriesForItem(itemId, productId, roomId) {
@@ -6253,87 +6253,88 @@ include PATH . '/inc/footer.php';
          if (!pillowCategory) return '';
 
          return `
-        <div class="pillow-subcategories-section">
-            <div class="pillow-subcategories-tabs" id="pillowTabs-${itemId}-${productId}-room${roomId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
-                            data-subcategory="${subcat.id}" data-item="${itemId}" data-product="${productId}" data-room="${roomId}">
-                        <div class="pillow-subcategory-header">
-                            <span class="status-indicator status-empty"></span>
-                            <span class="pillow-subcategory-title">${subcat.name}</span>
+      <div class="pillow-subcategories-section">
+         <div class="pillow-subcategories-tabs" id="pillowTabs-${itemId}-${productId}-room${roomId}">
+            ${pillowCategory.subcategories.map((subcat, index) => `
+               <button class="pillow-subcategory-tab ${index === 0 ? 'active' : ''}" 
+                       data-subcategory="${subcat.id}" data-item="${itemId}" data-product="${productId}" data-room="${roomId}">
+                  <div class="pillow-subcategory-header">
+                     <span class="status-indicator status-empty"></span>
+                     <span class="pillow-subcategory-title">${subcat.name}</span>
+                  </div>
+               </button>
+            `).join('')}
+         </div>
+         <div class="pillow-subcategories-content" id="pillowContent-${itemId}-${productId}-room${roomId}">
+            ${pillowCategory.subcategories.map((subcat, index) => `
+               <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
+                    id="pillowSubcategory-${itemId}-${productId}-room${roomId}-${subcat.id}">
+                  <div class="pillow-subcategory-details">
+                     <div class="pillow-material-inputs-compact">
+                        <div class="pillow-material-compact-image">
+                           <i class="fa fa-image"></i>
                         </div>
-                    </button>
-                `).join('')}
-            </div>
-            <div class="pillow-subcategories-content" id="pillowContent-${itemId}-${productId}-room${roomId}">
-                ${pillowCategory.subcategories.map((subcat, index) => `
-                    <div class="pillow-subcategory-content ${index === 0 ? 'active' : ''}" 
-                         id="pillowSubcategory-${itemId}-${productId}-room${roomId}-${subcat.id}">
-                        <div class="pillow-subcategory-details">
-                            <div class="pillow-material-inputs-compact">
-                                <div class="pillow-material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                </div>
-                                <div class="pillow-material-compact-fields">
-                                    <div class="pillow-material-input">
-                                        <label>Material Grade</label>
-                                        <select class="form-control material-grade" 
-                                                data-subcategory="${subcat.id}">
-                                            <option value="">Select Grade</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="economy">Economy</option>
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Material Type</label>
-                                        <select class="form-control material-type-select" 
-                                                data-subcategory="${subcat.id}">
-                                            <option value="">Select Material</option>
-                                            ${pillowCategory.defaultMaterials.map(material => `
-                                                <option value="${material.id}">${material.name}</option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Area/Weight</label>
-                                        <input type="text" class="form-control area-weight" 
-                                               placeholder="Enter area or weight"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Quantity</label>
-                                        <input type="number" class="form-control pillow-qty" 
-                                               placeholder="0" min="1" value="1"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Unit Price ($)</label>
-                                        <input type="number" class="form-control pillow-unit-price" 
-                                               placeholder="0.00" step="0.01" min="0"
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                    <div class="pillow-material-input">
-                                        <label>Total Price ($)</label>
-                                        <input type="number" class="form-control pillow-total-price" 
-                                               placeholder="0.00" step="0.01" min="0" readonly
-                                               data-subcategory="${subcat.id}">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
-                                <label>Additional Notes</label>
-                                <textarea class="form-control pillow-notes" 
-                                          placeholder="Enter additional notes for ${subcat.name}..." 
-                                          rows="2" data-subcategory="${subcat.id}"></textarea>
-                            </div>
+                        <div class="pillow-material-compact-fields">
+                           <div class="pillow-material-input">
+                              <label>Material Grade</label>
+                              <select class="form-control material-grade" 
+                                      data-subcategory="${subcat.id}">
+                                 <option value="">Select Grade</option>
+                                 <option value="standard">Standard</option>
+                                 <option value="premium">Premium</option>
+                                 <option value="economy">Economy</option>
+                              </select>
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Material Type</label>
+                              <select class="form-control material-type-select" 
+                                      data-subcategory="${subcat.id}">
+                                 <option value="">Select Material</option>
+                                 ${pillowCategory.defaultMaterials.map(material => `
+                                    <option value="${material.id}">${material.name}</option>
+                                 `).join('')}
+                              </select>
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Area/Weight</label>
+                              <input type="text" class="form-control area-weight" 
+                                     placeholder="Enter area or weight"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Quantity</label>
+                              <input type="number" class="form-control pillow-qty" 
+                                     placeholder="0" min="1" value="1"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Unit Price ($)</label>
+                              <input type="number" class="form-control pillow-unit-price" 
+                                     placeholder="0.00" step="0.01" min="0"
+                                     data-subcategory="${subcat.id}">
+                           </div>
+                           <div class="pillow-material-input">
+                              <label>Total Price ($)</label>
+                              <input type="number" class="form-control pillow-total-price" 
+                                     placeholder="0.00" step="0.01" min="0" readonly
+                                     data-subcategory="${subcat.id}">
+                           </div>
                         </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+                     </div>
+                     <div class="pillow-material-input" style="margin-top: 12px; grid-column: 1 / -1;">
+                        <label>Additional Notes</label>
+                        <textarea class="form-control pillow-notes" 
+                                  placeholder="Enter additional notes for ${subcat.name}..." 
+                                  rows="2" data-subcategory="${subcat.id}"></textarea>
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   `;
       }
+
       // NEW: Function to setup pillow subcategory tabs
       function setupPillowSubcategoryTabs(productId) {
          const $pillowTabs = $(`#pillowTabs-${productId}`);
@@ -6472,13 +6473,13 @@ include PATH . '/inc/footer.php';
 
          const tabId = `item-${item.id}-${productId}-room${roomId}`;
          const $tab = $(`
-        <div class="items-tab" data-item-id="${item.id}" id="${tabId}-tab">
-            <span class="items-tab-name">${item.name}</span>
-            <div class="items-tab-close" title="Remove item">
-                <i class="fa fa-times"></i>
-            </div>
-        </div>
-    `);
+      <div class="items-tab" data-item-id="${item.id}" id="${tabId}-tab">
+         <span class="items-tab-name">${item.name}</span>
+         <div class="items-tab-close" title="Remove item">
+            <i class="fa fa-times"></i>
+         </div>
+      </div>
+   `);
 
          $tabsContainer.append($tab);
 
@@ -6487,46 +6488,46 @@ include PATH . '/inc/footer.php';
             // Create item details content with proper material section
             const $detailsContent = $(`
             <div class="item-details" id="${tabId}" style="display: none;">
-                <div class="enhanced-category-item">
-                    <div class="enhanced-item-header">
-                        <div class="enhanced-item-name">${item.name}</div>
-                    </div>
-                    <div class="enhanced-details-with-image">
-                        <div class="enhanced-image-preview">
-                            <i class="fa fa-image"></i>
+               <div class="enhanced-category-item">
+                  <div class="enhanced-item-header">
+                     <div class="enhanced-item-name">${item.name}</div>
+                  </div>
+                  <div class="enhanced-details-with-image">
+                     <div class="enhanced-image-preview">
+                        <i class="fa fa-image"></i>
+                     </div>
+                     <div class="enhanced-details-fields">
+                        <div class="detail-group">
+                           <label>Quantity</label>
+                           <input type="number" class="form-control item-qty" placeholder="0" min="1" value="1">
                         </div>
-                        <div class="enhanced-details-fields">
-                            <div class="detail-group">
-                                <label>Quantity</label>
-                                <input type="number" class="form-control item-qty" placeholder="0" min="1" value="1">
-                            </div>
-                            <div class="detail-group">
-                                <label>Unit Price</label>
-                                <input type="number" class="form-control item-price" placeholder="0.00" min="0" step="0.01" value="0.00">
-                            </div>
-                            <div class="detail-group">
-                                <label>Length (m)</label>
-                                <input type="number" class="form-control item-length item-dims" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="detail-group">
-                                <label>Width (m)</label>
-                                <input type="number" class="form-control item-width item-dims" placeholder="0.00" step="0.01" min="0">
-                            </div>
-                            <div class="detail-group">
-                                <label>Height (m)</label>
-                                <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
-                            </div>
+                        <div class="detail-group">
+                           <label>Unit Price</label>
+                           <input type="number" class="form-control item-price" placeholder="0.00" min="0" step="0.01" value="0.00">
                         </div>
-                    </div>
-                    <div class="detail-group" style="margin-top: 12px;">
-                        <label>Notes</label>
-                        <textarea class="form-control item-notes" placeholder="Additional notes..." rows="2"></textarea>
-                    </div>
-                </div>
-                
-                ${createMaterialSectionForItem(item.id, productId, roomId)}
+                        <div class="detail-group">
+                           <label>Length (m)</label>
+                           <input type="number" class="form-control item-length item-dims" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="detail-group">
+                           <label>Width (m)</label>
+                           <input type="number" class="form-control item-width item-dims" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div class="detail-group">
+                           <label>Height (m)</label>
+                           <input type="number" class="form-control item-height item-dims" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                     </div>
+                  </div>
+                  <div class="detail-group" style="margin-top: 12px;">
+                     <label>Notes</label>
+                     <textarea class="form-control item-notes" placeholder="Additional notes..." rows="2"></textarea>
+                  </div>
+               </div>
+               
+               ${createMaterialSectionForItem(item.id, productId, roomId)}
             </div>
-        `);
+         `);
 
             if ($emptyDetails.length) {
                $emptyDetails.remove();
@@ -6619,66 +6620,66 @@ include PATH . '/inc/footer.php';
 
          const tabId = `accessory-${accessory.id}-${productId}-room${roomId}`;
          const $tab = $(`
-        <div class="accessory-tab" data-accessory-id="${accessory.id}" id="${tabId}-tab">
-           <span class="accessory-tab-name">${accessory.name}</span>
-           <div class="accessory-tab-close" title="Remove accessory">
-              <i class="fa fa-times"></i>
-           </div>
-        </div>
-     `);
+      <div class="accessory-tab" data-accessory-id="${accessory.id}" id="${tabId}-tab">
+         <span class="accessory-tab-name">${accessory.name}</span>
+         <div class="accessory-tab-close" title="Remove accessory">
+            <i class="fa fa-times"></i>
+         </div>
+      </div>
+   `);
 
          $tabsContainer.append($tab);
 
          // Accessory details content
          const $detailsContent = $(`
-    <div class="accessory-details" id="${tabId}" style="display: none;">
-        <div class="enhanced-category-item">
-            <div class="enhanced-item-header">
-                <div class="enhanced-item-name">${accessory.name}</div>
-            </div>
-            <div class="enhanced-details-with-image">
-                <div class="enhanced-image-preview">
-                    <i class="fa fa-image"></i>
-                </div>
-                <div class="enhanced-details-fields">
-                    <div class="detail-group accessory-type-with-preview">
-                        <label>Accessory Type</label>
-                        <div class="accessory-selection-container">
-                            <select class="form-control accessory-type-select">
-                                <option value="">Select ${accessory.name} Type</option>
-                                ${accessory.options.map(option => `
-                                    <option value="${option.id}">${option.name}</option>
-                                `).join('')}
-                            </select>
-                            <div class="accessory-option-preview" id="${accessory.id}-preview">
-                                <div class="preview-content">
-                                    <div class="preview-image">
-                                        <i class="fa fa-image"></i>
-                                    </div>
-                                    <div class="preview-details">
-                                        <div class="preview-name">No selection</div>
-                                        <div class="preview-description">Select an option to see preview</div>
-                                    </div>
-                                </div>
-                            </div>
+<div class="accessory-details" id="${tabId}" style="display: none;">
+   <div class="enhanced-category-item">
+      <div class="enhanced-item-header">
+         <div class="enhanced-item-name">${accessory.name}</div>
+      </div>
+      <div class="enhanced-details-with-image">
+         <div class="enhanced-image-preview">
+            <i class="fa fa-image"></i>
+         </div>
+         <div class="enhanced-details-fields">
+            <div class="detail-group accessory-type-with-preview">
+               <label>Accessory Type</label>
+               <div class="accessory-selection-container">
+                  <select class="form-control accessory-type-select">
+                     <option value="">Select ${accessory.name} Type</option>
+                     ${accessory.options.map(option => `
+                        <option value="${option.id}">${option.name}</option>
+                     `).join('')}
+                  </select>
+                  <div class="accessory-option-preview" id="${accessory.id}-preview">
+                     <div class="preview-content">
+                        <div class="preview-image">
+                           <i class="fa fa-image"></i>
                         </div>
-                    </div>
-                    <div class="detail-group">
-                        <label>Quantity</label>
-                        <input type="number" class="form-control accessory-qty" placeholder="0" min="1" value="1">
-                    </div>
-                    <div class="detail-group">
-                        <label>Unit Price ($)</label>
-                        <input type="number" class="form-control accessory-price" placeholder="0.00" min="0" step="0.01" value="0.00">
-                    </div>
-                    <div class="detail-group accessory-total-price">
-                        <label>Total Price ($)</label>
-                        <input type="number" class="form-control accessory-total" placeholder="0.00" step="0.01" min="0" readonly>
-                    </div>
-                </div>
+                        <div class="preview-details">
+                           <div class="preview-name">No selection</div>
+                           <div class="preview-description">Select an option to see preview</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
-        </div>
-    </div>
+            <div class="detail-group">
+               <label>Quantity</label>
+               <input type="number" class="form-control accessory-qty" placeholder="0" min="1" value="1">
+            </div>
+            <div class="detail-group">
+               <label>Unit Price ($)</label>
+               <input type="number" class="form-control accessory-price" placeholder="0.00" min="0" step="0.01" value="0.00">
+            </div>
+            <div class="detail-group accessory-total-price">
+               <label>Total Price ($)</label>
+               <input type="number" class="form-control accessory-total" placeholder="0.00" step="0.01" min="0" readonly>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
 `);
 
          if ($emptyDetails.length) {
@@ -6725,60 +6726,21 @@ include PATH . '/inc/footer.php';
 
       // Setup material tabs for specific item
       function setupMaterialTabsForItem(itemId, productId, roomId) {
-         const materialTabsId = `
-               materialTabs - $ {
-                  itemId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `;
+         const materialTabsId = `materialTabs-${itemId}-${productId}-room${roomId}`;
 
          // Use a small delay to ensure DOM is ready
          setTimeout(() => {
-            if ($(`
-               #$ {
-                  materialTabsId
-               }
-               `).length) {
-               $(`
-               #$ {
-                  materialTabsId
-               }.material - tab`).off('click').on('click', function(e) {
+            if ($(`#${materialTabsId}`).length) {
+               $(`#${materialTabsId} .material-tab`).off('click').on('click', function(e) {
                   e.preventDefault();
                   const categoryId = $(this).data('category');
-                  const materialTabsContentId = `
-               materialTabsContent - $ {
-                  itemId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `;
+                  const materialTabsContentId = `materialTabsContent-${itemId}-${productId}-room${roomId}`;
 
-                  $(`
-               #$ {
-                  materialTabsId
-               }.material - tab`).removeClass('active');
+                  $(`#${materialTabsId} .material-tab`).removeClass('active');
                   $(this).addClass('active');
 
-                  $(`
-               #$ {
-                  materialTabsContentId
-               }.material - tab - content`).removeClass('active');
-                  $(`
-               #materialContent - $ {
-                  itemId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               } - $ {
-                  categoryId
-               }
-               `).addClass('active');
+                  $(`#${materialTabsContentId} .material-tab-content`).removeClass('active');
+                  $(`#materialContent-${itemId}-${productId}-room${roomId}-${categoryId}`).addClass('active');
                });
             }
          }, 100);
@@ -6811,20 +6773,8 @@ include PATH . '/inc/footer.php';
          // Activate current tab and show its details
          $tab.addClass('active');
 
-         const detailsId = `
-               item - $ {
-                  itemId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `;
-         const $details = $(`
-               #$ {
-                  detailsId
-               }
-               `);
+         const detailsId = `item-${itemId}-${productId}-room${roomId}`;
+         const $details = $(`#${detailsId}`);
 
          if ($details.length) {
             $details.show();
@@ -6865,51 +6815,33 @@ include PATH . '/inc/footer.php';
          $tab.remove();
 
          // Remove the details content
-         const detailsId = `
-               item - $ {
-                  itemId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `;
-         $(`
-               #$ {
-                  detailsId
-               }
-               `).remove();
+         const detailsId = `item-${itemId}-${productId}-room${roomId}`;
+         $(`#${detailsId}`).remove();
 
          const $tabsContainer = $productContent.find('.items-tabs-container');
          const $detailsBody = $productContent.find('.product-details-body');
          const $tabs = $tabsContainer.find('.items-tab');
 
          if ($tabs.length === 0) {
-            $tabsContainer.html(` <
-               div class = "empty-items-tabs" >
-               <
-               i class = "fa fa-cube" > < /i> <
-               p > No items added yet < /p> <
-                  /div>
-               `);
+            $tabsContainer.html(`
+            <div class="empty-items-tabs">
+               <i class="fa fa-cube"></i>
+               <p>No items added yet</p>
+            </div>
+         `);
 
-            $detailsBody.html(` <
-               div class = "empty-item-selection" >
-               <
-               i class = "fa fa-hand-pointer" > < /i> <
-               p > Select an item to view and edit details < /p> <
-                  /div>
-               `);
+            $detailsBody.html(`
+            <div class="empty-item-selection">
+               <i class="fa fa-hand-pointer"></i>
+               <p>Select an item to view and edit details</p>
+            </div>
+         `);
          } else {
             const $firstTab = $tabs.first();
             activateItemTab($firstTab);
          }
 
-         updateRoomStatus(`
-               room$ {
-                  roomId
-               }
-               `);
+         updateRoomStatus(`room${roomId}`);
       }
 
       // ADDED: Remove accessory from product
@@ -6917,43 +6849,27 @@ include PATH . '/inc/footer.php';
          console.log('Removing accessory from product');
 
          $tab.remove();
-         $(`
-               #accessory - $ {
-                  accessoryId
-               } - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `).remove();
+         $(`#accessory-${accessoryId}-${productId}-room${roomId}`).remove();
 
-         const $productContent = $(`
-               #product - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `);
+         const $productContent = $(`#product-${productId}-room${roomId}`);
          const $tabsContainer = $productContent.find('.accessory-tabs-container');
          const $detailsBody = $productContent.find('.accessory-details-body');
          const $tabs = $tabsContainer.find('.accessory-tab');
 
          if ($tabs.length === 0) {
-            $tabsContainer.html(` <
-               div class = "empty-accessory-tabs" >
-               <
-               i class = "fa fa-puzzle-piece" > < /i> <
-               p > No accessories added yet < /p> <
-                  /div>
-               `);
+            $tabsContainer.html(`
+            <div class="empty-accessory-tabs">
+               <i class="fa fa-puzzle-piece"></i>
+               <p>No accessories added yet</p>
+            </div>
+         `);
 
-            $detailsBody.html(` <
-               div class = "empty-accessory-selection" >
-               <
-               i class = "fa fa-hand-pointer" > < /i> <
-               p > Select an accessory to view and edit details < /p> <
-                  /div>
-               `);
+            $detailsBody.html(`
+            <div class="empty-accessory-selection">
+               <i class="fa fa-hand-pointer"></i>
+               <p>Select an accessory to view and edit details</p>
+            </div>
+         `);
          } else {
             const $firstTab = $tabs.first();
             activateAccessoryTab($firstTab, roomId, productId);
@@ -6961,15 +6877,8 @@ include PATH . '/inc/footer.php';
       }
 
       function updateRoomStatus(roomId) {
-         const $roomPane = $(`
-               #$ {
-                  roomId
-               }
-               `);
-         const $statusIndicator = $(`
-               #$ {
-                  roomId
-               } - tab.status - indicator`);
+         const $roomPane = $(`#${roomId}`);
+         const $statusIndicator = $(`#${roomId}-tab.status-indicator`);
 
          let hasItems = false;
          let allComplete = true;
@@ -7004,128 +6913,88 @@ include PATH . '/inc/footer.php';
          const roomNumber = getNextRoomNumber();
          const roomId = 'room' + roomNumber;
 
-         const $tabLi = $(` <
-                  li class = "nav-item" >
-                  <
-                  a class = "nav-link room-tab"
-               id = "${roomId}-tab"
-               data - toggle = "tab"
-               href = "#${roomId}"
-               role = "tab"
-               aria - controls = "${roomId}"
-               data - room = "${roomNumber}" >
-                  <
-                  div class = "room-header" >
-                  <
-                  span class = "status-indicator status-empty" > < /span> <
-                  span class = "room-title" > Room $ {
-                     roomNumber
-                  } < /span> <
-                  span class = "close-room ml-2"
-               title = "Remove room" >
-                  <
-                  i class = "fa fa-times" > < /i> <
-                  /span> <
-                  /div> <
-                  /a> <
-                  /li>
-               `);
+         const $tabLi = $(`
+         <li class="nav-item">
+            <a class="nav-link room-tab"
+               id="${roomId}-tab"
+               data-toggle="tab"
+               href="#${roomId}"
+               role="tab"
+               aria-controls="${roomId}"
+               data-room="${roomNumber}">
+               <div class="room-header">
+                  <span class="status-indicator status-empty"></span>
+                  <span class="room-title">Room ${roomNumber}</span>
+                  <span class="close-room ml-2" title="Remove room">
+                     <i class="fa fa-times"></i>
+                  </span>
+               </div>
+            </a>
+         </li>
+      `);
          $('#roomTabs .nav-item:has(.add-room-btn)').before($tabLi);
 
-         const $pane = $(` <
-               div class = "tab-pane fade"
-               id = "${roomId}"
-               role = "tabpanel"
-               aria - labelledby = "${roomId}-tab"
-               data - room = "${roomNumber}" >
-                  <
-                  div class = "product-tabs-wrapper" >
-                  <
-                  div class = "product-tabs-header" >
-                  <
-                  div class = "room-info-form" >
-                  <
-                  div class = "form-group-small" >
-                  <
-                  label
-               for = "floorName-${roomId}" > Floor Name < /label> <
-                  input type = "text"
-               class = "form-control-small"
-               id = "floorName-${roomId}"
-               placeholder = "Enter floor name" >
-                  <
-                  /div> <
-                  div class = "form-group-small" >
-                  <
-                  label
-               for = "roomName-${roomId}" > Room Name < /label> <
-                  input type = "text"
-               class = "form-control-small"
-               id = "roomName-${roomId}"
-               placeholder = "Enter room name" >
-                  <
-                  /div> <
-                  div class = "form-group-small" >
-                  <
-                  label > Room Image < /label> <
-                  div class = "image-upload-container" >
-                  <
-                  div class = "image-preview"
-               id = "imagePreview-${roomId}" >
-                  <
-                  i class = "fa fa-image" > < /i> <
-                  /div> <
-                  div class = "file-input-wrapper" >
-                  <
-                  button type = "button"
-               class = "btn btn-sm btn-outline-primary" >
-               <
-               i class = "fa fa-upload mr-1" > < /i> Upload <
-               /button> <
-               input type = "file"
-               class = "room-image-input"
-               id = "roomImage-${roomId}"
-               data - file - type = "image"
-               data - room = "${roomNumber}" >
-                  <
-                  /div> <
-                  /div> <
-                  /div> <
-                  /div> <
-                  button type = "button"
-               class = "btn btn-sm btn-primary add-item-to-room-btn"
-               data - room = "${roomNumber}" >
-                  <
-                  i class = "fa fa-plus mr-1" > < /i> Add Item To Room ${roomNumber} <
-                  /button> <
-                  /div> <
-                  div class = "product-tabs-container"
-               id = "productTabs-room${roomNumber}" >
-                  <
-                  div class = "product-empty-state" >
-                  <
-                  i class = "fa fa-cube" > < /i> <
-                  p > No products added yet < /p> <
-                  /div> <
-                  /div> <
-                  div class = "product-content-area"
-               id = "productContent-room${roomNumber}" >
-                  <
-                  div class = "product-empty-state" >
-                  <
-                  i class = "fa fa-hand-pointer" > < /i> <
-                  p > Select a product to configure details < /p> <
-                  /div> <
-                  /div> <
-                  /div> <
-                  /div>
-               `);
+         const $pane = $(`
+         <div class="tab-pane fade"
+            id="${roomId}"
+            role="tabpanel"
+            aria-labelledby="${roomId}-tab"
+            data-room="${roomNumber}">
+            <div class="product-tabs-wrapper">
+               <div class="product-tabs-header">
+                  <div class="room-info-form">
+                     <div class="form-group-small">
+                        <label for="floorName-${roomId}">Floor Name</label>
+                        <input type="text" class="form-control-small"
+                           id="floorName-${roomId}"
+                           placeholder="Enter floor name">
+                     </div>
+                     <div class="form-group-small">
+                        <label for="roomName-${roomId}">Room Name</label>
+                        <input type="text" class="form-control-small"
+                           id="roomName-${roomId}"
+                           placeholder="Enter room name">
+                     </div>
+                     <div class="form-group-small">
+                        <label>Room Image</label>
+                        <div class="image-upload-container">
+                           <div class="image-preview" id="imagePreview-${roomId}">
+                              <i class="fa fa-image"></i>
+                           </div>
+                           <div class="file-input-wrapper">
+                              <button type="button" class="btn btn-sm btn-outline-primary">
+                                 <i class="fa fa-upload mr-1"></i> Upload
+                              </button>
+                              <input type="file" class="room-image-input"
+                                 id="roomImage-${roomId}"
+                                 data-file-type="image"
+                                 data-room="${roomNumber}">
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-primary add-item-to-room-btn" data-room="${roomNumber}">
+                     <i class="fa fa-plus mr-1"></i> Add Item To Room ${roomNumber}
+                  </button>
+               </div>
+               <div class="product-tabs-container" id="productTabs-room${roomNumber}">
+                  <div class="product-empty-state">
+                     <i class="fa fa-cube"></i>
+                     <p>No products added yet</p>
+                  </div>
+               </div>
+               <div class="product-content-area" id="productContent-room${roomNumber}">
+                  <div class="product-empty-state">
+                     <i class="fa fa-hand-pointer"></i>
+                     <p>Select a product to configure details</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      `);
 
          $('#roomTabsContent').append($pane);
-         $(`
-               #$ {
-                  roomId
-               } - tab`).tab('show');
+         $(`#${roomId}-tab`).tab('show');
          updateRoomStatus(roomId);
          addRoomToState(roomNumber);
       });
@@ -7393,11 +7262,7 @@ include PATH . '/inc/footer.php';
          const isActive = $tab.hasClass('active');
 
          $tab.closest('.nav-item').remove();
-         $(`
-               #$ {
-                  roomId
-               }
-               `).remove();
+         $(`#${roomId}`).remove();
 
          renumberRooms();
 
@@ -7429,13 +7294,7 @@ include PATH . '/inc/footer.php';
          const productId = $tab.data('product');
          const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
 
-         $(`
-               #product - $ {
-                  productId
-               } - room$ {
-                  roomId
-               }
-               `).remove();
+         $(`#product-${productId}-room${roomId}`).remove();
          $tab.remove();
 
          if ($tab.hasClass('active')) {
