@@ -3325,13 +3325,6 @@ include PATH . '/inc/footer.php';
             color: 'linear-gradient(135deg, #4361ee, #3a0ca3)'
          },
          {
-            id: 2,
-            name: 'Curtains',
-            description: 'Window treatments, blinds, and curtain systems',
-            icon: 'fa-window-restore',
-            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
-         },
-         {
             id: 3,
             name: 'Beds',
             description: 'Bed frames, mattresses, and bedroom furniture',
@@ -3365,6 +3358,48 @@ include PATH . '/inc/footer.php';
             description: 'Armchair solutions',
             icon: 'fa-archive',
             color: 'linear-gradient(135deg, #a8e6cf, #56ab2f)'
+         },
+         {
+            id: 8,
+            name: 'Main Curtains',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 9,
+            name: 'Blinds',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 10,
+            name: 'Chiffon',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 11,
+            name: 'Main Curtains with Blinds',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 12,
+            name: 'Main Curtains with Chiffon',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
+         },
+         {
+            id: 13,
+            name: 'Main Curtains With Blind and Chiffon',
+            description: 'Window treatments, blinds, and curtain systems',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #7209b7, #3a0ca3)'
          }
       ];
 
@@ -3460,7 +3495,6 @@ include PATH . '/inc/footer.php';
             qualification_id: 1,
             category: 'materials'
          },
-
          {
             id: 103,
             name: 'Ground',
@@ -3494,67 +3528,161 @@ include PATH . '/inc/footer.php';
             qualification_id: 1,
             category: 'flooring'
          },
-
-         // Curtain Products (parent_id: null)
+         // Curtain Products (parent products with variants) - SAME STRUCTURE AS SOFA SETS
          {
             id: 201,
+            name: 'Main Curtains',
+            description: 'Primary curtain panels with accessories',
+            icon: 'fa-window-restore',
+            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
+            type: 'curtains',
+            hasVariants: false,
+            variantType: 'set',
+            parent_id: null,
+            qualification_id: 8
+         },
+
+         {
+            id: 205,
             name: 'Blinds',
-            description: 'Window blinds and shades',
+            description: 'Window blinds and shading systems',
             icon: 'fa-grip-lines',
             color: 'linear-gradient(135deg, #7209b7, #3a0ca3)',
             type: 'curtains',
+            hasVariants: false,
+            variantType: 'set',
             parent_id: null,
-            qualification_id: 2
+            qualification_id: 9
          },
          {
-            id: 202,
+            id: 209,
             name: 'Chiffon',
             description: 'Sheer chiffon curtains',
             icon: 'fa-scroll',
             color: 'linear-gradient(135deg, #f72585, #b5179e)',
             type: 'curtains',
+            hasVariants: true,
+            variantType: 'set',
             parent_id: null,
-            qualification_id: 2
+            qualification_id: 10
          },
          {
-            id: 203,
-            name: 'Main Curtains',
-            description: 'Primary curtain panels',
-            icon: 'fa-window-restore',
-            color: 'linear-gradient(135deg, #4361ee, #3a0ca3)',
-            type: 'curtains',
-            parent_id: null,
-            qualification_id: 2
-         },
-         {
-            id: 204,
+            id: 212,
             name: 'Main Curtains with Blinds',
-            description: 'Curtains with integrated blinds',
+            description: 'Combined curtains and blinds system',
             icon: 'fa-layer-group',
             color: 'linear-gradient(135deg, #4cc9f0, #4895ef)',
             type: 'curtains',
+            hasVariants: true,
+            variantType: 'set',
             parent_id: null,
-            qualification_id: 2
+            qualification_id: 11
+         },
+         // Main Curtains with Blinds Variants
+         {
+            id: 213,
+            name: 'Complete Window Set - Main Curtains',
+            description: 'Full window treatment with curtains',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #4cc9f0, #4895ef)',
+            type: 'curtains',
+            parent_id: 212,
+            qualification_id: 11,
+            basePrice: 699.00
          },
          {
-            id: 205,
+            id: 214,
+            name: 'Complete Window Set - Blinds',
+            description: 'Blinds 160x240cm',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #4cc9f0, #4895ef)',
+            type: 'curtains',
+            parent_id: 212,
+            qualification_id: 11,
+            basePrice: 899.00
+         },
+
+         {
+            id: 215,
             name: 'Main Curtains with Chiffon',
-            description: 'Curtains with chiffon overlay',
+            description: 'Curtains with chiffon overlay system',
             icon: 'fa-layer-group',
             color: 'linear-gradient(135deg, #f72585, #7209b7)',
             type: 'curtains',
+            hasVariants: true,
+            variantType: 'set',
             parent_id: null,
-            qualification_id: 2
+            qualification_id: 12
+         },
+         // Main Curtains with Chiffon Variants
+         {
+            id: 216,
+            name: 'Premium Layered Set - Main Curtains',
+            description: 'Layered curtains',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #f72585, #7209b7)',
+            type: 'curtains',
+            parent_id: 215,
+            qualification_id: 12,
+            basePrice: 599.00
          },
          {
-            id: 206,
+            id: 217,
+            name: 'Premium Layered Set - Chiffon',
+            description: 'Premium layered curtain system 160x240cm',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #f72585, #7209b7)',
+            type: 'curtains',
+            parent_id: 215,
+            qualification_id: 12,
+            basePrice: 799.00
+         },
+
+         {
+            id: 218,
             name: 'Main Curtains With Blind and Chiffon',
             description: 'Complete window treatment system',
             icon: 'fa-layer-group',
             color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
             type: 'curtains',
+            hasVariants: true,
+            variantType: 'set',
             parent_id: null,
-            qualification_id: 2
+            qualification_id: 13
+         },
+         // Complete System Variants
+         {
+            id: 219,
+            name: 'Ultimate Window System - Main Curtains',
+            description: 'Complete window treatment with all components 160x240cm',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
+            type: 'curtains',
+            parent_id: 218,
+            qualification_id: 13,
+            basePrice: 899.00
+         },
+         {
+            id: 220,
+            name: 'Ultimate Window System - Blinds',
+            description: 'Executive complete window system 180x260cm',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
+            type: 'curtains',
+            parent_id: 218,
+            qualification_id: 13,
+            basePrice: 1199.00
+         },
+         {
+            id: 221,
+            name: 'Ultimate Window System - Chiffon',
+            description: 'Ultimate chiffon layered system 180x260cm',
+            icon: 'fa-layer-group',
+            color: 'linear-gradient(135deg, #3a0ca3, #4361ee)',
+            type: 'curtains',
+            parent_id: 218,
+            qualification_id: 13,
+            basePrice: 999.00
          },
 
          // Beds (parent product)
@@ -4134,8 +4262,8 @@ include PATH . '/inc/footer.php';
 `;
       }
 
-      // Function to create content for variants (both size and set)
-      function createVariantContent(productId, variant, roomId) {
+      // Function to create curtain variant content with additional options
+      function createCurtainVariantContent(productId, variant, roomId) {
          return `
    <div class="variant-details">
       <div class="compact-product-details">
@@ -4180,7 +4308,203 @@ include PATH . '/inc/footer.php';
             </div>
          </div>
       
-      <!-- Material Section for Variant - Pillow subcategories will be shown only when Pillow tab is active -->
+      <!-- Material Section for Curtain Variant -->
+      <div class="material-section">
+         <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
+         <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map(category => `
+               <button class="material-tab ${category.id === 'metal' ? 'active' : ''}" 
+                       data-category="${category.id}">
+                  ${category.name}
+               </button>
+            `).join('')}
+         </div>
+         <div class="material-tabs-content" id="materialTabsContent-${productId}-${variant.id}-room${roomId}">
+            ${materialCategories.map((category, index) => `
+               <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                    id="materialContent-${productId}-${variant.id}-room${roomId}-${category.id}">
+                  ${category.id === 'pillow' ? 
+                     createPillowSubcategoriesForVariant(productId, variant, roomId) : 
+                     createStandardMaterialContent(productId, variant, category, roomId)
+                  }
+               </div>
+            `).join('')}
+         </div>
+      </div>
+      
+      <!-- CURTAIN OPTIONS SECTION - Fixed accessories layout -->
+      <div class="curtain-options-section">
+         <h6><i class="fa fa-cog mr-2"></i>Curtain Options</h6>
+         <div class="curtain-controls">
+            <div class="curtain-control">
+               <label>Opening Direction</label>
+               <select class="form-control opening-direction" data-variant="${variant.id}">
+                  <option value="">Select Direction</option>
+                  <option value="left">Left Opening</option>
+                  <option value="right">Right Opening</option>
+                  <option value="center">Center Opening</option>
+                  <option value="top">Top Opening</option>
+               </select>
+            </div>
+            <div class="curtain-control">
+               <label>Open With</label>
+               <select class="form-control open-with" data-variant="${variant.id}">
+                  <option value="">Select Option</option>
+                  <option value="cord">Cord</option>
+                  <option value="wand">Wand</option>
+                  <option value="motorized">Motorized</option>
+                  <option value="manual">Manual</option>
+               </select>
+            </div>
+            <div class="curtain-control">
+               <label>Control Side</label>
+               <select class="form-control control-side" data-variant="${variant.id}">
+                  <option value="">Select Side</option>
+                  <option value="left">Left Side</option>
+                  <option value="right">Right Side</option>
+                  <option value="both">Both Sides</option>
+               </select>
+            </div>
+         </div>
+         
+         <!-- FIXED: Accessory Selection for Curtains - Using the same layout as before -->
+         <div class="curtain-accessories-section">
+            <h6 style="margin-top: 16px;"><i class="fa fa-plus-circle mr-2"></i>Additional Accessories</h6>
+            <div class="accessory-layout">
+               <div class="accessory-tabs-sidebar">
+                  <div class="accessory-tabs-header">
+                     <h6><i class="fa fa-list mr-2"></i>Accessories</h6>
+                     <button type="button" class="btn btn-sm btn-primary add-accessory-btn" data-product="${productId}" data-variant="${variant.id}" data-room="${roomId}">
+                        <i class="fa fa-plus mr-1"></i> Add Accessory
+                     </button>
+                  </div>
+                  <div class="accessory-tabs-container" id="accessory-tabs-${productId}-${variant.id}-room${roomId}">
+                     <div class="empty-accessory-tabs">
+                        <i class="fa fa-puzzle-piece"></i>
+                        <p>No accessories added yet</p>
+                     </div>
+                  </div>
+               </div>
+               <div class="accessory-details-content" id="accessory-details-${productId}-${variant.id}-room${roomId}">
+                  <div class="accessory-details-header">
+                     <div class="product-header-with-image">
+                        <div class="header-image-preview">
+                           <i class="fa fa-puzzle-piece"></i>
+                        </div>
+                        <h6><i class="fa fa-info-circle mr-2"></i>Accessory Details</h6>
+                     </div>
+                  </div>
+                  <div class="accessory-details-body">
+                     <div class="empty-accessory-selection">
+                        <i class="fa fa-hand-pointer"></i>
+                        <p>Select an accessory to view and edit details</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      </div>
+   </div>
+`;
+      }
+      // Modified function to setup curtain options
+      function setupCurtainOptions(productId, roomId) {
+         const variants = getVariants(productId);
+
+         variants.forEach(variant => {
+            // Setup curtain option change handlers
+            $(`#variant-${productId}-${variant.id}-room${roomId} .opening-direction`).on('change', function() {
+               updateVariantStatus(productId, roomId, variant.id);
+            });
+
+            $(`#variant-${productId}-${variant.id}-room${roomId} .open-with`).on('change', function() {
+               updateVariantStatus(productId, roomId, variant.id);
+            });
+
+            $(`#variant-${productId}-${variant.id}-room${roomId} .control-side`).on('change', function() {
+               updateVariantStatus(productId, roomId, variant.id);
+            });
+
+            // Setup accessory add button
+            $(`#variant-${productId}-${variant.id}-room${roomId} .add-accessory-btn`).on('click', function() {
+               const productId = $(this).data('product');
+               const variantId = $(this).data('variant');
+               const roomId = $(this).data('room');
+
+               console.log('Add accessory to curtain variant:', {
+                  productId,
+                  variantId,
+                  roomId
+               });
+               showAccessorySelectionModal(productId, variantId, roomId);
+            });
+         });
+      }
+
+      $(document).on('click', '.simple-product-content .add-accessory-btn', function() {
+         const productId = $(this).data('product');
+         const variantId = $(this).data('variant');
+         const roomId = $(this).data('room');
+         console.log('Add accessory button clicked:', productId);
+         showAccessorySelectionModal(productId, variantId, roomId);
+      });
+
+      // Function to create content for variants (both size and set)
+      function createVariantContent(productId, variant, roomId) {
+         // Check if this is a curtain product
+         const parentProduct = products.find(p => p.id === productId);
+         const isCurtainProduct = parentProduct && parentProduct.type === 'curtains';
+
+         if (isCurtainProduct) {
+            return createCurtainVariantContent(productId, variant, roomId);
+         } else {
+            // Use the EXISTING non-curtain variant content (same as sofa sets, dining sets, etc.)
+            return `
+   <div class="variant-details">
+      <div class="compact-product-details">
+         <div class="compact-section-header">
+            <h6><i class="fa fa-cube mr-2"></i>${variant.name} - ${variant.description}</h6>
+         </div>
+         <div class="compact-details-with-image">
+            <div class="compact-image-preview">
+               <i class="fa fa-image"></i>
+            </div>
+            <div class="compact-details-fields">
+               <div class="compact-detail-group">
+                  <label>Width (m)</label>
+                  <input type="number" class="form-control dimension-width" 
+                         placeholder="0.00" step="0.01" min="0" 
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Length (m)</label>
+                  <input type="number" class="form-control dimension-length" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Height (m)</label>
+                  <input type="number" class="form-control dimension-height" 
+                         placeholder="0.00" step="0.01" min="0"
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Unit Price ($)</label>
+                  <input type="number" class="form-control unit-price" 
+                         value="${variant.basePrice.toFixed(2)}" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+               <div class="compact-detail-group">
+                  <label>Total Price ($)</label>
+                  <input type="number" class="form-control total-price" 
+                         placeholder="0.00" step="0.01" min="0" readonly
+                         data-variant="${variant.id}">
+               </div>
+            </div>
+         </div>
+      
+      <!-- Material Section for Variant -->
       <div class="material-section">
          <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.name}</h6>
          <div class="material-tabs" id="materialTabs-${productId}-${variant.id}-room${roomId}">
@@ -4206,6 +4530,7 @@ include PATH . '/inc/footer.php';
       </div>
    </div>
 `;
+         }
       }
 
       // Function to create pillow subcategories for variant
@@ -4667,6 +4992,12 @@ include PATH . '/inc/footer.php';
          // Setup pillow subcategory tabs for variants
          setupVariantPillowSubcategoryTabs(productId, roomId);
 
+         // Setup curtain options if this is a curtain product
+         const parentProduct = products.find(p => p.id === productId);
+         if (parentProduct && parentProduct.type === 'curtains') {
+            setupCurtainOptions(productId, roomId);
+         }
+
          // Activate the first tab by default
          const $firstTab = $variantsTabs.find('.product-variant-tab').first();
          if ($firstTab.length) {
@@ -4849,18 +5180,18 @@ include PATH . '/inc/footer.php';
 
          const $content = $(`#variant-${productId}-${variantId}-room${roomId}`);
 
-         // Check main variant fields (SAME LOGIC FOR BOTH)
+         // Check main variant fields
          const width = $content.find('.dimension-width').val();
          const length = $content.find('.dimension-length').val();
 
-         // Check active material category (SAME LOGIC FOR BOTH)
+         // Check active material category
          const activeMaterialTab = $content.find('.material-tab.active');
          const activeCategory = activeMaterialTab.data('category');
 
          let materialComplete = false;
 
          if (activeCategory === 'pillow') {
-            // For pillow category (SAME LOGIC FOR BOTH)
+            // For pillow category
             let allPillowComplete = true;
             const $pillowTabs = $(`#pillowTabs-${productId}-${variantId}-room${roomId}`);
             if ($pillowTabs.length) {
@@ -4874,17 +5205,33 @@ include PATH . '/inc/footer.php';
                materialComplete = allPillowComplete;
             }
          } else {
-            // For other material categories (SAME LOGIC FOR BOTH)
+            // For other material categories
             const materialGrade = $content.find(`.material-grade[data-category="${activeCategory}"]`).val();
             const materialType = $content.find(`.material-type-select[data-category="${activeCategory}"]`).val();
             materialComplete = !!(materialGrade && materialType);
          }
 
+         // Check if this is a curtain product for additional options
+         const parentProduct = products.find(p => p.id === productId);
+         const isCurtainProduct = parentProduct && parentProduct.type === 'curtains';
+
+         let curtainOptionsComplete = true;
+         if (isCurtainProduct) {
+            const openingDirection = $content.find('.opening-direction').val();
+            const openWith = $content.find('.open-with').val();
+            const controlSide = $content.find('.control-side').val();
+
+            curtainOptionsComplete = !!(openingDirection && openWith && controlSide);
+         }
+
          $statusIndicator.removeClass('status-empty status-incomplete status-complete');
 
-         if (!width && !length && !materialComplete) {
+         const basicComplete = !!(width && length && materialComplete);
+         const allComplete = isCurtainProduct ? (basicComplete && curtainOptionsComplete) : basicComplete;
+
+         if (!width && !length && !materialComplete && (!isCurtainProduct || !curtainOptionsComplete)) {
             $statusIndicator.addClass('status-empty');
-         } else if (width && length && materialComplete) {
+         } else if (allComplete) {
             $statusIndicator.addClass('status-complete');
          } else {
             $statusIndicator.addClass('status-incomplete');
@@ -5027,26 +5374,6 @@ include PATH . '/inc/footer.php';
 
          updateVariantStatus(productId, roomId, variantId);
       });
-
-      // Modified loadProductContent function to include variants
-      function loadProductContentWithVariants(contentId, product) {
-         const $content = $(`#${contentId}`);
-
-         if (product.type === 'complex') {
-            loadComplexProductContent($content, product);
-         } else if (product.type === 'curtains') {
-            loadCurtainProductContent($content, product);
-         } else {
-            loadSimpleProductContent($content, product);
-         }
-
-         // Add variants if the product has them
-         const roomId = $content.closest('.tab-pane').data('room');
-         addVariantsToProduct(product.id, roomId);
-
-         // Setup pillow subcategories if the product has them
-         setupPillowSubcategoryTabs(product.id);
-      }
 
       // Initialize qualification modal
       function initializeQualificationModal() {
@@ -5391,14 +5718,21 @@ include PATH . '/inc/footer.php';
          $('#itemSelectionModal').fadeOut(300);
          state.currentProductType = null;
          state.selectedItem = null;
-         // ADDED: Clear search input when closing
+         // Clear search input when closing
          $('#itemSearch').val('');
       }
 
-      // ADDED: Show accessory selection modal
-      function showAccessorySelectionModal(productId) {
-         console.log('Opening accessory selection modal for product:', productId);
+      // Show accessory selection modal
+      function showAccessorySelectionModal(productId, variantId, roomId) {
+         console.log('Opening accessory selection modal for curtain variant:', {
+            productId,
+            variantId,
+            roomId
+         });
+
          state.currentProductId = productId;
+         state.currentVariantId = variantId;
+         state.currentRoomId = roomId;
 
          const $modal = $('#accessorySelectionModal');
          const $accessoryOptions = $('#accessoryOptions');
@@ -5420,6 +5754,207 @@ include PATH . '/inc/footer.php';
 
          $modal.fadeIn(300);
          $('#confirmSelectAccessory').prop('disabled', true);
+      }
+
+      // Function to add accessory to curtain variant
+      function addAccessoryToCurtainVariant(roomId, productId, variantId, accessory) {
+         console.log('Adding accessory to curtain variant:', {
+            roomId,
+            productId,
+            variantId,
+            accessory
+         });
+
+         const $variantContent = $(`#variant-${productId}-${variantId}-room${roomId}`);
+         const $tabsContainer = $variantContent.find(`#accessory-tabs-${productId}-${variantId}-room${roomId}`);
+         const $emptyState = $tabsContainer.find('.empty-accessory-tabs');
+         const $detailsBody = $variantContent.find(`#accessory-details-${productId}-${variantId}-room${roomId} .accessory-details-body`);
+         const $emptyDetails = $detailsBody.find('.empty-accessory-selection');
+
+         if ($emptyState.length) {
+            $emptyState.remove();
+         }
+
+         const existingTab = $tabsContainer.find(`[data-accessory-id="${accessory.id}"]`);
+         if (existingTab.length) {
+            alert('This accessory has already been added.');
+            return;
+         }
+
+         const tabId = `accessory-${accessory.id}-${productId}-${variantId}-room${roomId}`;
+         const $tab = $(`
+         <div class="accessory-tab" data-accessory-id="${accessory.id}" id="${tabId}-tab">
+            <span class="accessory-tab-name">${accessory.name}</span>
+            <div class="accessory-tab-close" title="Remove accessory">
+               <i class="fa fa-times"></i>
+            </div>
+         </div>
+      `);
+
+         $tabsContainer.append($tab);
+
+         // Accessory details content
+         const $detailsContent = $(`
+         <div class="accessory-details" id="${tabId}" style="display: none;">
+            <div class="enhanced-category-item">
+               <div class="enhanced-item-header">
+                  <div class="enhanced-item-name">${accessory.name}</div>
+               </div>
+               <div class="enhanced-details-with-image">
+                  <div class="enhanced-image-preview">
+                     <i class="fa fa-image"></i>
+                  </div>
+                  <div class="enhanced-details-fields">
+                     <div class="detail-group accessory-type-with-preview">
+                        <label>Accessory Type</label>
+                        <div class="accessory-selection-container">
+                           <select class="form-control accessory-type-select">
+                              <option value="">Select ${accessory.name} Type</option>
+                              ${accessory.options.map(option => `
+                                 <option value="${option.id}">${option.name}</option>
+                              `).join('')}
+                           </select>
+                           <div class="accessory-option-preview" id="${accessory.id}-preview">
+                              <div class="preview-content">
+                                 <div class="preview-image">
+                                    <i class="fa fa-image"></i>
+                                 </div>
+                                 <div class="preview-details">
+                                    <div class="preview-name">No selection</div>
+                                    <div class="preview-description">Select an option to see preview</div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="detail-group">
+                        <label>Quantity</label>
+                        <input type="number" class="form-control accessory-qty" placeholder="0" min="1" value="1">
+                     </div>
+                     <div class="detail-group">
+                        <label>Unit Price ($)</label>
+                        <input type="number" class="form-control accessory-price" readonly placeholder="0.00" min="0" step="0.01" value="0.00">
+                     </div>
+                     <div class="detail-group accessory-total-price">
+                        <label>Total Price ($)</label>
+                        <input type="number" class="form-control accessory-total" placeholder="0.00" step="0.01" min="0" readonly>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      `);
+
+         if ($emptyDetails.length) {
+            $emptyDetails.remove();
+         }
+
+         $detailsBody.append($detailsContent);
+
+         // Setup accessory type selection handler
+         $(`#${tabId} .accessory-type-select`).on('change', function() {
+            const selectedOptionId = $(this).val();
+            const previewId = `${accessory.id}-preview`;
+
+            if (selectedOptionId) {
+               const selectedOption = accessory.options.find(opt => opt.id === selectedOptionId);
+               if (selectedOption) {
+                  $(`#${tabId} #${previewId} .preview-name`).text(selectedOption.name);
+                  $(`#${tabId} #${previewId} .preview-description`).text(selectedOption.description);
+                  $(`#${tabId} #${previewId}`).addClass('has-selection');
+               }
+            } else {
+               $(`#${tabId} #${previewId} .preview-name`).text('No selection');
+               $(`#${tabId} #${previewId} .preview-description`).text('Select an option to see preview');
+               $(`#${tabId} #${previewId}`).removeClass('has-selection');
+            }
+         });
+
+         // Calculation for accessory total price
+         $(`#${tabId} .accessory-qty, #${tabId} .accessory-price`).on('input', function() {
+            const qty = parseFloat($(`#${tabId} .accessory-qty`).val()) || 0;
+            const price = parseFloat($(`#${tabId} .accessory-price`).val()) || 0;
+            const total = qty * price;
+
+            $(`#${tabId} .accessory-total`).val(total.toFixed(2));
+         });
+
+         $tab.find('.accessory-tab-close').on('click', function(e) {
+            e.stopPropagation();
+            removeAccessoryFromCurtainVariant($tab, roomId, productId, variantId, accessory.id);
+         });
+
+         // ACTIVATE the newly added tab
+         activateCurtainAccessoryTab($tab, roomId, productId, variantId);
+
+         updateVariantStatus(productId, roomId, variantId);
+      }
+
+      function activateCurtainAccessoryTab($tab, roomId, productId, variantId) {
+         const accessoryId = $tab.data('accessory-id');
+         const $variantContent = $(`#variant-${productId}-${variantId}-room${roomId}`);
+
+         console.log('Activating curtain accessory tab:', {
+            accessoryId,
+            productId,
+            variantId,
+            roomId
+         });
+
+         // Deactivate all tabs and hide all details in this variant's accessory section
+         $variantContent.find('.accessory-tab').removeClass('active');
+         $variantContent.find('.accessory-details').hide();
+
+         // Activate current tab and show its details
+         $tab.addClass('active');
+
+         const detailsId = `accessory-${accessoryId}-${productId}-${variantId}-room${roomId}`;
+         const $details = $(`#${detailsId}`);
+
+         if ($details.length) {
+            $details.show();
+            console.log('Showing curtain accessory details:', detailsId);
+         } else {
+            console.error('Curtain accessory details container not found:', detailsId);
+            // Debug: Log all available accessory details in this variant
+            $variantContent.find('.accessory-details').each(function() {
+               console.log('Available accessory detail:', $(this).attr('id'));
+            });
+         }
+      }
+
+      // NEW: Function to remove accessory from curtain variant
+      function removeAccessoryFromCurtainVariant($tab, roomId, productId, variantId, accessoryId) {
+         console.log('Removing accessory from curtain variant');
+
+         $tab.remove();
+         $(`#accessory-${accessoryId}-${productId}-${variantId}-room${roomId}`).remove();
+
+         const $variantContent = $(`#variant-${productId}-${variantId}-room${roomId}`);
+         const $tabsContainer = $variantContent.find(`#accessory-tabs-${productId}-${variantId}-room${roomId}`);
+         const $detailsBody = $variantContent.find(`#accessory-details-${productId}-${variantId}-room${roomId} .accessory-details-body`);
+         const $tabs = $tabsContainer.find('.accessory-tab');
+
+         if ($tabs.length === 0) {
+            $tabsContainer.html(`
+            <div class="empty-accessory-tabs">
+               <i class="fa fa-puzzle-piece"></i>
+               <p>No accessories added yet</p>
+            </div>
+         `);
+
+            $detailsBody.html(`
+            <div class="empty-accessory-selection">
+               <i class="fa fa-hand-pointer"></i>
+               <p>Select an accessory to view and edit details</p>
+            </div>
+         `);
+         } else {
+            const $firstTab = $tabs.first();
+            activateCurtainAccessoryTab($firstTab, roomId, productId, variantId);
+         }
+
+         updateVariantStatus(productId, roomId, variantId);
       }
 
       function hideAccessorySelectionModal() {
@@ -5514,7 +6049,7 @@ include PATH . '/inc/footer.php';
          if (product.hasVariants) {
             const variants = getProductVariants(product.id);
             if (variants.length > 0) {
-               loadProductWithVariants($content, product, variants);
+               loadProductWithVariants($content, product, variants, roomId);
                $content.append(totalsHTML);
                return;
             }
@@ -5522,11 +6057,11 @@ include PATH . '/inc/footer.php';
 
          // Load based on product type
          if (product.type === 'complex') {
-            loadComplexProductContent($content, product);
+            loadComplexProductContent($content, product, roomId);
          } else if (product.type === 'curtains') {
-            loadCurtainProductContent($content, product);
+            loadCurtainProductContent($content, product, roomId);
          } else {
-            loadSimpleProductContent($content, product);
+            loadSimpleProductContent($content, product, roomId);
          }
 
          // Setup material tabs
@@ -5541,14 +6076,14 @@ include PATH . '/inc/footer.php';
       }
 
       // Load product with variants
-      function loadProductWithVariants($content, product, variants) {
-         const roomId = $content.closest('.tab-pane').data('room');
+      function loadProductWithVariants($content, product, variants, roomId) {
 
          // Create basic details section + variants
          var basicDetailsHTML = createBasicDetailsSection(product, roomId);
          if (isSizeVariantProduct(product.id) || product.hasVariants === false) {
             basicDetailsHTML = '';
          }
+         basicDetailsHTML = '';
 
          // Choose between radio buttons (size) or tabs (set) based on variant type
          let variantsHTML;
@@ -5717,9 +6252,8 @@ include PATH . '/inc/footer.php';
 `;
       }
 
-      function loadComplexProductContent($content, product) {
+      function loadComplexProductContent($content, product, roomId) {
          const buttonText = `Add Item to ${product.name}`;
-         const roomId = $content.closest('.tab-pane').data('room');
 
          const $wrapper = $(`
 <div class="product-details-wrapper">
@@ -5783,7 +6317,7 @@ include PATH . '/inc/footer.php';
       }
 
       // Material section with image on left, details on right and pillow subcategory tabs
-      function loadSimpleProductContent($content, product) {
+      function loadSimpleProductContent($content, product, roomId) {
          const $wrapper = $(`
       <div class="simple-product-content">
          <div class="compact-product-details">
@@ -5879,8 +6413,8 @@ include PATH . '/inc/footer.php';
          setupMaterialTabs(product.id);
       }
 
-      // ADDED: Curtain product content with accessory section working like items section
-      function loadCurtainProductContent($content, product) {
+      // Curtain product content with accessory section working like items section
+      function loadCurtainProductContent($content, product, roomId) {
          const $wrapper = $(`
       <div class="simple-product-content">
          <div class="compact-product-details">
@@ -5997,7 +6531,7 @@ include PATH . '/inc/footer.php';
                <div class="accessory-tabs-sidebar">
                   <div class="accessory-tabs-header">
                      <h6><i class="fa fa-list mr-2"></i>Accessories</h6>
-                     <button type="button" class="btn btn-sm btn-primary add-accessory-btn" data-product="${product.id}">
+                     <button type="button" class="btn btn-sm btn-primary add-accessory-btn" data-product="${product.id}" data-variant="" data-room="${roomId}">
                         <i class="fa fa-plus mr-1"></i> Add Accessory
                      </button>
                   </div>
@@ -6639,11 +7173,32 @@ include PATH . '/inc/footer.php';
          const accessoryId = $tab.data('accessory-id');
          const $productContent = $(`#product-${productId}-room${roomId}`);
 
+         console.log('Activating regular accessory tab:', {
+            accessoryId,
+            productId,
+            roomId
+         });
+
+         // Deactivate all tabs and hide all details in this product's accessory section
          $productContent.find('.accessory-tab').removeClass('active');
          $productContent.find('.accessory-details').hide();
 
+         // Activate current tab and show its details
          $tab.addClass('active');
-         $(`#accessory-${accessoryId}-${productId}-room${roomId}`).show();
+
+         const detailsId = `accessory-${accessoryId}-${productId}-room${roomId}`;
+         const $details = $(`#${detailsId}`);
+
+         if ($details.length) {
+            $details.show();
+            console.log('Showing regular accessory details:', detailsId);
+         } else {
+            console.error('Regular accessory details container not found:', detailsId);
+            // Debug: Log all available accessory details in this product
+            $productContent.find('.accessory-details').each(function() {
+               console.log('Available accessory detail:', $(this).attr('id'));
+            });
+         }
       }
 
       function removeItemFromProduct($tab) {
@@ -6755,6 +7310,24 @@ include PATH . '/inc/footer.php';
             $statusIndicator.addClass('status-complete');
          } else {
             $statusIndicator.addClass('status-incomplete');
+         }
+      }
+
+      function activateFirstAccessoryTab(roomId, productId, variantId = null) {
+         if (variantId) {
+            // This is a curtain variant
+            const $variantContent = $(`#variant-${productId}-${variantId}-room${roomId}`);
+            const $firstTab = $variantContent.find('.accessory-tab').first();
+            if ($firstTab.length) {
+               activateCurtainAccessoryTab($firstTab, roomId, productId, variantId);
+            }
+         } else {
+            // This is a regular product
+            const $productContent = $(`#product-${productId}-room${roomId}`);
+            const $firstTab = $productContent.find('.accessory-tab').first();
+            if ($firstTab.length) {
+               activateAccessoryTab($firstTab, roomId, productId);
+            }
          }
       }
 
@@ -7000,7 +7573,7 @@ include PATH . '/inc/footer.php';
          }
       });
 
-      // FIX: Add accessory option selection handler
+      // Add accessory option selection handler
       $(document).on('click', '#accessoryOptions .item-option', function() {
          console.log('Accessory option clicked:', $(this).data('accessory-id'));
 
@@ -7024,32 +7597,46 @@ include PATH . '/inc/footer.php';
          }
       });
 
-      // UPDATE: Also fix the confirmSelectAccessory handler to get the correct context
+      // Also fix the confirmSelectAccessory handler to get the correct context
       $('#confirmSelectAccessory').on('click', function() {
          console.log('Confirm accessory selection clicked');
 
-         if (state.selectedAccessory && state.currentProductId) {
-            // Get the active product tab to determine room and product context
-            const $activeProductTab = $('.product-tab.active');
-            if ($activeProductTab.length === 0) {
-               console.error('No active product tab found');
-               alert('Please select a product tab first.');
-               return;
+         if (state.selectedAccessory) {
+            // Check if this is for a curtain variant or regular product
+            if (state.currentVariantId && state.currentProductId && state.currentRoomId) {
+               // This is for a curtain variant
+               console.log('Adding accessory to curtain variant:', {
+                  productId: state.currentProductId,
+                  variantId: state.currentVariantId,
+                  roomId: state.currentRoomId,
+                  accessory: state.selectedAccessory
+               });
+
+               addAccessoryToCurtainVariant(state.currentRoomId, state.currentProductId, state.currentVariantId, state.selectedAccessory);
+               hideAccessorySelectionModal();
+            } else {
+               // This is for a regular product (existing functionality)
+               const $activeProductTab = $('.product-tab.active');
+               if ($activeProductTab.length === 0) {
+                  console.error('No active product tab found');
+                  alert('Please select a product tab first.');
+                  return;
+               }
+
+               const productId = $activeProductTab.data('product');
+               const roomId = $activeProductTab.closest('.tab-pane').data('room');
+
+               console.log('Adding accessory to regular product:', {
+                  productId: productId,
+                  roomId: roomId,
+                  accessory: state.selectedAccessory
+               });
+
+               addAccessoryToProduct(roomId, productId, state.selectedAccessory);
+               hideAccessorySelectionModal();
             }
-
-            const productId = $activeProductTab.data('product');
-            const roomId = $activeProductTab.closest('.tab-pane').data('room');
-
-            console.log('Adding accessory to:', {
-               productId: productId,
-               roomId: roomId,
-               accessory: state.selectedAccessory
-            });
-
-            addAccessoryToProduct(roomId, productId, state.selectedAccessory);
-            hideAccessorySelectionModal();
          } else {
-            console.error('Missing accessory or product context for selection');
+            console.error('Missing accessory for selection');
             alert('Please select an accessory to add.');
          }
       });
@@ -7093,13 +7680,6 @@ include PATH . '/inc/footer.php';
             console.error('Could not determine room or product context');
             alert('Error: Could not determine room context. Please try again.');
          }
-      });
-
-      // ADDED: Add accessory button handler
-      $(document).on('click', '.add-accessory-btn', function() {
-         const productId = $(this).data('product');
-         console.log('Add accessory button clicked:', productId);
-         showAccessorySelectionModal(productId);
       });
 
       $(document).on('click', '.close-room', function(e) {
@@ -7169,16 +7749,44 @@ include PATH . '/inc/footer.php';
          activateItemTab($tab);
       });
 
-      // ADDED: Accessory tab click handler
-      $(document).on('click', '.accessory-tab', function() {
+      // Accessory tab click handler
+      $(document).on('click', '.product-content .accessory-tab', function(e) {
+         // Don't activate if clicking the close button
+         if ($(e.target).closest('.accessory-tab-close').length) {
+            return;
+         }
+
          const $tab = $(this);
          const $productContent = $tab.closest('.product-content');
          const productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
          const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
 
-         if (!$tab.find('.accessory-tab-close').is(':hover')) {
-            activateAccessoryTab($tab, roomId, productId);
+         console.log('Regular accessory tab clicked:', {
+            productId,
+            roomId
+         });
+         activateAccessoryTab($tab, roomId, productId);
+      });
+
+      $(document).on('click', '.variant-details .accessory-tab', function(e) {
+         // Don't activate if clicking the close button
+         if ($(e.target).closest('.accessory-tab-close').length) {
+            return;
          }
+
+         const $tab = $(this);
+         const $variantContent = $tab.closest('.variant-details');
+         const variantId = $variantContent.find('.dimension-width').first().data('variant');
+         const $productContent = $variantContent.closest('.product-content');
+         const productId = $productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
+         const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
+
+         console.log('Curtain accessory tab clicked:', {
+            productId,
+            variantId,
+            roomId
+         });
+         activateCurtainAccessoryTab($tab, roomId, productId, variantId);
       });
 
       $(document).on('change', '.room-name-input', function() {
