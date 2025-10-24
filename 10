@@ -9518,16 +9518,15 @@ include PATH . '/inc/footer.php';
 
       $(document).on('click', '.close-room', function(e) {
          e.stopPropagation();
-         confirm('Are you sure you want to remove this room? This will remove all products and items within the room.').then(confirmed => {
-            if (!confirmed) {
-               return;
-            }
-         });
          const $tab = $(this).closest('a.room-tab');
          const totalRooms = $('#roomTabs a.room-tab').length;
 
          if (totalRooms <= 1) {
             alert('At least one room must be present.');
+            return;
+         }
+         const confirmed = confirm('Are you sure you want to remove this room? This will remove all products and items within the room.');
+         if (!confirmed) {
             return;
          }
 
@@ -9559,10 +9558,10 @@ include PATH . '/inc/footer.php';
          const $tab = $(this).closest('.product-tab');
          const $tabsContainer = $tab.closest('.product-tabs-container');
 
-         if ($tabsContainer.find('.product-tab').length <= 1) {
-            alert('At least one product must remain in the room.');
-            return;
-         }
+         // if ($tabsContainer.find('.product-tab').length <= 1) {
+         //    alert('At least one product must remain in the room.');
+         //    return;
+         // }
 
          const productId = $tab.data('product');
          const roomId = $tabsContainer.attr('id').replace('productTabs-room', '');
