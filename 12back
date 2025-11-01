@@ -47,7 +47,99 @@ function has_variant($product)
     }
     return false;
 }
+function getMaterialCategoriesWithDetails($mt)
+{
+    $categories = [
+        'metal' => [
+            'id' => 'metal',
+            'name' => 'Metal',
+            'description' => 'Steel, aluminum, brass, and other metal materials',
+            'icon' => 'fa-hammer',
+            'color' => 'linear-gradient(135deg, #6c757d, #495057)',
+            'defaultMaterials' => []
+        ],
+        'wood' => [
+            'id' => 'wood',
+            'name' => 'Wood & Wallpaper',
+            'description' => 'Wood materials and wall covering papers',
+            'icon' => 'fa-tree',
+            'color' => 'linear-gradient(135deg, #8b4513, #a0522d)',
+            'defaultMaterials' => []
+        ],
+        'marble' => [
+            'id' => 'marble',
+            'name' => 'Marble',
+            'description' => 'Natural and engineered marble stones',
+            'icon' => 'fa-gem',
+            'color' => 'linear-gradient(135deg, #c0c0c0, #a9a9a9)',
+            'defaultMaterials' => []
+        ],
+        'glass' => [
+            'id' => 'glass',
+            'name' => 'Glass',
+            'description' => 'Various types of glass materials',
+            'icon' => 'fa-wine-glass',
+            'color' => 'linear-gradient(135deg, #4ecdc4, #44a08d)',
+            'defaultMaterials' => []
+        ],
+        'fabric' => [
+            'id' => 'fabric',
+            'name' => 'Fabric & Rope',
+            'description' => 'Textiles, fabrics, and rope materials',
+            'icon' => 'fa-scroll',
+            'color' => 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+            'defaultMaterials' => []
+        ],
+        'pillow' => [
+            'id' => 'pillow',
+            'name' => 'Pillow',
+            'description' => 'Pillow materials and components',
+            'icon' => 'fa-couch',
+            'color' => 'linear-gradient(135deg, #a8e6cf, #56ab2f)',
+            'subcategories' => [
+                [
+                    'id' => 'default-pillow',
+                    'name' => 'Default Pillow',
+                    'description' => 'Standard pillow material',
+                    'icon' => 'fa-cube'
+                ],
+                [
+                    'id' => 'pillow-face',
+                    'name' => 'Pillow Face',
+                    'description' => 'Pillow front surface material',
+                    'icon' => 'fa-square'
+                ],
+                [
+                    'id' => 'pillow-back',
+                    'name' => 'Pillow Back',
+                    'description' => 'Pillow back surface material',
+                    'icon' => 'fa-square'
+                ],
+                [
+                    'id' => 'piping',
+                    'name' => 'Piping',
+                    'description' => 'Pillow piping and edges',
+                    'icon' => 'fa-grip-lines'
+                ]
+            ],
+            'defaultMaterials' => []
+        ]
+    ];
 
+    // Populate default materials for each category
+    foreach ($categories as $categoryKey => &$category) {
+        $materials = getAllMaterialsByCategory($mt, $categoryKey);
+        foreach ($materials as $material) {
+            $category['defaultMaterials'][] = [
+                'id' => $material->material_id,
+                'name' => $material->material_name,
+                'description' => $material->material_description ?? ''
+            ];
+        }
+    }
+
+    return $categories;
+}
 function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
 {
     $active_materials = [
@@ -398,7 +490,10 @@ if (isset($_POST['get_product'])) {
     $product->type = $get_attr->attr_type;
 
     $active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
-    $product->active_materials = $active_materials;
+    $materialCategories = getMaterialCategoriesWithDetails($mt);
+    $product->product_active_materials = json_encode(array_keys($active_materials)); // Just the category keys
+    $product->material_categories = $materialCategories; // Full category data
+    $product->active_materials_data = $active_materials; // Actual material data
 
     echo json_response('success', 'OK', $product);
     die;
@@ -471,8 +566,12 @@ if (isset($_POST['get_product_variants'])) {
 
         $get_attr = $pa->getProductAttribute($product->attr_id);
 
-        $product->type = $get_attr->attr_type;$active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
-        $product->active_materials = $active_materials;
+        $product->type = $get_attr->attr_type;
+        $active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
+        $materialCategories = getMaterialCategoriesWithDetails($mt);
+        $product->product_active_materials = json_encode(array_keys($active_materials)); // Just the category keys
+        $product->material_categories = $materialCategories; // Full category data
+        $product->active_materials_data = $active_materials; // Actual material data
     }
 
     echo json_response('success', 'OK', $products);
