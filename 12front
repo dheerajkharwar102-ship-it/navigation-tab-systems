@@ -5257,7 +5257,7 @@ include PATH . '/inc/footer.php';
                materialCategories = [];
             }
          }
-         const pillowCategory = materialCategories.find(cat => cat === 'pillow');
+         const pillowCategory = materialCategories.find(cat => cat.id === 'pillow');
          if (!pillowCategory) return '';
 
          return `
@@ -5531,7 +5531,7 @@ include PATH . '/inc/footer.php';
          showAccessorySelectionModal(productId, variantId, roomId);
       });
 
-      // Function to create content for variants (both size and set)
+      // Updated function to create variant content for sets
       function createVariantContentForSet(product, variant, roomId) {
          // Check if this is a curtain product
          const isCurtainProduct = product.type === 'curtain';
@@ -5539,179 +5539,109 @@ include PATH . '/inc/footer.php';
          if (isCurtainProduct) {
             return createCurtainVariantContent(product, variant, roomId);
          } else {
-            let materialCategories = [];
-
-            if (
-               variant.product_active_materials &&
-               typeof variant.product_active_materials === 'string' &&
-               variant.product_active_materials.trim().startsWith('[')
-            ) {
-               try {
-                  materialCategories = JSON.parse(variant.product_active_materials);
-                  if (!Array.isArray(materialCategories)) materialCategories = [];
-               } catch (e) {
-                  materialCategories = [];
-               }
-            }
             return `
                <div class="variant-details">
                   <div class="compact-product-details">
                      <div class="compact-section-header">
-                        <h6><i class="fa fa-cube mr-2"></i>${variant.product_name} - ${variant.product_desc}</h6>
+                           <h6><i class="fa fa-cube mr-2"></i>${variant.product_name} - ${variant.product_desc}</h6>
                      </div>
                      <div class="compact-details-with-image">
-                        <div class="compact-image-preview">
-                        <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
-                        </div>
-                        <div class="compact-details-fields">
-                           <div class="compact-detail-group">
-                              <label>Width (m)</label>
-                              <input type="number" class="form-control dimension-width" 
-                                    placeholder="0.00" step="0.01" min="0" 
-                                    data-variant="${variant.product_id}">
+                           <div class="compact-image-preview">
+                              <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
                            </div>
-                           <div class="compact-detail-group">
-                              <label>Length (m)</label>
-                              <input type="number" class="form-control dimension-length" 
-                                    placeholder="0.00" step="0.01" min="0"
-                                    data-variant="${variant.product_id}">
+                           <div class="compact-details-fields">
+                              <div class="compact-detail-group">
+                                 <label>Width (m)</label>
+                                 <input type="number" class="form-control dimension-width" 
+                                       placeholder="0.00" step="0.01" min="0" 
+                                       data-variant="${variant.product_id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Length (m)</label>
+                                 <input type="number" class="form-control dimension-length" 
+                                       placeholder="0.00" step="0.01" min="0"
+                                       data-variant="${variant.product_id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Height (m)</label>
+                                 <input type="number" class="form-control dimension-height" 
+                                       placeholder="0.00" step="0.01" min="0"
+                                       data-variant="${variant.product_id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Quantity</label>
+                                 <input type="number" class="form-control product-qty" 
+                                       placeholder="0" step="1" min="1" value="1"
+                                       data-variant="${variant.product_id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Unit Price ($)</label>
+                                 <input type="number" class="form-control unit-price" 
+                                       value="${Number(variant.standart_price || 0).toFixed(2)}" step="0.01" min="0" readonly
+                                       data-variant="${variant.product_id}">
+                              </div>
                            </div>
-                           <div class="compact-detail-group">
-                              <label>Height (m)</label>
-                              <input type="number" class="form-control dimension-height" 
-                                    placeholder="0.00" step="0.01" min="0"
-                                    data-variant="${variant.product_id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Quantity</label>
-                              <input type="number" class="form-control product-qty" 
-                                    placeholder="0" step="1" min="1" value="1"
-                                    data-variant="${variant.product_id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Unit Price ($)</label>
-                              <input type="number" class="form-control unit-price" 
-                                    value="${Number(variant.standart_price || 0).toFixed(2)}" step="0.01" min="0" readonly
-                                    data-variant="${variant.product_id}">
-                           </div>
-                        </div>
                      </div>
                   
-                  <!-- Material Section for Variant -->
-                  <div class="material-section">
-                     <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.product_name}</h6>
-                     <div class="material-tabs" id="materialTabs-${product.product_id}-${variant.product_id}-room${roomId}">
-                        ${materialCategories.map((category, index) => `
-                        <button class="material-tab ${index === 0 ? 'active' : ''}" 
-                              data-category="${category}">
-                           ${category.charAt(0).toUpperCase() + category.slice(1)}
-                        </button>
-                        `).join('')}
-                     </div>
-                     <div class="material-tabs-content" id="materialTabsContent-${product.product_id}-${variant.product_id}-room${roomId}">
-                        ${materialCategories.map((category, index) => `
-                           <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                              id="materialContent-${product.product_id}-${variant.product_id}-room${roomId}-${category.id}">
-                              ${category === 'pillow' ? 
-                                 createPillowSubcategoriesForVariant(product, variant, roomId) : 
-                                 createStandardMaterialContent(product, variant, category, roomId)
-                              }
-                           </div>
-                        `).join('')}
-                     </div>
-                  </div>
+                  <!-- Material Section - Use existing data -->
+                  ${createMaterialSection(product, variant, roomId)}
                   </div>
                </div>
             `;
          }
       }
 
+      // Updated function to create variant content for size variants
       function createVariantContentForSize(product, variant, roomId) {
-         let materialCategories = [];
-
-         if (
-            product.product_active_materials &&
-            typeof product.product_active_materials === 'string' &&
-            product.product_active_materials.trim().startsWith('[')
-         ) {
-            try {
-               materialCategories = JSON.parse(product.product_active_materials);
-               if (!Array.isArray(materialCategories)) materialCategories = [];
-            } catch (e) {
-               materialCategories = [];
-            }
-         }
-         // Use the EXISTING non-curtain variant content (same as sofa sets, dining sets, etc.)
          return `
-               <div class="variant-details">
+            <div class="variant-details">
                   <div class="compact-product-details">
                      <div class="compact-section-header">
                         <h6><i class="fa fa-cube mr-2"></i>${product.product_name} - ${product.product_desc}</h6>
                      </div>
                      <div class="compact-details-with-image">
                         <div class="compact-image-preview">
-                        <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
+                              <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
                         </div>
                         <div class="compact-details-fields">
-                           <div class="compact-detail-group">
-                              <label>Width (m)</label>
-                              <input type="number" class="form-control dimension-width" 
-                                    placeholder="0.00" step="0.01" min="0" value="${variant.width}" 
-                                    data-variant="${variant.id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Length (m)</label>
-                              <input type="number" class="form-control dimension-length" 
-                                    placeholder="0.00" step="0.01" min="0" value="${variant.length}" 
-                                    data-variant="${variant.id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Height (m)</label>
-                              <input type="number" class="form-control dimension-height" 
-                                    placeholder="0.00" step="0.01" min="0" value="${variant.height}"
-                                    data-variant="${variant.id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Quantity</label>
-                              <input type="number" class="form-control product-qty" 
-                                    placeholder="0" step="1" min="1" value="1"
-                                    data-variant="${variant.id}">
-                           </div>
-                           <div class="compact-detail-group">
-                              <label>Unit Price ($)</label>
-                              <input type="number" class="form-control unit-price" 
-                                    value="${Number(variant.standart_price || 0).toFixed(2)}" step="0.01" min="0" readonly
-                                    data-variant="${variant.id}">
-                           </div>
+                              <div class="compact-detail-group">
+                                 <label>Width (m)</label>
+                                 <input type="number" class="form-control dimension-width" 
+                                       placeholder="0.00" step="0.01" min="0" value="${variant.width}" 
+                                       data-variant="${variant.id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Length (m)</label>
+                                 <input type="number" class="form-control dimension-length" 
+                                       placeholder="0.00" step="0.01" min="0" value="${variant.length}" 
+                                       data-variant="${variant.id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Height (m)</label>
+                                 <input type="number" class="form-control dimension-height" 
+                                       placeholder="0.00" step="0.01" min="0" value="${variant.height}"
+                                       data-variant="${variant.id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Quantity</label>
+                                 <input type="number" class="form-control product-qty" 
+                                       placeholder="0" step="1" min="1" value="1"
+                                       data-variant="${variant.id}">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Unit Price ($)</label>
+                                 <input type="number" class="form-control unit-price" 
+                                       value="${Number(variant.standart_price || 0).toFixed(2)}" step="0.01" min="0" readonly
+                                       data-variant="${variant.id}">
+                              </div>
                         </div>
                      </div>
                   
-                  <!-- Material Section for Variant -->
-                  <div class="material-section">
-                     <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${product.product_name}</h6>
-                     <div class="material-tabs" id="materialTabs-${product.product_id}-${variant.id}-room${roomId}">
-                        ${materialCategories.map((category, index) => `
-                        <button class="material-tab ${index === 0 ? 'active' : ''}" 
-                              data-category="${category}">
-                           ${category.charAt(0).toUpperCase() + category.slice(1)}
-                        </button>
-                        `).join('')}
-                     </div>
-                     <div class="material-tabs-content" id="materialTabsContent-${product.product_id}-${variant.id}-room${roomId}">
-                        ${materialCategories.map((category, index) => `
-                           <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
-                              id="materialContent-${product.product_id}-${variant.id}-room${roomId}-${category.id}">
-                              ${category === 'pillow' ? 
-                                 createPillowSubcategoriesForVariant(product, variant, roomId) : 
-                                 createStandardMaterialContent(product, variant, category, roomId)
-                              }
-                           </div>
-                        `).join('')}
-                     </div>
+                  <!-- Material Section - Use existing data -->
+                  ${createMaterialSection(product, variant, roomId)}
                   </div>
-                  </div>
-               </div>
-            `;
+            </div>
+         `;
       }
 
       // Function to setup variants tabs functionality
@@ -5815,10 +5745,11 @@ include PATH . '/inc/footer.php';
          });
       }
 
-      // Function to setup variant material tabs
+      // Updated function to setup variant material tabs
       function setupVariantMaterialTabs(product, variants, roomId) {
          const productId = product.product_id;
          const availableIn = product.available_in;
+
          variants.forEach(variant => {
             let variantId = product.available_in === 'size' ? variant.id : variant.product_id;
             const materialTabsId = `materialTabs-${productId}-${variantId}-room${roomId}`;
@@ -5841,6 +5772,27 @@ include PATH . '/inc/footer.php';
                }
             }, 100);
          });
+      }
+
+      // Function to setup material tabs for product
+      function setupMaterialTabsForProduct(product, roomId) {
+         const materialTabsId = `materialTabs-${product.product_id}-room${roomId}`;
+
+         setTimeout(() => {
+            if ($(`#${materialTabsId}`).length) {
+               $(`#${materialTabsId} .material-tab`).off('click').on('click', function(e) {
+                  e.preventDefault();
+                  const categoryId = $(this).data('category');
+                  const materialTabsContentId = `materialTabsContent-${product.product_id}-room${roomId}`;
+
+                  $(`#${materialTabsId} .material-tab`).removeClass('active');
+                  $(this).addClass('active');
+
+                  $(`#${materialTabsContentId} .material-tab-content`).removeClass('active');
+                  $(`#materialContent-${product.product_id}-room${roomId}-${categoryId}`).addClass('active');
+               });
+            }
+         }, 100);
       }
 
       // Function to update variant status indicator
@@ -7384,7 +7336,7 @@ include PATH . '/inc/footer.php';
          $(`#product-${productId}-room${roomId}`).show();
       }
 
-      // Load product content based on type and variants
+      // Updated function to load product content
       function loadProductContent(contentId, product, roomId) {
          const $content = $(`#${contentId}`);
          const totalsHTML = createTotalsSection(product, roomId);
@@ -7395,9 +7347,7 @@ include PATH . '/inc/footer.php';
                get_product_variants: 1,
                product_id: product.product_id
             }, function(data) {
-               // console.log(data);
                var response = $.parseJSON(data);
-               console.log('selectedProductVariants:', response);
                if (response.status === 'success') {
                   const variants = response.data;
                   if (variants.length > 0) {
@@ -7406,54 +7356,39 @@ include PATH . '/inc/footer.php';
                      return;
                   }
                }
+               loadSimpleProductContent($content, product, roomId);
+               $content.append(totalsHTML);
             });
          } else if (product.has_variant && product.available_in === 'size') {
-            let variants = []; // Declare variants outside try-catch
-
+            let variants = [];
             try {
-               // Safely parse the product_bed_dims JSON string
                const bedDimsJson = product?.product_bed_dims || '{}';
                const bedDimsObject = JSON.parse(bedDimsJson);
-
-               // Convert the object to an array of objects
                variants = Object.entries(bedDimsObject).map(([key, value]) => ({
-                  id: key, // Use 'id' instead of 'size' to match your template
+                  id: key,
                   size: key,
                   width: value.width || null,
                   length: value.length || null,
                   height: value.height || null,
                   standart_price: value.standart_price || null,
-                  name: `${key} (${value.width || ''}x${value.length || ''})` // Add a display name
+                  name: `${key} (${value.width || ''}x${value.length || ''})`,
+                  active_materials: product.active_materials || {} // Pass materials to variants
                }));
-
-               console.log(variants);
             } catch (error) {
                console.error('Error parsing product_bed_dims:', error);
-               variants = []; // Already initialized, just reset to empty
+               variants = [];
             }
-            loadProductWithVariants($content, product, variants, roomId);
-            $content.append(totalsHTML);
-            return;
-         }
 
-         // Load based on product type
-         if (product.type === 'fitout') {
-            loadFitoutProductContent($content, product, roomId);
-         } else if (product.type === 'curtain') {
-            loadCurtainProductContent($content, product, roomId);
+            if (variants.length > 0) {
+               loadProductWithVariants($content, product, variants, roomId);
+            } else {
+               loadSimpleProductContent($content, product, roomId);
+            }
+            $content.append(totalsHTML);
          } else {
             loadSimpleProductContent($content, product, roomId);
+            $content.append(totalsHTML);
          }
-
-         // Setup material tabs
-         setupMaterialTabs(product.product_id);
-
-         // Setup pillow subcategories if needed
-         if (product.type !== 'fitout') {
-            setupPillowSubcategoryTabs(product, roomId);
-         }
-
-         $content.append(totalsHTML);
       }
 
       // Load product with variants
@@ -7696,109 +7631,54 @@ include PATH . '/inc/footer.php';
          setupPriceCalculations(product.product_id);
       }
 
-      // Material section with image on left, details on right and pillow subcategory tabs
+      // Updated simple product content with materials
       function loadSimpleProductContent($content, product, roomId) {
-         let materialCategories = [];
+         // Create a mock variant object for simple products to use the same material function
+         const mockVariant = {
+            product_id: product.product_id,
+            product_name: product.product_name,
+            product_desc: product.product_desc || '',
+            active_materials: product.active_materials || {}
+         };
 
-         if (
-            product.product_active_materials &&
-            typeof product.product_active_materials === 'string' &&
-            product.product_active_materials.trim().startsWith('[')
-         ) {
-            try {
-               materialCategories = JSON.parse(product.product_active_materials);
-               if (!Array.isArray(materialCategories)) materialCategories = [];
-            } catch (e) {
-               materialCategories = [];
-            }
-         }
          const $wrapper = $(`
             <div class="simple-product-content">
-               <div class="compact-product-details">
-                  <div class="compact-section-header">
-                     <h6><i class="fa fa-cube mr-2"></i>${product.product_name} Details</h6>
-                  </div>
-                  <div class="compact-details-with-image">
-                     <div class="compact-image-preview">
-                        <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
+                  <div class="compact-product-details">
+                     <div class="compact-section-header">
+                        <h6><i class="fa fa-cube mr-2"></i>${product.product_name} Details</h6>
                      </div>
-                     <div class="compact-details-fields">
-                        <div class="compact-detail-group">
-                           <label>Width (m)</label>
-                           <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                     <div class="compact-details-with-image">
+                        <div class="compact-image-preview">
+                              <img style="width:100%;height:100%;" src="${product.product_img}" alt="${product.product_name}">
                         </div>
-                        <div class="compact-detail-group">
-                           <label>Length (m)</label>
-                           <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Height (m)</label>
-                           <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Quantity</label>
-                           <input type="number" class="form-control product-qty" 
-                                 placeholder="0" step="1" min="1" value="1">
-                        </div>
-                        <div class="compact-detail-group">
-                           <label>Unit Price ($)</label>
-                           <input type="number" class="form-control unit-price" readonly placeholder="0.00" step="0.01" min="0">
+                        <div class="compact-details-fields">
+                              <div class="compact-detail-group">
+                                 <label>Width (m)</label>
+                                 <input type="number" class="form-control dimension-width" placeholder="0.00" step="0.01" min="0">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Length (m)</label>
+                                 <input type="number" class="form-control dimension-length" placeholder="0.00" step="0.01" min="0">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Height (m)</label>
+                                 <input type="number" class="form-control dimension-height" placeholder="0.00" step="0.01" min="0">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Quantity</label>
+                                 <input type="number" class="form-control product-qty" 
+                                       placeholder="0" step="1" min="1" value="1">
+                              </div>
+                              <div class="compact-detail-group">
+                                 <label>Unit Price ($)</label>
+                                 <input type="number" class="form-control unit-price" readonly placeholder="0.00" step="0.01" min="0">
+                              </div>
                         </div>
                      </div>
+                  
+                  <!-- Material Section - Use existing data -->
+                  ${createMaterialSection(product, mockVariant, roomId)}
                   </div>
-               
-               <!-- Material Section with Image on Left and Details on Right -->
-               <div class="material-section">
-                  <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-                  <div class="material-tabs" id="materialTabs-${product.product_id}">
-                     ${materialCategories.map((category, index) => `
-                     <button class="material-tab ${index === 0 ? 'active' : ''}" 
-                           data-category="${category}">
-                        ${category.charAt(0).toUpperCase() + category.slice(1)}
-                     </button>
-                     `).join('')}
-                  </div>
-                  <div class="material-tabs-content" id="materialTabsContent-${product.product_id}">
-                     ${materialCategories.map((category, index) => `
-                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${product.product_id}-${category.id}">
-                           ${category === 'pillow' ? 
-                              loadPillowSubcategories(product) : 
-                              // Standard material layout for non-pillow categories (Image on left, details on right)
-                              `<div class="material-inputs-compact">
-                                 <div class="material-compact-image">
-                                    <i class="fa fa-image"></i>
-                                 </div>
-                                 <div class="material-compact-fields">
-                                    <div class="material-input">
-                                       <label>Material Grade</label>
-                                       <select class="form-control material-grade">
-                                          <option value="">Select Grade</option>
-                                          <option value="standard">Standard</option>
-                                          <option value="premium">Premium</option>
-                                          <option value="economy">Economy</option>
-                                       </select>
-                                    </div>
-                                    <div class="material-input">
-                                       <label>Material Type</label>
-                                       <select class="form-control material-type-select">
-                                          <option value="">Select Material</option>
-                                          ${category.defaultMaterials.map(material => `
-                                             <option value="${material.id}">${material.name}</option>
-                                          `).join('')}
-                                       </select>
-                                    </div>
-                                    <div class="material-input">
-                                       <label>Area/Weight</label>
-                                       <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
-                                    </div>
-                                 </div>
-                              </div>`
-                           }
-                        </div>
-                     `).join('')}
-                  </div>
-               </div>
-               </div>
             </div>
          `);
 
@@ -7806,7 +7686,11 @@ include PATH . '/inc/footer.php';
 
          setupDimensionCalculations(product.product_id);
          setupPriceCalculations(product.product_id);
-         setupMaterialTabs(product.product_id);
+
+         // Setup material tabs after content is loaded
+         setTimeout(() => {
+            setupMaterialTabsForProduct(product, roomId);
+         }, 100);
       }
 
       // Curtain product content with accessory section working like items section
@@ -8000,7 +7884,7 @@ include PATH . '/inc/footer.php';
                materialCategories = [];
             }
          }
-         const pillowCategory = materialCategories.find(cat => cat === 'pillow');
+         const pillowCategory = materialCategories.find(cat => cat.id === 'pillow');
          if (!pillowCategory) return '';
 
          return `
@@ -8061,73 +7945,84 @@ include PATH . '/inc/footer.php';
             </div>
          `;
       }
+      
+      // Function to create material section with existing data
+      function createMaterialSection(product, variant, roomId) {
+         // Use the materials data that already comes with the product/variant
+         const activeMaterials = variant.active_materials || product.active_materials || {};
 
-      function createMaterialSectionForItem(item, productId, roomId) {
-         const itemId = item.product_id;
-         let materialCategories = [];
-
-         if (
-            item.product_active_materials &&
-            typeof item.product_active_materials === 'string' &&
-            item.product_active_materials.trim().startsWith('[')
-         ) {
-            try {
-               materialCategories = JSON.parse(item.product_active_materials);
-               if (!Array.isArray(materialCategories)) materialCategories = [];
-            } catch (e) {
-               materialCategories = [];
+         const materialCategories = Object.keys(activeMaterials).map(category => {
+            if (category === 'pillow') {
+               return {
+                  id: category,
+                  name: category.charAt(0).toUpperCase() + category.slice(1),
+                  subcategories: [{
+                        id: 'default_pillow',
+                        name: 'Default Pillow',
+                        all_materials: activeMaterials.pillow.default_pillow.all_materials || []
+                     },
+                     {
+                        id: 'pillow_front',
+                        name: 'Pillow Front',
+                        all_materials: activeMaterials.pillow.pillow_front.all_materials || []
+                     },
+                     {
+                        id: 'pillow_back',
+                        name: 'Pillow Back',
+                        all_materials: activeMaterials.pillow.pillow_back.all_materials || []
+                     },
+                     {
+                        id: 'pillow_pipping',
+                        name: 'Pillow Pipping',
+                        all_materials: activeMaterials.pillow.pillow_pipping.all_materials || []
+                     }
+                  ],
+                  active_materials: activeMaterials.pillow
+               };
+            } else {
+               return {
+                  id: category,
+                  name: category.charAt(0).toUpperCase() + category.slice(1),
+                  all_materials: activeMaterials[category].all_materials || [],
+                  active_materials: activeMaterials[category].active || []
+               };
             }
-         }
-         return `
-            <!-- Material Tabs Section -->
-            <div class="material-section">
-               <h6><i class="fa fa-layer-group mr-2"></i>Material Selection</h6>
-               <div class="material-tabs" id="materialTabs-${itemId}-${productId}-room${roomId}">
-                  ${materialCategories.map((category, index) => `
-                  <button class="material-tab ${index === 0 ? 'active' : ''}" 
-                        data-category="${category}">
-                     ${category.charAt(0).toUpperCase() + category.slice(1)}
-                  </button>
-                  `).join('')}
+         }).filter(category => category.all_materials.length > 0 || category.active_materials.length > 0);
+
+         // If no materials available, show message
+         if (materialCategories.length === 0) {
+            return `
+               <div class="material-section">
+                  <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.product_name}</h6>
+                  <div class="no-materials-available">
+                     <i class="fa fa-info-circle"></i>
+                     <p>No materials configured for this product</p>
+                  </div>
                </div>
-               <div class="material-tabs-content" id="materialTabsContent-${itemId}-${productId}-room${roomId}">
-                  ${materialCategories.map((category, index) => `
-                     <div class="material-tab-content ${index === 0 ? 'active' : ''}" id="materialContent-${itemId}-${productId}-room${roomId}-${category.id}">
-                        ${category === 'pillow' ? 
-                           loadPillowSubcategoriesForItem(item, productId, roomId) : 
-                           // Standard material layout for non-pillow categories
-                           `<div class="material-inputs-compact">
-                              <div class="material-compact-image">
-                                 <i class="fa fa-image"></i>
-                              </div>
-                              <div class="material-compact-fields">
-                                 <div class="material-input">
-                                    <label>Material Grade</label>
-                                    <select class="form-control material-grade">
-                                       <option value="">Select Grade</option>
-                                       <option value="standard">Standard</option>
-                                       <option value="premium">Premium</option>
-                                       <option value="economy">Economy</option>
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Material Type</label>
-                                    <select class="form-control material-type-select">
-                                       <option value="">Select Material</option>
-                                       ${category.defaultMaterials.map(material => `
-                                          <option value="${material.id}">${material.name}</option>
-                                       `).join('')}
-                                    </select>
-                                 </div>
-                                 <div class="material-input">
-                                    <label>Area/Weight</label>
-                                    <input type="text" class="form-control area-weight" placeholder="Enter area or weight">
-                                 </div>
-                              </div>
-                           </div>`
-                        }
-                     </div>
-                  `).join('')}
+            `;
+         }
+
+         return `
+            <div class="material-section">
+               <h6><i class="fa fa-layer-group mr-2"></i>Material Selection for ${variant.product_name}</h6>
+               <div class="material-tabs" id="materialTabs-${product.product_id}-${variant.product_id}-room${roomId}">
+                     ${materialCategories.map((category, index) => `
+                        <button class="material-tab ${index === 0 ? 'active' : ''}" 
+                              data-category="${category.id}">
+                           ${category.name}
+                        </button>
+                     `).join('')}
+               </div>
+               <div class="material-tabs-content" id="materialTabsContent-${product.product_id}-${variant.product_id}-room${roomId}">
+                     ${materialCategories.map((category, index) => `
+                        <div class="material-tab-content ${index === 0 ? 'active' : ''}" 
+                           id="materialContent-${product.product_id}-${variant.product_id}-room${roomId}-${category.id}">
+                           ${category.id === 'pillow' ? 
+                                 createPillowSubcategoriesForVariant(product, variant, roomId, activeMaterials) : 
+                                 createStandardMaterialContent(product, variant, category, roomId, activeMaterials)
+                           }
+                        </div>
+                     `).join('')}
                </div>
             </div>
          `;
@@ -8149,7 +8044,7 @@ include PATH . '/inc/footer.php';
                materialCategories = [];
             }
          }
-         const pillowCategory = materialCategories.find(cat => cat === 'pillow');
+         const pillowCategory = materialCategories.find(cat => cat.id === 'pillow');
          if (!pillowCategory) return '';
 
          return `
