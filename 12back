@@ -30,6 +30,250 @@ function get_itme_of($product)
 
     return $item_type;
 }
+
+function has_variant($product)
+{
+    $p = new Product();
+    $get_variants = $p->getProducts('*', null, [['parent_set_id', '=', $product->product_id]]);
+    $get_bed_dims = 0;
+    if (!empty($product->product_bed_dims)) {
+        $bed_dims = json_decode($product->product_bed_dims, true);
+        if (is_array($bed_dims)) {
+            $get_bed_dims = count($bed_dims);
+        }
+    }
+    if (count($get_variants) > 0 || $get_bed_dims > 1) {
+        return true;
+    }
+    return false;
+}
+
+function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
+{
+    $active_materials = [
+        'metal' => [
+            'active' => [],
+            'all_materials' => []
+        ],
+        'wood' => [
+            'active' => [],
+            'all_materials' => []
+        ],
+        'marble' => [
+            'active' => [],
+            'all_materials' => []
+        ],
+        'glass' => [
+            'active' => [],
+            'all_materials' => []
+        ],
+        'fabric' => [
+            'active' => [],
+            'all_materials' => []
+        ],
+        'pillow' => [
+            'active' => [],
+            'all_materials' => []
+        ]
+    ];
+
+    // Get materials for each category
+    $material_types = ['metal', 'wood', 'marble', 'glass', 'fabric', 'pillow'];
+
+    foreach ($material_types as $material_type) {
+        // Get ACTIVE materials for this product
+        $materials = get_default_combo_data($p, $material_type, $product_id);
+
+        // Get ALL available materials for this category
+        $all_materials = getAllMaterialsByCategory($mt, $material_type);
+
+        if (count($materials) > 0) {
+            foreach ($materials as $material) {
+                // Get alias name text based on the alias ID
+                $alias_name_text = getAliasNameById($p, $material->alias_name, $material_type);
+
+                $material_data = [
+                    'id' => $material->prd_mt_id ?? $material->dtl_id,
+                    'material_id' => $material->material,
+                    'material_name' => getMaterialNameById($mt, $material->material),
+                    'alias_name' => $alias_name_text,
+                    'alias_name_id' => $material->alias_name,
+                    'material_ref_label' => $material->material_ref_label,
+                    'offline_image' => $material->offline_image,
+                    'pointer_image' => $material->pointer_image,
+                    'product_id' => $material->product_id,
+                    'dtl_id' => $material->dtl_id
+                ];
+
+                // Add type-specific fields
+                switch ($material_type) {
+                    case 'metal':
+                        $material_data['weight_kg'] = $material->length;
+                        $material_data['produced_in'] = $material->produced_in ?? '';
+                        break;
+
+                    case 'wood':
+                        $material_data['area_m2'] = $material->area;
+                        $material_data['finish_type'] = $material->finish_type;
+                        break;
+
+                    case 'marble':
+                        $material_data['area_m2'] = $material->area;
+                        break;
+
+                    case 'glass':
+                        $material_data['area_m2'] = $material->length;
+                        break;
+
+                    case 'fabric':
+                        $material_data['fabric_name'] = $material->fabric_name;
+                        $material_data['area_m2'] = $material->length;
+                        break;
+
+                    case 'pillow':
+                        $material_data['quantity'] = $material->quantity;
+                        $material_data['length_cm'] = $material->length;
+                        $material_data['width_cm'] = $material->width;
+                        $material_data['notes'] = $material->notes;
+                        $material_data['pillow_face'] = $material->pillow_face;
+                        $material_data['pillow_back'] = $material->pillow_back;
+                        $material_data['pipping'] = $material->pipping;
+                        break;
+                }
+
+                $active_materials[$material_type]['active'][] = $material_data;
+            }
+        }
+
+        // Store all available materials for this category
+        $active_materials[$material_type]['all_materials'] = $all_materials;
+    }
+
+    // Reformat pillow data to match your desired structure
+    if (!empty($active_materials['pillow']['active'])) {
+        $pillow_data = [
+            'default_pillow' => [
+                'active' => [],
+                'all_materials' => $active_materials['pillow']['all_materials']
+            ],
+            'pillow_front' => [
+                'active' => [],
+                'all_materials' => getAllMaterialsByCategory($mt, 'fabric') // Pillow front uses fabric materials
+            ],
+            'pillow_back' => [
+                'active' => [],
+                'all_materials' => getAllMaterialsByCategory($mt, 'fabric') // Pillow back uses fabric materials
+            ],
+            'pillow_pipping' => [
+                'active' => [],
+                'all_materials' => getAllMaterialsByCategory($mt, 'fabric') // Pillow pipping uses fabric materials
+            ]
+        ];
+
+        foreach ($active_materials['pillow']['active'] as $pillow) {
+            // Default pillow data
+            $pillow_data['default_pillow']['active'][] = [
+                'id' => $pillow['id'],
+                'material_id' => $pillow['material_id'],
+                'material_name' => $pillow['material_name'],
+                'alias_name' => $pillow['alias_name'],
+                'quantity' => $pillow['quantity'],
+                'dimensions' => [
+                    'length' => $pillow['length_cm'],
+                    'width' => $pillow['width_cm']
+                ],
+                'notes' => $pillow['notes'],
+                'offline_image' => $pillow['offline_image'],
+                'pointer_image' => $pillow['pointer_image']
+            ];
+
+            // Pillow front (face)
+            if (!empty($pillow['pillow_face'])) {
+                $pillow_data['pillow_front']['active'][] = [
+                    'id' => $pillow['id'] . '_face',
+                    'material_id' => $pillow['pillow_face'],
+                    'material_name' => getMaterialNameById($mt, $pillow['pillow_face']),
+                    'type' => 'face',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+            }
+
+            // Pillow back
+            if (!empty($pillow['pillow_back'])) {
+                $pillow_data['pillow_back']['active'][] = [
+                    'id' => $pillow['id'] . '_back',
+                    'material_id' => $pillow['pillow_back'],
+                    'material_name' => getMaterialNameById($mt, $pillow['pillow_back']),
+                    'type' => 'back',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+            }
+
+            // Pillow pipping
+            if (!empty($pillow['pipping'])) {
+                $pillow_data['pillow_pipping']['active'][] = [
+                    'id' => $pillow['id'] . '_pipping',
+                    'material_id' => $pillow['pipping'],
+                    'material_name' => getMaterialNameById($mt, $pillow['pipping']),
+                    'type' => 'pipping',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+            }
+        }
+
+        $active_materials['pillow'] = $pillow_data;
+    }
+
+    // Remove empty categories
+    foreach ($active_materials as $category => $data) {
+        if (empty($data['active'])) {
+            unset($active_materials[$category]);
+        }
+    }
+
+    return $active_materials;
+}
+
+// Helper function to get all materials by category
+function getAllMaterialsByCategory($mt, $category)
+{
+    $where = [
+        ['material_category', '=', $category],
+        ['material_status', '=', 1]
+    ];
+    $materials = $mt->getMaterials('*', null, $where);
+
+    return $materials;
+}
+
+// Helper function to get material name by ID
+function getMaterialNameById($mt, $material_id)
+{
+    $get_material = $mt->getMaterial($material_id);
+    return $get_material->material_name;
+}
+
+// Helper function to get alias name by ID
+function getAliasNameById($p, $alias_id, $material_type)
+{
+    if (!$alias_id) return '';
+
+    // Determine the filter based on material type
+    $filter = ($material_type === 'fabric') ? [['id', '!=', 11]] : [['id', '=', 11]];
+
+    $fabric_names = $p->getProductFabricAliasNames('*', null, $filter);
+
+    if (count($fabric_names) > 0) {
+        foreach ($fabric_names as $fabric_name) {
+            if ($fabric_name->id == $alias_id) {
+                return $fabric_name->fabric_name;
+            }
+        }
+    }
+
+    return '';
+}
+
 if (isset($_POST['get_main_categories'])) {
     $pa = new ProductAttribute();
 
@@ -69,6 +313,7 @@ if (isset($_POST['get_qualifications'])) {
     $pa = new ProductAttribute();
     $where = [];
     $where[] = ['online_category', '=', $main_category];
+    $where[] = ['attr_status', '=', '1'];
     $attrs = $pa->getProductAttributesUnique('*', ['attr_name', 'ASC'], $where, null, true);
 
     echo json_response('success', 'OK', $attrs);
@@ -92,7 +337,147 @@ if (isset($_POST['get_product_styles'])) {
     echo json_response('success', 'OK', $get_styles);
     die;
 }
+if (isset($_POST['get_product'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
 
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $mt = new Material();
+    // $o = new Order();
+    // $ctl = new Catalog();
+    // $branch = new Branch();
+
+    $product_id = clear_input(p('product_id'));
+    if ($product_id == '') {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+
+    $product = $p->getProduct($product_id);
+    $product_name_text = '';
+    if ($product->team_name == '') {
+        $product_name_text = $product->product_code;
+    } else {
+        $product_name_text = $product->team_name . ' - ' . $product->product_code;
+    }
+    $product->product_name = $product_name_text;
+
+    if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+        $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+        $product_path = PATH . '/uploads/' . $product->product_img;
+
+        if (file_exists($thumbnail_path) && file_exists($product_path)) {
+            $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+        } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+            $image_link = 'img-error';
+        } else {
+            generate_image_in_webp($product);
+            $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+            $image_link = URL . '/uploads/product-img/' . $check_file_name;
+        }
+    } else {
+        if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+            generate_image_in_webp($product);
+            $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+            $image_link = URL . '/uploads/product-img/' . $check_file_name;
+        } else {
+            $image_link = 'img-error';
+        }
+    }
+    $product->product_img = $image_link;
+    $product->has_variant = has_variant($product);
+
+    $get_attr = $pa->getProductAttribute($product->attr_id);
+    $product->type = $get_attr->attr_type;
+
+    $active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
+    $product->active_materials = $active_materials;
+
+    echo json_response('success', 'OK', $product);
+    die;
+}
+if (isset($_POST['get_product_variants'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $mt = new Material();
+    // $o = new Order();
+    // $ctl = new Catalog();
+    // $branch = new Branch();
+
+    $product_id = clear_input(p('product_id'));
+    $available_in = clear_input(p('available_in'));
+    if ($product_id == '') {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+    $where = [];
+    if (isset($_POST['available_in']) && $_POST['available_in'] == 'size') {
+        $where[] = ['product_id', '=', $product_id];
+    } else {
+        $where[] = ['parent_set_id', '=', $product_id];
+    }
+
+    $products = $p->getProducts('*', null, $where);
+
+    foreach ($products as $product) {
+        $product_name_text = '';
+        if ($product->team_name == '') {
+            $product_name_text = $product->product_code;
+        } else {
+            $product_name_text = $product->team_name . ' - ' . $product->product_code;
+        }
+        $product->product_name = $product_name_text;
+
+        if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+            $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+            $product_path = PATH . '/uploads/' . $product->product_img;
+
+            if (file_exists($thumbnail_path) && file_exists($product_path)) {
+                $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+            } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+                $image_link = 'img-error';
+            } else {
+                generate_image_in_webp($product);
+                $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                $image_link = URL . '/uploads/product-img/' . $check_file_name;
+            }
+        } else {
+            if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+                generate_image_in_webp($product);
+                $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                $image_link = URL . '/uploads/product-img/' . $check_file_name;
+            } else {
+                $image_link = 'img-error';
+            }
+        }
+        $product->product_img = $image_link;
+        $product->has_variant = has_variant($product);
+
+        $get_attr = $pa->getProductAttribute($product->attr_id);
+
+        $product->type = $get_attr->attr_type;$active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
+        $product->active_materials = $active_materials;
+    }
+
+    echo json_response('success', 'OK', $products);
+    die;
+}
 if (isset($_POST['get_products'])) {
     $user = new User();
     $logged = $user->getLogged('user_auth');
@@ -135,7 +520,7 @@ if (isset($_POST['get_products'])) {
     if ($item_size > 0) {
         $limit = [$current_count, $item_size];
     } else {
-        $limit = [0, 10];
+        $limit = null;
     }
 
     $where_load_prd = null;
@@ -303,10 +688,19 @@ if (isset($_POST['get_products'])) {
                 }
             }
 
+            $get_attr = $pa->getProductAttribute($product->attr_id);
+            $type = $get_attr->attr_type;
+
+            $has_variant = has_variant($product);
+
             $product_array = [
                 'product_id' => $product->product_id,
+                'attr_id' => $product->attr_id,
                 'product_code' => $product->product_code,
                 'product_name' => $product_name_text,
+                'type' => $type,
+                'available_in' => $product->available_in,
+                'has_variant' => $has_variant,
                 'product_style_type' => $product->product_style_type,
                 'item_type' => $item_type,
                 'item_of' => $item_of,
@@ -368,7 +762,7 @@ if (isset($_POST['get_products'])) {
 
 //     $is_curtain = 0;
 //     $attarNameData = $o->getProductAttrName("*", null, [['attr_id', '=', $attr_id]]);
-//     if (stripos($attarNameData[0]->attr_name, 'curtain') !== false) {
+//     if (stripos(strtolower($attarNameData[0]->attr_name), 'curtain') !== false) {
 //         $is_curtain = 1;
 //     }
 
