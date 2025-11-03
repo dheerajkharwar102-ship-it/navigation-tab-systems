@@ -4234,7 +4234,7 @@ include PATH . '/inc/footer.php';
          return `
             <div class="material-group" data-ref-label="${refLabel}">
                   <div class="material-group-header">
-                     <h6>${refLabel} ${activeMaterial?.alias_name ? `- ${activeMaterial.alias_name}` : ''}</h6>
+                     <h6>Material ${refLabel} ${activeMaterial?.alias_name ? `- ${activeMaterial.alias_name}` : ''}</h6>
                   </div>
                   <div class="material-inputs-compact">
                      <div class="material-compact-image">
