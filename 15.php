@@ -1412,13 +1412,6 @@ $togle_temp_count = 0;
       box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
    }
 
-   .multi-select-option-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-   }
-
    .multi-select-option-icon {
       width: 32px;
       height: 32px;
@@ -1427,12 +1420,6 @@ $togle_temp_count = 0;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 0.9rem;
-   }
-
-   .multi-select-option-name {
-      font-weight: 600;
-      color: #495057;
       font-size: 0.9rem;
    }
 
@@ -2019,22 +2006,6 @@ $togle_temp_count = 0;
       margin: 0;
       font-size: 0.9rem;
       font-weight: 600;
-   }
-
-   /* Accessory Total Price Field */
-   .accessory-total-price {
-      border-top: 1px solid #e9ecef;
-   }
-
-   .accessory-total-price label {
-      font-weight: 600;
-      color: #495057;
-   }
-
-   .accessory-total-price .form-control {
-      font-weight: 600;
-      color: #4361ee;
-      background: #f8f9fa;
    }
 
    .accessory-selection-container {
@@ -3268,33 +3239,6 @@ $togle_temp_count = 0;
       gap: 8px;
    }
 
-   /* Responsive Adjustments */
-   @media (max-width: 768px) {
-      .filter-layout {
-         grid-template-columns: 1fr;
-         height: auto;
-      }
-
-      .style-filter-sidebar {
-         order: 2;
-      }
-
-      .brand-radio-tabs {
-         flex-wrap: wrap;
-      }
-
-      .multi-select-options {
-         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      }
-
-      .advanced-filter-modal-content {
-         width: 95%;
-         max-width: none;
-         margin: 20px;
-      }
-   }
-</style>
-<style>
    /* Product image styles */
    .multi-select-option-image {
       width: 100%;
@@ -3332,6 +3276,32 @@ $togle_temp_count = 0;
       font-size: 0.9rem;
       line-height: 1.3;
       flex: 1;
+   }
+
+   /* Responsive Adjustments */
+   @media (max-width: 768px) {
+      .filter-layout {
+         grid-template-columns: 1fr;
+         height: auto;
+      }
+
+      .style-filter-sidebar {
+         order: 2;
+      }
+
+      .brand-radio-tabs {
+         flex-wrap: wrap;
+      }
+
+      .multi-select-options {
+         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .advanced-filter-modal-content {
+         width: 95%;
+         max-width: none;
+         margin: 20px;
+      }
    }
 </style>
 
@@ -3588,6 +3558,33 @@ $togle_temp_count = 0;
                                     </div>
                                  </div>
                                  <div class="product-content-area" id="productContent-room1">
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="grand-totals-wrapper">
+                        <div class="grand-totals-section" id="grand-totals-section">
+                           <div class="grand-totals-header">
+                              <h5><i class="fa fa-receipt mr-2"></i>Order Summary</h5>
+                           </div>
+                           <div class="grand-totals-content">
+                              <div class="grand-totals-row">
+                                 <div class="grand-totals-label">Subtotal:</div>
+                                 <div class="grand-totals-amount">
+                                    $<span class="grand-subtotal" id="grand-subtotal">0.00</span>
+                                 </div>
+                              </div>
+                              <div class="grand-totals-row">
+                                 <div class="grand-totals-label">Tax (<span id="tax-percentage">0</span>%):</div>
+                                 <div class="grand-totals-amount">
+                                    $<span class="grand-tax" id="grand-tax">0.00</span>
+                                 </div>
+                              </div>
+                              <div class="grand-totals-row grand-total-final">
+                                 <div class="grand-totals-label">Grand Total:</div>
+                                 <div class="grand-totals-amount">
+                                    $<span class="grand-total" id="grand-total">0.00</span>
                                  </div>
                               </div>
                            </div>
@@ -4230,6 +4227,7 @@ include PATH . '/inc/footer.php';
 
          // Get active material for this refLabel (if any)
          const activeMaterial = materials && materials.length > 0 ? materials[0] : null;
+         console.log('activeMaterial Group:', activeMaterial);
 
          return `
             <div class="material-group" data-ref-label="${refLabel}">
@@ -4239,7 +4237,7 @@ include PATH . '/inc/footer.php';
                   <div class="material-inputs-compact">
                      <div class="material-compact-image">
                         ${activeMaterial?.material_img ? 
-                              `<img src="<?= URL ?>/uploads/material-img/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
+                              `<img src="<?= URL ?>/uploads/material/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
                               `<i class="fa fa-image"></i>`
                         }
                      </div>
@@ -4304,7 +4302,7 @@ include PATH . '/inc/footer.php';
             <div class="material-inputs-compact">
                   <div class="material-compact-image">
                      ${activeMaterial?.material_img ? 
-                        `<img src="<?= URL ?>/uploads/material-img/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
+                        `<img src="<?= URL ?>/uploads/material/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
                         `<i class="fa fa-image"></i>`
                      }
                   </div>
@@ -4499,7 +4497,7 @@ include PATH . '/inc/footer.php';
                   <div class="pillow-material-inputs-compact">
                      <div class="pillow-material-compact-image">
                         ${activeMaterial?.material_img ? 
-                              `<img src="<?= URL ?>/uploads/material-img/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
+                              `<img src="<?= URL ?>/uploads/material/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
                               `<i class="fa fa-image"></i>`
                         }
                      </div>
@@ -4554,7 +4552,7 @@ include PATH . '/inc/footer.php';
             <div class="pillow-material-inputs-compact">
                   <div class="pillow-material-compact-image">
                      ${activeMaterial?.material_img ? 
-                        `<img src="<?= URL ?>/uploads/material-img/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
+                        `<img src="<?= URL ?>/uploads/material/${activeMaterial.material_img}" alt="${activeMaterial.material_name}" style="width:100%;height:100%;object-fit:cover;">` : 
                         `<i class="fa fa-image"></i>`
                      }
                   </div>
@@ -5018,11 +5016,7 @@ include PATH . '/inc/footer.php';
             const type = $(this).data('type');
             const width = parseFloat($(`#variants-content-${productId}-room${roomId} .dimension-width[data-variant="${variantId}"]`).val()) || 0;
             const length = parseFloat($(`#variants-content-${productId}-room${roomId} .dimension-length[data-variant="${variantId}"]`).val()) || 0;
-            const unitPrice = parseFloat($(`#variants-content-${productId}-room${roomId} .unit-price[data-variant="${variantId}"]`).val()) || 0;
             const area = width * length;
-            const totalPrice = unitPrice * area;
-
-            $(`#variants-content-${productId}-room${roomId} .total-price[data-variant="${variantId}"]`).val(totalPrice.toFixed(2));
 
             updateVariantStatus(productId, roomId, variantId, availableIn, type);
          });
@@ -6870,38 +6864,6 @@ include PATH . '/inc/footer.php';
          `;
       }
 
-      function createGrandTotalsSection() {
-         return `
-         <div class="grand-totals-wrapper">
-            <div class="grand-totals-section" id="grand-totals-section">
-               <div class="grand-totals-header">
-                  <h5><i class="fa fa-receipt mr-2"></i>Order Summary</h5>
-               </div>
-               <div class="grand-totals-content">
-                  <div class="grand-totals-row">
-                     <div class="grand-totals-label">Subtotal:</div>
-                     <div class="grand-totals-amount">
-                        $<span class="grand-subtotal" id="grand-subtotal">0.00</span>
-                     </div>
-                  </div>
-                  <div class="grand-totals-row">
-                     <div class="grand-totals-label">Tax (<span id="tax-percentage">0</span>%):</div>
-                     <div class="grand-totals-amount">
-                        $<span class="grand-tax" id="grand-tax">0.00</span>
-                     </div>
-                  </div>
-                  <div class="grand-totals-row grand-total-final">
-                     <div class="grand-totals-label">Grand Total:</div>
-                     <div class="grand-totals-amount">
-                        $<span class="grand-total" id="grand-total">0.00</span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-         `;
-      }
-
       function loadFitoutProductContent($content, product, roomId) {
          const buttonText = `Add Item to ${product.team_name}`;
 
@@ -7172,7 +7134,7 @@ include PATH . '/inc/footer.php';
 
       // Function to setup material calculations
       function setupMaterialCalculations(productId, variantId, roomId, category, refLabel = '') {
-         const selector = refLabel ?
+         const selector = refLabel !== '' ?
             `[data-variant="${variantId}"][data-category="${category}"][data-ref-label="${refLabel}"]` :
             `[data-variant="${variantId}"][data-category="${category}"]`;
 
@@ -7180,8 +7142,6 @@ include PATH . '/inc/footer.php';
          $(document).on('input change', selector, function() {
             const $materialGroup = $(this).closest('.material-group, .material-inputs-compact');
             const $measurement = $materialGroup.find('.area-weight');
-            const $unitPrice = $materialGroup.find('.material-unit-price');
-            const $totalPrice = $materialGroup.find('.material-total-price');
 
             const measurement = parseFloat($measurement.val()) || 0;
             const unitPrice = parseFloat($unitPrice.val()) || 0;
@@ -7192,26 +7152,26 @@ include PATH . '/inc/footer.php';
             // Update variant status
             updateVariantStatus(productId, roomId, variantId, 'set', 'product');
          });
-
-         // Update unit price and image when material selection changes
-         $(document).on('change', `.material-type-select${selector}`, function() {
-            const $option = $(this).find('option:selected');
-            const unitPrice = $option.data('price') || 0;
-            const image = $option.data('image') || '';
-            const $materialGroup = $(this).closest('.material-group, .material-inputs-compact');
-            const $imageContainer = $materialGroup.find('.material-compact-image');
-
-            // Update image
-            if (image) {
-               $imageContainer.html(`<img src="<?= URL ?>/uploads/material-img/${image}" alt="${$option.text()}" style="width:100%;height:100%;object-fit:cover;">`);
-            } else {
-               $imageContainer.html('<i class="fa fa-image"></i>');
-            }
-
-            // Trigger calculation
-            $materialGroup.find('.area-weight').trigger('input');
-         });
       }
+
+      // Update unit price and image when material selection changes
+      $(document).on('change', `.material-type-select`, function() {
+         const $option = $(this).find('option:selected');
+         const unitPrice = $option.data('price') || 0;
+         const image = $option.data('image') || '';
+         const $materialGroup = $(this).closest('.material-group, .material-inputs-compact');
+         const $imageContainer = $materialGroup.find('.material-compact-image');
+
+         // Update image
+         if (image) {
+            $imageContainer.html(`<img src="<?= URL ?>/uploads/material/${image}" alt="${$option.text()}" style="width:100%;height:100%;object-fit:cover;">`);
+         } else {
+            $imageContainer.html('<i class="fa fa-image"></i>');
+         }
+
+         // Trigger calculation
+         $materialGroup.find('.area-weight').trigger('input');
+      });
 
       // function to create material section with existing data
       function createMaterialSection(product, variant, roomId) {
@@ -7556,20 +7516,6 @@ include PATH . '/inc/footer.php';
             const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
             const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
             const area = width * length;
-            const unitPrice = parseFloat($(`#product-${productId}-room${state.currentRoom} .unit-price`).val()) || 0;
-            const totalPrice = unitPrice * area;
-            $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
-         });
-      }
-
-      function setupPriceCalculations(productId) {
-         $(`#product-${productId}-room${state.currentRoom} .unit-price`).on('input', function() {
-            const unitPrice = parseFloat($(this).val()) || 0;
-            const width = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-width`).val()) || 0;
-            const length = parseFloat($(`#product-${productId}-room${state.currentRoom} .dimension-length`).val()) || 0;
-            const area = width * length;
-            const totalPrice = unitPrice * area;
-            $(`#product-${productId}-room${state.currentRoom} .total-price`).val(totalPrice.toFixed(2));
          });
       }
 
@@ -8786,11 +8732,6 @@ include PATH . '/inc/footer.php';
       // Close item advanced filter modal when clicking outside
       $('#itemAdvancedFilterModal').on('click', function(e) {
          if (e.target === this) hideItemAdvancedFilterModal();
-      });
-
-      // Initialize all modals when DOM is ready
-      $(document).ready(function() {
-         $('.room-wrapper').after(createGrandTotalsSection());
       });
 
       // initialization
