@@ -6921,7 +6921,6 @@ include PATH . '/inc/footer.php';
          $content.html($wrapper);
 
          setupDimensionCalculations(product.product_id);
-         setupPriceCalculations(product.product_id);
       }
 
       // Updated simple product content with materials
@@ -6981,7 +6980,6 @@ include PATH . '/inc/footer.php';
          $content.html($wrapper);
 
          setupDimensionCalculations(product.product_id);
-         setupPriceCalculations(product.product_id);
 
          // Setup material tabs after content is loaded
          setTimeout(() => {
@@ -7123,7 +7121,6 @@ include PATH . '/inc/footer.php';
          $content.html($wrapper);
 
          setupDimensionCalculations(product.product_id);
-         setupPriceCalculations(product.product_id);
 
          // Setup material tabs after content is loaded
          setTimeout(() => {
@@ -7155,23 +7152,32 @@ include PATH . '/inc/footer.php';
       }
 
       // Update unit price and image when material selection changes
-      $(document).on('change', `.material-type-select`, function() {
+      $(document).on('change', '.material-type-select', function() {
          const $option = $(this).find('option:selected');
-         const unitPrice = $option.data('price') || 0;
+         const unitPrice = parseFloat($option.data('price')) || 0;
          const image = $option.data('image') || '';
-         const $materialGroup = $(this).closest('.material-group, .material-inputs-compact');
-         const $imageContainer = $materialGroup.find('.material-compact-image');
+         const subcategory = $(this).data('subcategory') || '';
+
+         // Detect category prefix (e.g., 'pillow')
+         const cat = subcategory !== '' ? 'pillow' : '';
+
+         // Build proper class selectors with dot separation
+         const $materialGroup = $(this).closest(`.${cat}${cat ? '-' : ''}material-group, .${cat}${cat ? '-' : ''}material-inputs-compact`);
+         const $imageContainer = $materialGroup.find(`.${cat}${cat ? '-' : ''}material-compact-image`);
 
          // Update image
          if (image) {
-            $imageContainer.html(`<img src="<?= URL ?>/uploads/material/${image}" alt="${$option.text()}" style="width:100%;height:100%;object-fit:cover;">`);
+            $imageContainer.html(
+               `<img src="<?= URL ?>/uploads/material/${image}" alt="${$option.text()}" style="width:100%;height:100%;object-fit:cover;">`
+            );
          } else {
             $imageContainer.html('<i class="fa fa-image"></i>');
          }
 
-         // Trigger calculation
+         // Trigger calculation (if exists)
          $materialGroup.find('.area-weight').trigger('input');
       });
+
 
       // function to create material section with existing data
       function createMaterialSection(product, variant, roomId) {
