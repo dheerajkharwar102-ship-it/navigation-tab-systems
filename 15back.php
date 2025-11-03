@@ -99,10 +99,13 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
             foreach ($materials as $material) {
                 $alias_name_text = getAliasNameById($p, $material->alias_name, $material_type);
 
+                $get_material = getMaterialById($mt, $material->material);
+
                 $material_data = [
                     'id' => $material->prd_mt_id ?? $material->dtl_id,
                     'material_id' => $material->material,
-                    'material_name' => getMaterialNameById($mt, $material->material),
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
                     'alias_name' => $alias_name_text,
                     'alias_name_id' => $material->alias_name,
                     'material_ref_label' => $material->material_ref_label ?? 'A', // Default to 'A' if not set
@@ -171,18 +174,18 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
             ],
             'pillow_front' => [
                 'active' => [],
-                'all_materials' => getAllMaterialsByCategory($mt, 'fabric'),
-                'materialGroups' => []
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
             ],
             'pillow_back' => [
                 'active' => [],
-                'all_materials' => getAllMaterialsByCategory($mt, 'fabric'),
-                'materialGroups' => []
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
             ],
             'pillow_pipping' => [
                 'active' => [],
-                'all_materials' => getAllMaterialsByCategory($mt, 'fabric'),
-                'materialGroups' => []
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
             ]
         ];
 
@@ -206,6 +209,7 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
                 'id' => $pillow['id'],
                 'material_id' => $pillow['material_id'],
                 'material_name' => $pillow['material_name'],
+                'material_img' => $pillow['material_img'],
                 'alias_name' => $pillow['alias_name'],
                 'material_ref_label' => $ref_label,
                 'quantity' => $pillow['quantity'],
@@ -223,10 +227,12 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
 
             // Pillow front (face)
             if (!empty($pillow['pillow_face'])) {
+                $get_material = getMaterialById($mt, $pillow['pillow_face']);
                 $face_data = [
                     'id' => $pillow['id'] . '_face',
                     'material_id' => $pillow['pillow_face'],
-                    'material_name' => getMaterialNameById($mt, $pillow['pillow_face']),
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
                     'material_ref_label' => $ref_label,
                     'type' => 'face',
                     'parent_pillow_id' => $pillow['id']
@@ -237,10 +243,12 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
 
             // Pillow back
             if (!empty($pillow['pillow_back'])) {
+                $get_material = getMaterialById($mt, $pillow['pillow_back']);
                 $back_data = [
                     'id' => $pillow['id'] . '_back',
                     'material_id' => $pillow['pillow_back'],
-                    'material_name' => getMaterialNameById($mt, $pillow['pillow_back']),
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
                     'material_ref_label' => $ref_label,
                     'type' => 'back',
                     'parent_pillow_id' => $pillow['id']
@@ -251,10 +259,12 @@ function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
 
             // Pillow pipping
             if (!empty($pillow['pipping'])) {
+                $get_material = getMaterialById($mt, $pillow['pipping']);
                 $pipping_data = [
                     'id' => $pillow['id'] . '_pipping',
                     'material_id' => $pillow['pipping'],
-                    'material_name' => getMaterialNameById($mt, $pillow['pipping']),
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
                     'material_ref_label' => $ref_label,
                     'type' => 'pipping',
                     'parent_pillow_id' => $pillow['id']
@@ -292,10 +302,10 @@ function getAllMaterialsByCategory($mt, $category)
 }
 
 // Helper function to get material name by ID
-function getMaterialNameById($mt, $material_id)
+function getMaterialById($mt, $material_id)
 {
     $get_material = $mt->getMaterial($material_id);
-    return $get_material->material_name;
+    return $get_material;
 }
 
 // Helper function to get alias name by ID
