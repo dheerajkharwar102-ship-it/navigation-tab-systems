@@ -1,0 +1,2785 @@
+<?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
+if (!defined('inc_ajax_module_file')) {
+    die;
+}
+function get_itme_of($product)
+{
+    $available_in = $product->available_in; // No issues with this line
+    $avl_arr = ['set', 'size'];
+    if (isset($product->product_shapes)) {
+        $product_shapes = json_decode($product->product_shapes, true); // Decodes JSON as an associative array
+        if (count($product_shapes) > 1) {
+            // $item_type = $product_shapes;
+            $item_type = 'straight';
+        }
+    } else {
+        if (in_array($available_in, $avl_arr)) {
+            if ($product->group_item_count > 1) {
+                $item_type = $available_in;
+            } else {
+                $item_type = 'normal';
+            }
+        } else {
+            $item_type = 'normal';
+        }
+    }
+
+    return $item_type;
+}
+
+function has_variant($product)
+{
+    $p = new Product();
+    $get_variants = $p->getProducts('*', null, [['parent_set_id', '=', $product->product_id]]);
+    $get_bed_dims = 0;
+    if (!empty($product->product_bed_dims)) {
+        $bed_dims = json_decode($product->product_bed_dims, true);
+        if (is_array($bed_dims)) {
+            $get_bed_dims = count($bed_dims);
+        }
+    }
+    if (count($get_variants) > 0 || $get_bed_dims > 1) {
+        return true;
+    }
+    return false;
+}
+
+function getActiveMaterialsWithAllOptions($p, $mt, $product_id)
+{
+    $active_materials = [
+        'metal' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => [] // Group by material_ref_label
+        ],
+        'wood' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => []
+        ],
+        'marble' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => []
+        ],
+        'glass' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => []
+        ],
+        'fabric' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => []
+        ],
+        'pillow' => [
+            'active' => [],
+            'all_materials' => [],
+            'materialGroups' => []
+        ]
+    ];
+
+    $material_types = ['metal', 'wood', 'marble', 'glass', 'fabric', 'pillow'];
+
+    foreach ($material_types as $material_type) {
+        // Get ACTIVE materials for this product
+        $materials = get_default_combo_data($p, $material_type, $product_id);
+
+        // Get ALL available materials for this category
+        $all_materials = getAllMaterialsByCategory($mt, $material_type);
+
+        // Group materials by material_ref_label
+        $material_groups = [];
+
+        if (count($materials) > 0) {
+            foreach ($materials as $material) {
+                $alias_name_text = getAliasNameById($p, $material->alias_name, $material_type);
+
+                $get_material = getMaterialById($mt, $material->material);
+
+                $material_data = [
+                    'id' => $material->prd_mt_id ?? $material->dtl_id,
+                    'material_id' => $material->material,
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
+                    'material_price' => $get_material->material_price,
+                    'alias_name' => $alias_name_text,
+                    'alias_name_id' => $material->alias_name,
+                    'material_ref_label' => $material->material_ref_label ?? 'A', // Default to 'A' if not set
+                    'offline_image' => $material->offline_image,
+                    'pointer_image' => $material->pointer_image,
+                    'product_id' => $material->product_id,
+                    'dtl_id' => $material->dtl_id
+                ];
+
+                // Add type-specific fields (your existing code)
+                switch ($material_type) {
+                    case 'metal':
+                        $material_data['weight_kg'] = $material->length;
+                        $material_data['produced_in'] = $material->produced_in ?? '';
+                        break;
+                    case 'wood':
+                        $material_data['area_m2'] = $material->area;
+                        $material_data['finish_type'] = $material->finish_type;
+                        break;
+                    case 'marble':
+                        $material_data['area_m2'] = $material->area;
+                        break;
+                    case 'glass':
+                        $material_data['area_m2'] = $material->length;
+                        break;
+                    case 'fabric':
+                        $material_data['fabric_name'] = $material->fabric_name;
+                        $material_data['area_m2'] = $material->length;
+                        break;
+                    case 'pillow':
+                        $material_data['quantity'] = $material->quantity;
+                        $material_data['length_cm'] = $material->length;
+                        $material_data['width_cm'] = $material->width;
+                        $material_data['notes'] = $material->notes;
+                        $material_data['pillow_face'] = $material->pillow_face;
+                        $material_data['pillow_back'] = $material->pillow_back;
+                        $material_data['pipping'] = $material->pipping;
+                        break;
+                }
+
+                $active_materials[$material_type]['active'][] = $material_data;
+
+                // Group by material_ref_label
+                $ref_label = $material->material_ref_label ?? 'A';
+                if (!isset($material_groups[$ref_label])) {
+                    $material_groups[$ref_label] = [];
+                }
+                $material_groups[$ref_label][] = $material_data;
+            }
+        }
+
+        // Store all available materials for this category
+        $active_materials[$material_type]['all_materials'] = $all_materials;
+
+        // Store grouped materials
+        $active_materials[$material_type]['materialGroups'] = $material_groups;
+    }
+
+    if (!empty($active_materials['pillow']['active'])) {
+        $pillow_materials_all = getAllMaterialsByCategory($mt, 'fabric');
+        $pillow_data = [
+            'default_pillow' => [
+                'active' => [],
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
+            ],
+            'pillow_front' => [
+                'active' => [],
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
+            ],
+            'pillow_back' => [
+                'active' => [],
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
+            ],
+            'pillow_pipping' => [
+                'active' => [],
+                'all_materials' => $pillow_materials_all,
+                'materialGroups' => $active_materials['pillow']['materialGroups']
+            ]
+        ];
+
+        // Process pillow materials and group them by material_ref_label
+        $pillow_groups = [];
+
+        foreach ($active_materials['pillow']['active'] as $pillow) {
+            $ref_label = $pillow['material_ref_label'] ?? 'A';
+
+            if (!isset($pillow_groups[$ref_label])) {
+                $pillow_groups[$ref_label] = [
+                    'default_pillow' => [],
+                    'pillow_front' => [],
+                    'pillow_back' => [],
+                    'pillow_pipping' => []
+                ];
+            }
+
+            // Default pillow data
+            $default_pillow_data = [
+                'id' => $pillow['id'],
+                'material_id' => $pillow['material_id'],
+                'material_name' => $pillow['material_name'],
+                'material_img' => $pillow['material_img'],
+                'alias_name' => $pillow['alias_name'],
+                'material_ref_label' => $ref_label,
+                'quantity' => $pillow['quantity'],
+                'dimensions' => [
+                    'length' => $pillow['length_cm'],
+                    'width' => $pillow['width_cm']
+                ],
+                'notes' => $pillow['notes'],
+                'offline_image' => $pillow['offline_image'],
+                'pointer_image' => $pillow['pointer_image']
+            ];
+
+            $pillow_groups[$ref_label]['default_pillow'][] = $default_pillow_data;
+            $pillow_data['default_pillow']['active'][] = $default_pillow_data;
+
+            // Pillow front (face)
+            if (!empty($pillow['pillow_face'])) {
+                $get_material = getMaterialById($mt, $pillow['pillow_face']);
+                $face_data = [
+                    'id' => $pillow['id'] . '_face',
+                    'material_id' => $pillow['pillow_face'],
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
+                    'material_price' => $get_material->material_price,
+                    'material_ref_label' => $ref_label,
+                    'type' => 'face',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+                $pillow_groups[$ref_label]['pillow_front'][] = $face_data;
+                $pillow_data['pillow_front']['active'][] = $face_data;
+            }
+
+            // Pillow back
+            if (!empty($pillow['pillow_back'])) {
+                $get_material = getMaterialById($mt, $pillow['pillow_back']);
+                $back_data = [
+                    'id' => $pillow['id'] . '_back',
+                    'material_id' => $pillow['pillow_back'],
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
+                    'material_price' => $get_material->material_price,
+                    'material_ref_label' => $ref_label,
+                    'type' => 'back',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+                $pillow_groups[$ref_label]['pillow_back'][] = $back_data;
+                $pillow_data['pillow_back']['active'][] = $back_data;
+            }
+
+            // Pillow pipping
+            if (!empty($pillow['pipping'])) {
+                $get_material = getMaterialById($mt, $pillow['pipping']);
+                $pipping_data = [
+                    'id' => $pillow['id'] . '_pipping',
+                    'material_id' => $pillow['pipping'],
+                    'material_name' => $get_material->material_name,
+                    'material_img' => $get_material->material_img,
+                    'material_price' => $get_material->material_price,
+                    'material_ref_label' => $ref_label,
+                    'type' => 'pipping',
+                    'parent_pillow_id' => $pillow['id']
+                ];
+                $pillow_groups[$ref_label]['pillow_pipping'][] = $pipping_data;
+                $pillow_data['pillow_pipping']['active'][] = $pipping_data;
+            }
+        }
+
+        // Store the grouped pillow data
+        $pillow_data['materialGroups'] = $pillow_groups;
+        $active_materials['pillow'] = $pillow_data;
+    }
+
+    // Remove empty categories
+    foreach ($active_materials as $category => $data) {
+        if (empty($data['active']) && empty($data['materialGroups'])) {
+            unset($active_materials[$category]);
+        }
+    }
+
+    return $active_materials;
+}
+
+// Helper function to get all materials by category
+function getAllMaterialsByCategory($mt, $category)
+{
+    $where = [
+        ['material_category', '=', $category],
+        ['material_status', '=', 1]
+    ];
+    $materials = $mt->getMaterials('*', null, $where);
+
+    return $materials;
+}
+
+// Helper function to get material name by ID
+function getMaterialById($mt, $material_id)
+{
+    $get_material = $mt->getMaterial($material_id);
+    return $get_material;
+}
+
+// Helper function to get alias name by ID
+function getAliasNameById($p, $alias_id, $material_type)
+{
+    if (!$alias_id) return '';
+
+    // Determine the filter based on material type
+    $filter = ($material_type === 'fabric') ? [['id', '!=', 11]] : [['id', '=', 11]];
+
+    $fabric_names = $p->getProductFabricAliasNames('*', null, $filter);
+
+    if (count($fabric_names) > 0) {
+        foreach ($fabric_names as $fabric_name) {
+            if ($fabric_name->id == $alias_id) {
+                return $fabric_name->fabric_name;
+            }
+        }
+    }
+
+    return '';
+}
+
+if (isset($_POST['get_main_categories'])) {
+    $p = new Product();
+    $pa = new ProductAttribute();
+
+    $get_menus = $pa->getWebMenus('*', null, [['deleted', '=', 0]]);
+
+    foreach ($get_menus as $menu) {
+        $where = [];
+        $where[] = ['online_category', '=', $menu->id];
+        $where[] = ['attr_status', '=', '1'];
+        $get_attrs = $pa->getProductAttributes('*', ['attr_name', 'ASC'], $where);
+        $attr_names = '';
+        $product_names = '';
+        foreach ($get_attrs as $attr) {
+            $attr_names .= $attr->attr_name . '-';
+            $where = [];
+            $where[] = ['product_status', '=', '1'];
+            $where[] = ['attr_id', '=', $attr->attr_id];
+
+            $get_products = $p->getProducts('team_name,product_code', null, $where);
+            foreach ($get_products as $product) {
+                $product_names .= $product->team_name . '-';
+                $product_names .= $product->product_code . '-';
+            }
+        }
+        $menu->attr_names = $attr_names;
+        $menu->product_names = $product_names;
+    }
+
+    echo json_response('success', 'OK', $get_menus);
+    die;
+}
+
+if (isset($_POST['get_qualifications'])) {
+
+    $user = new User();
+    $logged = $user->getLogged('user_id,user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'user', 'sales', 'quality', 'purchasing'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $main_category = clear_input(p('web_menu_id'));
+    if ($main_category == '' || !is_numeric($main_category)) {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $where = [];
+    $where[] = ['online_category', '=', $main_category];
+    $where[] = ['attr_status', '=', '1'];
+    $get_attrs = $pa->getProductAttributesUnique('*', ['attr_name', 'ASC'], $where, null, true);
+
+    foreach ($get_attrs as $attr) {
+        $attr_ids = $attr->attr_ids;
+        $product_names = '';
+        $where = [];
+        $where[] = ['product_status', '=', '1'];
+        $in = [['attr_id', explode('_', $attr_ids)]];
+
+        $get_products = $p->getProducts('team_name,product_code', null, $where, null, null, $in);
+        
+        foreach ($get_products as $product) {
+            $product_names .= $product->team_name . '-';
+            $product_names .= $product->product_code . '-';
+        }
+        $attr->product_names = $product_names;
+    }
+
+    echo json_response('success', 'OK', $get_attrs);
+    die;
+}
+
+if (isset($_POST['get_brands'])) {
+    $cat = new Catalog();
+    $where = [];
+    $where[] = ['catalog_status', '=', '1'];
+    $get_catalogs = $cat->getCatalogs('*', $where);
+
+    echo json_response('success', 'OK', $get_catalogs);
+    die;
+}
+
+if (isset($_POST['get_product_styles'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_id,user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'user', 'sales', 'quality', 'purchasing'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $p = new Product();
+
+    $get_styles = $p->getProductStyleTypes();
+
+    echo json_response('success', 'OK', $get_styles);
+    die;
+}
+
+if (isset($_POST['get_curtain_accessories'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_id,user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'user', 'sales', 'quality', 'purchasing'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $acc = new Accessory();
+    $pa = new ProductAttribute();
+
+
+    $accessory_type = clear_input(p('accessory_type'));
+    $attr_id = clear_input(p('attr_id'));
+
+    $where = [];
+    $where[] = ['crm_status', '=', '1'];
+    $where[] = ['deleted', '=', '0'];
+    $where[] = ['accessory_type', '=', $accessory_type];
+
+    $get_accessories = $acc->getAccessories('*', ['accessory_id', 'DESC'], $where);
+
+    echo json_response('success', 'OK', $get_accessories);
+    die;
+}
+
+
+if (isset($_POST['get_product'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $mt = new Material();
+    // $o = new Order();
+    // $ctl = new Catalog();
+    // $branch = new Branch();
+
+    $product_id = clear_input(p('product_id'));
+    if ($product_id == '') {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+
+    $product = $p->getProduct($product_id);
+    $product_name_text = '';
+    if ($product->team_name == '') {
+        $product_name_text = $product->product_code;
+    } else {
+        $product_name_text = $product->team_name . ' - ' . $product->product_code;
+    }
+    $product->product_name = $product_name_text;
+
+    if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+        $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+        $product_path = PATH . '/uploads/' . $product->product_img;
+
+        if (file_exists($thumbnail_path) && file_exists($product_path)) {
+            $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+        } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+            $image_link = 'img-error';
+        } else {
+            generate_image_in_webp($product);
+            $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+            $image_link = URL . '/uploads/product-img/' . $check_file_name;
+        }
+    } else {
+        if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+            generate_image_in_webp($product);
+            $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+            $image_link = URL . '/uploads/product-img/' . $check_file_name;
+        } else {
+            $image_link = 'img-error';
+        }
+    }
+    $product->product_img = $image_link;
+    $product->has_variant = has_variant($product);
+
+    $get_attr = $pa->getProductAttribute($product->attr_id);
+    $product->type = $get_attr->attr_type;
+    $product->calculate_type = $get_attr->calculate_type;
+
+    $dims = [];
+    if (!empty($product->product_dims_data)) {
+        $decoded = json_decode($product->product_dims_data, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            $dims = $decoded;
+        }
+    }
+
+    $product->dims = !empty($dims) && isset($dims[0]) ? $dims[0] : [];
+
+
+    $active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
+    $product->active_materials = $active_materials; // Actual material data
+
+    echo json_response('success', 'OK', $product);
+    die;
+}
+if (isset($_POST['get_product_variants'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $mt = new Material();
+    // $o = new Order();
+    // $ctl = new Catalog();
+    // $branch = new Branch();
+
+    $product_id = clear_input(p('product_id'));
+    $available_in = clear_input(p('available_in'));
+    if ($product_id == '') {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+    $where = [];
+    if (isset($_POST['available_in']) && $_POST['available_in'] == 'size') {
+        $where[] = ['product_id', '=', $product_id];
+    } else {
+        $where[] = ['parent_set_id', '=', $product_id];
+    }
+
+    $products = $p->getProducts('*', null, $where);
+
+    foreach ($products as $product) {
+        $product_name_text = '';
+        if ($product->team_name == '') {
+            $product_name_text = $product->product_code;
+        } else {
+            $product_name_text = $product->team_name . ' - ' . $product->product_code;
+        }
+        $product->product_name = $product_name_text;
+
+        if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+            $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+            $product_path = PATH . '/uploads/' . $product->product_img;
+
+            if (file_exists($thumbnail_path) && file_exists($product_path)) {
+                $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+            } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+                $image_link = 'img-error';
+            } else {
+                generate_image_in_webp($product);
+                $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                $image_link = URL . '/uploads/product-img/' . $check_file_name;
+            }
+        } else {
+            if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+                generate_image_in_webp($product);
+                $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                $image_link = URL . '/uploads/product-img/' . $check_file_name;
+            } else {
+                $image_link = 'img-error';
+            }
+        }
+        $product->product_img = $image_link;
+        $product->has_variant = has_variant($product);
+
+        $get_attr = $pa->getProductAttribute($product->attr_id);
+        $product->type = $get_attr->attr_type;
+        $product->calculate_type = $get_attr->calculate_type;
+
+        $dims = [];
+        if (!empty($product->product_dims_data)) {
+            $decoded = json_decode($product->product_dims_data, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $dims = $decoded;
+            }
+        }
+
+        $product->dims = !empty($dims) && isset($dims[0]) ? $dims[0] : [];
+
+
+        $active_materials = getActiveMaterialsWithAllOptions($p, $mt, $product_id);
+        $product->active_materials = $active_materials; // Actual material data
+    }
+
+    echo json_response('success', 'OK', $products);
+    die;
+}
+if (isset($_POST['get_products'])) {
+    $user = new User();
+    $logged = $user->getLogged('user_auth');
+    $logged_auth = $logged->user_auth;
+    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+    if (!in_array($logged_auth, $page_auth)) {
+        echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+        die;
+    }
+
+    $attr_ids = clear_input(p('qualification_ids')); // present every time
+    $is_fitout = $_POST['is_fitout_items'] ?? 0;
+    $product_cat = clear_input(p('product_cat') ?? ''); // not available when open first time
+    $search_text = html_ent(p('search_text'));
+    $product_style = p('product_styles') ?? [];
+    if (!is_array($product_style)) {
+        $product_style = [$product_style]; // force into array if single value comes
+    }
+
+    $pa = new ProductAttribute();
+    $p = new Product();
+    $o = new Order();
+    $ctl = new Catalog();
+    $branch = new Branch();
+
+    $get_catalogs = $ctl->getCatalogs();
+    $ctl_arr = [];
+    foreach ($get_catalogs as $catalog) {
+        $ctl_arr[$catalog->catalog_id] = $catalog->catalog_name;
+    }
+
+    $item_size = clear_input(p('item_size'));
+    $current_count = clear_input(p('current_count'));
+
+    if ($item_size > 0) {
+        $limit = [$current_count, $item_size];
+    } else {
+        $limit = [0, 20];
+    }
+
+    $where_load_prd = null;
+
+    $where_load_prd = [
+        ['product_status', '=', '1'],
+        ['parent_set_id', '=', '0']
+    ];
+
+    if (!empty($product_cat)) {
+        $where_load_prd[] = ['product_supplier', '=', $product_cat];
+    }
+    if ($is_fitout == 1) {
+        $where_load_prd[] = ['is_fitout', '=', $is_fitout];
+    }
+    if (!empty($search_text)) {
+        $where_load_prd[] = ['product_code', 'LIKE', '%' . $search_text . '%'];
+    }
+
+    $product_in_clause = [];
+
+    // Add first IN clause
+    if (!empty($product_style)) {
+        $product_in_clause[] = ['product_style_type', $product_style];
+    }
+
+    // Add second IN clause
+    if (!empty($attr_ids)) {
+        $product_in_clause[] = ['attr_id', explode('_', $attr_ids)];
+    }
+
+    $return_data = [];
+    $products = $p->getProducts(
+        '*',
+        ['product_id', 'DESC'],
+        $where_load_prd,
+        $limit,
+        null,
+        $product_in_clause
+    );
+
+    if (!empty($products)) {
+        foreach ($products as $product) {
+            $product_name_text = '';
+            if ($product->team_name == '') {
+                $product_name_text = $product->product_code;
+            } else {
+                $product_name_text = $product->team_name . ' - ' . $product->product_code;
+            }
+
+            // Check if the headers indicate that the file exists
+            $url = URL . '/uploads/' . $product->product_img;
+            $headers = @get_headers($url);
+            if ($headers && strpos($headers[0], '200') == false) {
+                $p->deleteProduct($product->product_id);
+            }
+
+            //echo '<pre>',var_dump($product_shapes),'</pre>';
+            $available_in = $product->available_in; // No issues with this line
+            $avl_arr = ['set', 'size'];
+            if (isset($product->product_shapes)) {
+                $product_shapes = json_decode($product->product_shapes, true); // Decodes JSON as an associative array
+                if (count($product_shapes) > 1) {
+                    $item_type = $product_shapes[0];
+                }
+            } else {
+                if (in_array($available_in, $avl_arr)) {
+                    if ($product->group_item_count > 1) {
+                        $item_type = $available_in;
+                    } else {
+                        $item_type = 'normal';
+                    }
+                } else {
+                    $item_type = 'normal';
+                }
+            }
+
+            $item_of = get_itme_of($product);
+            $where_stock = [
+                // ['p.attr_id', '=', $attr_id],
+                ['p.product_status', '=', '1']
+            ];
+
+            if (!empty($product_cat)) {
+                $where_stock[] = ['p.product_supplier', '=', $product_cat];
+            }
+            $stock_product = $o->getOrdersStockItem('p.*, od.product_qty, o.branch_id, o.order_id, od.stock_branch, od.id,od.stock_qty, od.stock_image', null, $where_stock, [['p.product_id', '=', $product->product_id], ['p.parent_set_id', '=', $product->product_id]]);
+            // echo '<pre>',var_dump($stock_product),'</pre>';
+            if (count($stock_product) > 0) {
+                // $product = $stock_product[0];
+                if ($item_of != 'normal') {
+                    $item_of = 'stock_item';
+                    $item_type = 'stock_set';
+                } else {
+                    $item_of = 'stock_item';
+                    $item_type = $item_of;
+                }
+            }
+
+
+            $get_prd_com_mat = $p->getProductCombinationFullData($product->product_id);
+            // echo '<pre>',var_dump($get_prd_com_mat),'</pre>';
+            if (isset($get_prd_com_mat) && count($get_prd_com_mat) > 1) {
+                if ($item_type == 'stock_item') {
+                    $item_of = 'material_combination';
+                    $item_type = 'stock_combination';
+                } else if ($item_type == 'stock_set') {
+                    $item_of = 'material_combination';
+                    $item_type = 'set_stock_combination';
+                } else if ($item_type == 'set') {
+                    $item_of = 'material_combination';
+                    $item_type = 'set_combination';
+                } else {
+                    $item_of = 'material_combination';
+                    $item_type = 'combination';
+                }
+            }
+
+            $item_type_plan = '';
+            $item_of_plan = '';
+            if ($logged_auth == 'admin' || $logged_auth == 'sales') {
+                $get_prd_plan_100 = $o->getOrdersItemPlan100('*', null, [['p.product_id', '=', $product->product_id], ['p.product_status', '=', '1']], null, [0, 2]);
+                if (count($get_prd_plan_100) > 0) {
+                    $item_of_plan = 'plan_item';
+                    $item_type_plan = 'plan';
+                }
+            }
+
+            if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+                $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+                $product_path = PATH . '/uploads/' . $product->product_img;
+
+                if (file_exists($thumbnail_path) && file_exists($product_path)) {
+                    $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+                } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+                    $image_link = 'img-error';
+                } else {
+                    generate_image_in_webp($product);
+                    $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                    $image_link = URL . '/uploads/product-img/' . $check_file_name;
+                }
+            } else {
+                if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+                    generate_image_in_webp($product);
+                    $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+                    $image_link = URL . '/uploads/product-img/' . $check_file_name;
+                } else {
+                    $image_link = 'img-error';
+                }
+            }
+
+            $standart_price = 0;
+
+            if (!empty($product->product_dims_data)) {
+                $dims = json_decode($product->product_dims_data, true);
+                if (!empty($dims) && isset($dims[0]['standart_price']) && is_numeric($dims[0]['standart_price'])) {
+                    $standart_price = (float)$dims[0]['standart_price'];
+                }
+            } elseif (!empty($product->product_bed_dims)) {
+                $bed_dims = json_decode($product->product_bed_dims, true);
+                if (is_array($bed_dims)) {
+                    $prices = array_column($bed_dims, 'standart_price');
+                    $prices = array_filter($prices, 'is_numeric');
+                    if (!empty($prices)) $standart_price = min($prices);
+                }
+            }
+
+            $get_attr = $pa->getProductAttribute($product->attr_id);
+            $type = $get_attr->attr_type;
+
+            $has_variant = has_variant($product);
+
+            $product_array = [
+                'product_id' => $product->product_id,
+                'attr_id' => $product->attr_id,
+                'product_code' => $product->product_code,
+                'product_name' => $product_name_text,
+                'type' => $type,
+                'available_in' => $product->available_in,
+                'has_variant' => $has_variant,
+                'product_style_type' => $product->product_style_type,
+                'item_type' => $item_type,
+                'item_of' => $item_of,
+                'item_type_plan' => $item_type_plan,
+                'item_of_plan' => $item_of_plan,
+                'other_data' => [],
+                'product_img' => $image_link,
+                'is_curtain' => $is_curtain,
+                'catalog_id' => $product->product_supplier,
+                'catalog_name' => $ctl_arr[$product->product_supplier],
+                'standart_price' => $standart_price,
+                'product_add_date' => $product_add_date
+            ];
+
+            $return_data[] = $product_array;
+        }
+    }
+
+    echo json_response('success', 'OK', $return_data);
+    die;
+}
+
+// if (isset($_POST['get_products'])) {
+//     $user = new User();
+//     $logged = $user->getLogged('user_auth');
+//     $logged_auth = $logged->user_auth;
+//     $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'purchasing', 'encounter'];
+//     if (!in_array($logged_auth, $page_auth)) {
+//         echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+//         die;
+//     }
+
+//     $attr_id = clear_input(p('attr_id')); // present every time
+//     $is_fitout = $_POST['is_fitout'] ?? '2';
+//     $product_cat = clear_input(p('product_cat') ?? ''); // not available when open first time
+//     $search_text = html_ent(p('search_text'));
+//     // $product_style = html_ent(p('product_style') ?? ''); // not available when open first time
+//     $product_style = p('product_styles') ?? [];
+//     if (!is_array($product_style)) {
+//         $product_style = [$product_style]; // force into array if single value comes
+//     }
+
+//     if ($attr_id == '' || !is_numeric($attr_id)) {
+//         echo json_response('error', get_lang_text('ajax_invalid_request'));
+//         die;
+//     }
+
+//     $pa = new ProductAttribute();
+//     $p = new Product();
+//     $o = new Order();
+//     $ctl = new Catalog();
+//     $branch = new Branch();
+
+
+//     if (!$pa->checkProductAttributeById($attr_id)) {
+//         echo json_response('error', get_lang_text('ajax_invalid_request'));
+//         die;
+//     }
+
+//     $is_curtain = 0;
+//     $attarNameData = $o->getProductAttrName("*", null, [['attr_id', '=', $attr_id]]);
+//     if (stripos(strtolower($attarNameData[0]->attr_name), 'curtain') !== false) {
+//         $is_curtain = 1;
+//     }
+
+//     $item_size = clear_input(p('item_size'));
+//     $current_count = clear_input(p('current_count'));
+
+//     if ($item_size > 0) {
+//         $limit = [$current_count, $item_size];
+//     } else {
+//         $limit = null;
+//     }
+
+//     $where_load_prd = null;
+
+//     $where_load_prd = [
+//         ['attr_id', '=', $attr_id],
+//         ['product_status', '=', '1'],
+//         ['parent_set_id', '=', '0']
+//     ];
+
+//     if (!empty($product_cat)) {
+//         $where_load_prd[] = ['product_supplier', '=', $product_cat];
+//     }
+//     if ($is_fitout != '2') {
+//         $where_load_prd[] = ['is_fitout', '=', $is_fitout];
+//     }
+//     if (!empty($search_text)) {
+//         $where_load_prd[] = ['product_code', 'LIKE', '%' . $search_text . '%'];
+//     }
+
+//     $product_in_clause = null;
+//     if (!empty($product_style)) {
+//         $product_in_clause = ['product_style_type', $product_style];
+//     }
+
+//     $return_data = [];
+//     $products = $p->getProducts(
+//         'product_add_date,product_id,product_supplier,product_code,team_name,product_img, group_item_count, thumbnail_img, product_size_of, product_set_of, product_shapes, available_in, product_dims_data, product_bed_dims',
+//         null,
+//         $where_load_prd,
+//         $limit,
+//         null,
+//         $product_in_clause
+//     );
+
+//     // Extract price for each product
+//     foreach ($products as &$prd) {
+//         $standart_price_temp = 0;
+
+//         if (!empty($prd->product_dims_data)) {
+//             $dims = json_decode($prd->product_dims_data, true);
+//             if (!empty($dims) && isset($dims[0]['standart_price']) && is_numeric($dims[0]['standart_price'])) {
+//                 $standart_price_temp = (float)$dims[0]['standart_price'];
+//             }
+//         } elseif (!empty($prd->product_bed_dims)) {
+//             $bed_dims = json_decode($prd->product_bed_dims, true);
+//             if (is_array($bed_dims)) {
+//                 $prices = array_column($bed_dims, 'standart_price');
+//                 $prices = array_filter($prices, 'is_numeric');
+//                 if (!empty($prices)) $standart_price_temp = min($prices);
+//             }
+//         }
+
+//         $prd->standart_price_temp = $standart_price_temp;
+//     }
+//     unset($prd);
+
+//     // Determine sort option
+//     $sort_order = html_ent(p('sort_order')); // 'newest', 'oldest', or not set
+//     $sort_price = html_ent(p('sort_price')); // 'high_to_low', 'low_to_high', or not set
+//     $sort_price1 = html_ent(p('sort_price1'));
+//     $sort_price2 = html_ent(p('sort_price2'));
+
+//     usort($products, function ($a, $b) use ($sort_order, $sort_price) {
+//         // Newest first
+//         if ($sort_order === 'newest') {
+//             return strtotime($b->product_add_date) <=> strtotime($a->product_add_date);
+//         }
+
+//         // Oldest first
+//         if ($sort_order === 'oldest') {
+//             return strtotime($a->product_add_date) <=> strtotime($b->product_add_date);
+//         }
+
+//         // Price sorting (combine into one return)
+//         $aPrice = $a->standart_price_temp ?? 0;
+//         $bPrice = $b->standart_price_temp ?? 0;
+//         return ($sort_price === 'high_to_low') ? ($bPrice <=> $aPrice) : ($aPrice <=> $bPrice);
+//     });
+
+//     if (!empty($products)) {
+//         foreach ($products as $product) {
+//             $product_name_text = '';
+//             if ($product->team_name == '') {
+//                 $product_name_text = $product->product_code;
+//             } else {
+//                 $product_name_text = $product->team_name . ' - ' . $product->product_code;
+//             }
+
+//             // Check if the headers indicate that the file exists
+//             $url = URL . '/uploads/' . $product->product_img;
+//             $headers = @get_headers($url);
+//             if ($headers && strpos($headers[0], '200') == false) {
+//                 $p->deleteProduct($product->product_id);
+//             }
+
+//             $product_shapes = json_decode($product->product_shapes, true); // Decodes JSON as an associative array
+//             //echo '<pre>',var_dump($product_shapes),'</pre>';
+//             $available_in = $product->available_in; // No issues with this line
+//             $avl_arr = ['set', 'size'];
+//             if (isset($product->product_shapes) && count($product_shapes) > 1) {
+//                 $item_type = $product_shapes[0];
+//             } else {
+//                 if (in_array($available_in, $avl_arr)) {
+//                     if ($product->group_item_count > 1) {
+//                         $item_type = $available_in;
+//                     } else {
+//                         $item_type = 'normal';
+//                     }
+//                 } else {
+//                     $item_type = 'normal';
+//                 }
+//             }
+
+//             $item_of = get_itme_of($product);
+//             // $stock_product = $o->getOrdersStockItem('p.*,od.product_qty,o.branch_id,o.order_id, od.id,od.stock_qty', null, [['od.product_id', '=', $product->product_id]]);
+//             // $where_stock = [['p.attr_id', '=', $attr_id], ['p.product_supplier', '=', $product_cat], ['p.product_status', '=', '1']];
+//             $where_stock = [
+//                 ['p.attr_id', '=', $attr_id],
+//                 ['p.product_status', '=', '1']
+//             ];
+
+//             if (!empty($product_cat)) {
+//                 $where_stock[] = ['p.product_supplier', '=', $product_cat];
+//             }
+//             $stock_product = $o->getOrdersStockItem('p.*, od.product_qty, o.branch_id, o.order_id, od.stock_branch, od.id,od.stock_qty, od.stock_image', null, $where_stock, [['p.product_id', '=', $product->product_id], ['p.parent_set_id', '=', $product->product_id]]);
+//             // echo '<pre>',var_dump($stock_product),'</pre>';
+//             if (count($stock_product) > 0) {
+//                 // $product = $stock_product[0];
+//                 if ($item_of != 'normal') {
+//                     $item_of = 'stock_item';
+//                     $item_type = 'stock_set';
+//                 } else {
+//                     $item_of = 'stock_item';
+//                     $item_type = $item_of;
+//                 }
+//             }
+
+
+//             $get_prd_com_mat = $p->getProductCombinationFullData($product->product_id);
+//             // echo '<pre>',var_dump($get_prd_com_mat),'</pre>';
+//             if (count($get_prd_com_mat) > 1) {
+//                 if ($item_type == 'stock_item') {
+//                     $item_of = 'material_combination';
+//                     $item_type = 'stock_combination';
+//                 } else if ($item_type == 'stock_set') {
+//                     $item_of = 'material_combination';
+//                     $item_type = 'set_stock_combination';
+//                 } else if ($item_type == 'set') {
+//                     $item_of = 'material_combination';
+//                     $item_type = 'set_combination';
+//                 } else {
+//                     $item_of = 'material_combination';
+//                     $item_type = 'combination';
+//                 }
+//             }
+
+//             $item_type_plan = '';
+//             $item_of_plan = '';
+//             if ($logged_auth == 'admin' || $logged_auth == 'sales') {
+//                 $get_prd_plan_100 = $o->getOrdersItemPlan100('*', null, [['p.product_id', '=', $product->product_id], ['p.product_status', '=', '1']], null, [0, 2]);
+//                 if (count($get_prd_plan_100) > 0) {
+//                     $item_of_plan = 'plan_item';
+//                     $item_type_plan = 'plan';
+//                 }
+//             }
+
+//             if (!empty($product->thumbnail_img) && !empty($product->product_img)) {
+//                 $thumbnail_path = PATH . '/uploads/product-img/' . $product->thumbnail_img;
+//                 $product_path = PATH . '/uploads/' . $product->product_img;
+
+//                 if (file_exists($thumbnail_path) && file_exists($product_path)) {
+//                     $image_link = URL . '/uploads/product-img/' . $product->thumbnail_img;
+//                 } else if (!file_exists($thumbnail_path) && !file_exists($product_path)) {
+//                     $image_link = 'img-error';
+//                 } else {
+//                     generate_image_in_webp($product);
+//                     $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+//                     $image_link = URL . '/uploads/product-img/' . $check_file_name;
+//                 }
+//             } else {
+//                 if (empty($product->thumbnail_img) && file_exists(PATH . '/uploads/' . $product->product_img)) {
+//                     generate_image_in_webp($product);
+//                     $check_file_name = preg_replace('/\.\w+$/', '.webp', $product->product_img);
+//                     $image_link = URL . '/uploads/product-img/' . $check_file_name;
+//                 } else {
+//                     $image_link = 'img-error';
+//                 }
+//             }
+
+//             $product_array = [
+//                 'product_id' => $product->product_id,
+//                 'product_name' => $product_name_text,
+//                 'item_type' => $item_type,
+//                 'item_of' => $item_of,
+//                 'item_type_plan' =>  $item_type_plan,
+//                 'item_of_plan' => $item_of_plan,
+//                 'other_data' => [],
+//                 'product_img' => $image_link,
+//                 'is_curtain' => $is_curtain,
+//                 'catalog_id' => $product->product_supplier,
+//             ];
+
+//             $return_data[] = $product_array;
+//         }
+//     }
+
+//     echo json_response('success', 'OK', $return_data);
+//     die;
+// }
+
+// if (isset('get_curtain_accessories')) {
+//     $user = new User();
+//     $logged = $user->getLogged('user_id,user_auth');
+//     $logged_auth = $logged->user_auth;
+//     $page_auth = ['admin', 'manager', 'user', 'sales', 'quality', 'purchasing'];
+//     if (!in_array($logged_auth, $page_auth)) {
+//         echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+//         die;
+//     }
+
+//     $a = new Accessory();
+
+//     $type = clear_input(p('type'));
+//     $where = [];
+//     if (!empty($type)) {
+//         $where[] = ['accessory_type', '=', $type];
+//     }
+//     $where[] = ['deleted', '=', 0];
+
+//     $getCurtainAccessories = $a->getAccessories("*", null, $where);
+
+//     echo json_response('success', 'OK', $getCurtainAccessories);
+//     die;
+// }
+
+// if (isset($_POST['upload_room_image'])) {
+//    $o = new Order();
+
+//    $order_id = $_POST['order_id'];
+//    $room_index = $_POST['room_index'];
+
+//    $file = $_FILES['order_product_room_img'];
+
+//    if ($file['error'] !== UPLOAD_ERR_OK) {
+//       echo json_response('error', 'File upload error: ' . $file['error']);
+//       die;
+//    }
+
+//    $allowed_ext = getAllowedImageTypes('ext');
+//    $allowed_mimes = getAllowedImageTypes('mime');
+
+//    $ext_explode = explode('.', $file['name']);
+//    $uzanti = strtolower(array_pop($ext_explode));
+//    $mime = mime_content_type($file['tmp_name']);
+
+//    if (!in_array($uzanti, $allowed_ext) || !in_array($mime, $allowed_mimes)) {
+//       echo json_response('error', get_lang_text('ajax_img_type_error'));
+//       die;
+//    }
+
+//    $max_filesize_byte = MAX_IMG_SIZE * 1024 * 1024; // Convert MB to bytes
+//    if ($file['size'] > $max_filesize_byte) {
+//       echo json_response('error', get_lang_text('max_img_size', ['max_img_size' => MAX_IMG_SIZE]));
+//       die;
+//    }
+
+//    $now = date('YmdHis') . microtime() . rand(0, 999);
+//    $new_image_name = md5($file['name'] . $now) . sha1($file['name'] . $now) . rand(1, 999) . '.jpg';
+//    $upload_path = PATH . '/uploads/order-room/' . $new_image_name;
+
+//    if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
+//       echo json_response('error', 'Failed to move uploaded file');
+//       die;
+//    }
+
+//    $detailData = [
+//       'product_room_img' => $new_image_name // Store the file name (or full path if needed)
+//    ];
+
+//    try {
+//       $update_order_details = $o->updateOrderDetailsRoomImg($detailData, $room_index, $order_id);
+//       if ($update_order_details) {
+//          echo json_response('success', 'Update is successful');
+//          die;
+//       } else {
+//          error_log('Update failed for Order ID: ' . $order_id . ', Room Index: ' . $room_index);
+//          echo json_response('error', 'Update failed: Check database or conditions');
+//          die;
+//       }
+//    } catch (Exception $e) {
+//       error_log('Exception: ' . $e->getMessage());
+//       echo json_response('error', 'An error occurred during the update: ' . $e->getMessage());
+//       die;
+//    }
+// }
+
+// if (isset($_POST['save_order'])) {
+//    $user = new User();
+//    $logged = $user->getLogged('user_id,user_auth,user_branch');
+//    $logged_auth = $logged->user_auth;
+//    $branch_id = $logged->user_branch;
+
+//    $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'encounter'];
+//    if (!in_array($logged_auth, $page_auth)) {
+//       echo json_response('error', get_lang_text('ajax_unauthorized_access'));
+//       die;
+//    }
+
+//    set_time_limit(0);
+//    $order_date = date('Y-m-d', strtotime(clear_input(p('order_date'))));
+//    $order_delivery_date = date('Y-m-d', strtotime(clear_input(p('order_delivery_date'))));
+//    $customer_id = clear_input(p('customer_id'));
+//    $customer_address_id = clear_input(p('customer_address_id'));
+//    $order_arcs = html_ent(p('order_arcs'));
+//    $order_agreement = clear_input(p('order_agreement'));
+//    $order_agreement_text = html_ent(nl2br(p('order_agreement_text')));
+//    $order_extra_agreement = clear_input(p('order_extra_agreement'));
+//    $order_extra_agreement_tr = html_ent(nl2br(p('order_extra_agreement_tr')));
+//    $order_extra_agreement_en = html_ent(nl2br(p('order_extra_agreement_en')));
+//    $order_comm_rate = clear_input(p('order_comm_rate'));
+//    $order_comm_amount = clear_input(p('order_comm_amount'));
+//    $order_tax = clear_input(p('order_tax'));
+//    $order_export_registered = clear_input(p('order_export_registered'));
+//    $order_notes = html_ent(nl2br(p('order_notes')));
+
+//    $valid_agreement_extra = ['0', '1', 0, 1];
+
+//    if (!in_array($order_extra_agreement, $valid_agreement_extra)) {
+//       echo json_response('error', get_lang_text('ajax_invalid_request'));
+//       die;
+//    }
+
+//    if ($order_extra_agreement == '0') {
+//       $order_extra_agreement_tr = '';
+//       $order_extra_agreement_en = '';
+//    }
+
+//    $u = new User();
+//    $c = new Customer();
+//    $a = new Agreement();
+//    $o = new Order();
+//    $pa = new ProductAttribute();
+//    $p = new Product();
+//    $m = new Material();
+//    $plan = new Plan();
+//    $ctl = new Catalog();
+//    $as = new Accessory();
+
+//    if ($order_date == '' || $customer_id == '' || $customer_address_id == '' || $order_arcs == '' || $order_agreement == '' || $order_agreement_text == '' || $order_tax == '' || $order_export_registered == '' || $order_delivery_date == '') {
+//       echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+//       die;
+//    }
+
+//    if (DateTime::createFromFormat('Y-m-d', $order_date) === false) {
+//       echo json_response('error', get_lang_text('ajax_order_date_error'));
+//       die;
+//    }
+
+//    if (DateTime::createFromFormat('Y-m-d', $order_delivery_date) === false) {
+//       echo json_response('error', get_lang_text('ajax_order_delivery_date_error'));
+//       die;
+//    }
+
+//    $order_date_time = strtotime($order_date);
+//    $order_delivery_date_time = strtotime($order_delivery_date);
+
+//    if ($order_date_time > $order_delivery_date_time) {
+//       // sipariş teslim tarihi, sipariş tarihinden küçük olamaz
+//       echo json_response('error', get_lang_text('ajax_order_date_invalid'));
+//       die;
+//    }
+
+//    if ($o->isOrderDeliveryDateFull($order_delivery_date)) {
+//       echo json_response('error', get_lang_text('ajax_order_delivery_date_invalid'));
+//       die;
+//    }
+
+//    if (!$c->checkCustomerById($customer_id) || !$c->checkCustomerAddressById($customer_address_id) || !$a->checkAgreementById($order_agreement)) {
+//       echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+//       die;
+//    }
+
+//    $get_agr = $a->getAgreement($order_agreement, 'branch_id');
+//    if ($logged_auth == 'user') {
+//       if ($logged->user_branch != $get_agr->branch_id) {
+//          echo json_response('error', get_lang_text('ajax_invalid_request'));
+//          die;
+//       }
+//    }
+
+//    if ($order_comm_rate != '' && $order_comm_amount != '') {
+//       echo json_response('error', get_lang_text('ajax_order_comm_rate_amount_error'));
+//       die;
+//    }
+
+//    if ($order_comm_rate != '') {
+//       if (!is_numeric($order_comm_rate)) {
+//          echo json_response('error', get_lang_text('ajax_order_invalid_comm_rate'));
+//          die;
+//       }
+//    }
+
+//    if ($order_comm_amount != '') {
+//       if (!is_numeric($order_comm_amount)) {
+//          echo json_response('error', get_lang_text('ajax_order_invalid_comm_amount'));
+//          die;
+//       }
+//    }
+
+//    $get_customer = $c->getCustomer($customer_id, 'customer_comm_rate,customer_email');
+//    $customer_address = $c->getCustomerAddress($customer_address_id, $customer_id, 'adr_country,adr_text');
+//    $customer_address_country = Country::getCountry($customer_address->adr_country, 'country_name');
+//    $customer_full_address_text = $customer_address->adr_text . ' - ' . $customer_address_country->country_name;
+
+//    $attr_ids_arr = [];
+//    $attrs = [];
+//    foreach ($_POST['room_index'] as $get_room_index => $get_room_level) {
+//       $room_level = clear_input($get_room_level);
+
+//       foreach ($_POST['order_product_cat'][$room_level] as $get_index => $val) {
+//          $index = clear_input($get_index);
+//          $product_id = clear_input($_POST['order_product'][$room_level][$index]);
+//          $product_attr = clear_input($_POST['order_product_attr'][$room_level][$index]);
+
+//          if (!in_array($product_attr, $attr_ids_arr)) {
+//             $attr_ids_arr[] = $product_attr;
+//          }
+//       }
+//    }
+
+//    if (count($attr_ids_arr) > 0) {
+//       $get_product_attrs = $pa->getProductAttributes('attr_id,attr_type', null, null, ['attr_id', $attr_ids_arr]);
+//       if (count($get_product_attrs) > 0) {
+//          foreach ($get_product_attrs as $get_product_attr) {
+//             $attrs[$get_product_attr->attr_id] = $get_product_attr;
+//          }
+//       }
+//    }
+
+//    $order_details = [];
+//    $order_total_price = 0;
+//    $curtain_data = [];
+//    $product_quantities = [];
+//    $item_combi_data = [];
+//    $item_stock_data = [];
+//    $product_sets_name = [];
+//    foreach ($_POST['room_index'] as $get_room_index => $get_room_level) {
+//       $room_level = clear_input($get_room_level);
+//       $floor_name = clear_input($_POST['order_product_floor'][$room_level]);
+//       $room_name = clear_input($_POST['order_product_room'][$room_level]);
+
+//       $room_data = json_encode(['floor' => $floor_name, 'room' => $room_name], JSON_UNESCAPED_UNICODE);
+
+//       $room_img_file = $_FILES['order_product_room_img'][$room_level];
+//       $allowed_ext = getAllowedImageTypes('ext');
+//       $allowed_mimes = getAllowedImageTypes('mime');
+
+//       $ext_explode = explode('.', $room_img_file['name']);
+//       $uzanti = strtolower(array_pop($ext_explode));
+//       $mime = mime_content_type($room_img_file['tmp_name']);
+
+//       // if (!in_array($uzanti, $allowed_ext) || !in_array($mime, $allowed_mimes)) {
+//       //    echo json_response('error', get_lang_text('ajax_img_type_error'));
+//       //    die;
+//       // }
+
+//       $max_filesize_byte = MAX_IMG_SIZE * 1024 * 1024;
+//       if ($room_img_file['size'] > $max_filesize_byte) {
+//          echo json_response('error', get_lang_text('max_img_size', ['max_img_size' => MAX_IMG_SIZE]));
+//          die;
+//       }
+
+//       $now = date('YmdHis') . microtime() . rand(0, 999);
+//       $new_image_name = md5($room_img_file['name'] . $now) . sha1($room_img_file['name'] . $now) . rand(1, 999) . '.jpg';
+
+//       foreach ($_POST['order_product_cat'][$room_level] as $get_index => $val) {
+//          $index = clear_input($get_index);
+//          $product_order_no = intval($index) + 1;
+//          $product_cat = clear_input($val);
+//          $product_id = clear_input($_POST['order_product'][$room_level][$index]);
+//          $order_product_base_category = clear_input($_POST['order_product_base_category'][$room_level][$index]);
+//          $order_product_category = clear_input($_POST['order_product_category'][$room_level][$index]);
+
+//          $product_attr = clear_input($_POST['order_product_attr'][$room_level][$index]);
+//          $product_floor_room_data = $room_data;
+//          $product_qty = clear_input($_POST['order_prd_qty'][$room_level][$index]);
+
+//          $order_item_of = clear_input($_POST['order_item_of'][$room_level][$index]);
+//          $order_item_type = clear_input($_POST['order_item_type'][$room_level][$index]);
+
+//          $product_stock_id = clear_input($_POST['stock_id'][$room_level][$index]);
+//          $product_stock_qty = clear_input($_POST['stock_qty'][$room_level][$index]);
+
+//          $product_combination_id = clear_input($_POST['combination_id'][$room_level][$index]);
+//          $product_bed_dim = clear_input($_POST['order_prd_bed_dim'][$room_level][$index]);
+
+//          $person_weight = clear_input($_POST['order_product_person_weight'][$room_level][$index]);
+//          $product_sponge = clear_input($_POST['order_product_sponge'][$room_level][$index]);
+
+//          $attr = $attrs[$product_attr];
+
+//          // FOR CURTAINS
+//          // $curtain_opening_direction = html_ent(nl2br(p('curtain_opening_direction_0')));
+//          // $curtain_open_with = html_ent(nl2br(p('curtain_open_with_0')));
+//          // $curtain_rail_width = html_ent(nl2br(p('curtain_rail_width_0')));
+//          // $curtain_blackout = html_ent(nl2br(p('curtain_blackout_0')));
+//          // $curtain_installation = html_ent(nl2br(p('curtain_installation_0')));
+//          // $hanging_option = html_ent(nl2br(p('hanging_option_0')));
+//          // $curtain_opening_direction = clear_input($_POST['curtain_opening_direction'][$room_level][$index]);
+//          // $curtain_open_with = clear_input($_POST['curtain_open_with'][$room_level][$index]);
+//          // $curtain_rail_width = clear_input($_POST['curtain_rail_width'][$room_level][$index]);
+//          // $curtain_blackout = clear_input($_POST['curtain_blackout'][$room_level][$index]);
+//          // $curtain_installation = clear_input($_POST['curtain_installation'][$room_level][$index]);
+//          // $hanging_option = clear_input($_POST['hanging_option'][$room_level][$index]);
+
+//          $valid_bed_dims = ['120200', '140200', '160200', '180200', '200200'];
+//          if ($product_id == '' || $product_attr == '' || $product_qty == '' || $product_cat == '') {
+//             echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+//             die;
+//          }
+
+//          if (!empty($product_stock_id) || !empty($product_stock_qty)) {
+//             $stock_product = $o->getOrdersStockItem('p.*,od.product_qty,o.branch_id,o.order_id, od.id,od.stock_qty', null, [['od.id', '=', $product_stock_id]]);
+//             if (count($stock_product) > 0) {
+//                $stock_data = $stock_product[0];
+//                $stock_order_id = $stock_data->order_id;
+//                $stock_detail_id = $stock_data->id;
+//                $stock_order_qty = $stock_data->stock_qty;
+//                if ($stock_data->stock_qty < $product_stock_qty) {
+//                   echo json_response('error', 'Stock Item Error Please Check!');
+//                   die;
+//                }
+
+//                $get_stock_attr = $o->getOrderDetailAttr($stock_detail_id, $stock_order_id, '*');
+//                $material_images = [];
+//                $get_material_images = $o->getFullOrderDetailImages($stock_order_id, ['detail_id', [$stock_detail_id]]);
+//                if (!empty($get_material_images)) {
+//                   $detail_ids = [];
+//                   foreach ($get_material_images as $get_material_image) {
+//                      $image_type = $get_material_image->image_type;
+//                      // Store as an array to prevent overwriting previous values
+//                      $material_images[$image_type][] = $get_material_image;
+
+//                      if ($image_type == 'pillow') {
+//                         $detail_ids[] = $get_material_image->detail_id;
+//                      }
+//                   }
+//                   $detail_ids = array_unique($detail_ids);
+
+//                   // Fetch pillow images
+//                   $pillow_images = [];
+//                   $pillow_data = $o->getFullOrderPillowDetailImages($stock_order_id, ['o.detail_id', $detail_ids]);
+//                   if (!empty($pillow_data)) {
+//                      foreach ($pillow_data as $pillow_image) {
+//                         $pillow_images[$pillow_image->detail_id][$pillow_image->ref_label] = [
+//                            'face' => $pillow_image->face_material ?? '',
+//                            'back' => $pillow_image->back_material ?? '',
+//                            'piping' => $pillow_image->piping_material ?? '',
+//                         ];
+//                      }
+//                   }
+
+//                   $existing_detail_ids = [];
+//                   if (count($pillow_images) > 0) {
+//                      foreach ($material_images as $image_type => $images) {
+//                         foreach ($images as $image) {
+//                            $detail_id = $image->detail_id;
+//                            if ($image_type === 'pillow') {
+//                               if (!in_array($detail_id, $existing_detail_ids, true)) {
+//                                  $newmaterial_images[] = $pillow_images[$detail_id] ?? [];
+//                                  $existing_detail_ids[] = $detail_id;
+//                               }
+//                            }
+//                         }
+//                      }
+//                      $material_images['pillow'] = $newmaterial_images;
+//                   } else {
+//                      $material_images['pillow'] = [];
+//                   }
+//                }
+
+//                // echo'<pre>',var_dump($material_images),'</pre>';
+//                // die;
+
+//                $stock_detail_attr = json_decode($get_stock_attr->attr_dims);
+//                $item_stock_data[$get_room_level][$product_order_no] = [
+//                   'order_id'  => $stock_order_id,
+//                   'detail_id' => $stock_detail_id,
+//                   'order_qty' => $stock_order_qty,
+//                   'order_prd_qty' => $product_stock_qty,
+//                   'detail_attr' => $stock_detail_attr,
+//                   'material_images' => $material_images,
+//                ];
+//             } else {
+//                echo json_response('error', 'Stock Item Error Please Check Stock ID !' . $product_stock_id);
+//                die;
+//             }
+//          }
+
+//          if (!empty($product_combination_id) || !empty($product_combination_id)) {
+//             $material_images = [];
+//             $com_details = $p->getProductCombDtlsByMtf('pcd.combination_id,pm.product_id,pm.material_category,pm.material_ref_label,pcd.material,pcd.pillow_face,pcd.pillow_back,pcd.pipping,pcd.quantity,pcd.area,pcd.length,pcd.width,pcd.notes', null, null, null, null, ['pcd.combination_id', [$product_combination_id]], null, '2');
+//             if (count($com_details) > 0) {
+//                foreach ($com_details as $com_detail) {
+//                   // Store material reference label and material ID in structured format
+//                   $material_images[$com_detail->material_category][$com_detail->material_ref_label] = [
+//                      'material_id' => $com_detail->material,
+//                      'replacement' => $com_detail->replacement ?? null, // Ensure replacement exists
+//                   ];
+
+//                   // If it's a pillow, store its specific attributes separately
+//                   if ($com_detail->material_category == 'pillow') {
+//                      $material_images[$com_detail->material_category][$com_detail->material_ref_label] = [
+//                         'face' => $com_detail->face ?? '',
+//                         'back' => $com_detail->back ?? '',
+//                         'piping' => $com_detail->pipping ?? '',
+//                      ];
+//                   }
+//                }
+//             }
+
+//             $item_combi_data[$get_room_level][$product_order_no] = [
+//                'material_images' => $material_images,
+//             ];
+//          }
+
+//          // echo '<pre>', var_dump($item_combi_data), '</pre>';
+
+
+//          if ($attr->attr_type == 'bed' && !in_array($product_bed_dim, $valid_bed_dims)) {
+//             echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+//             die;
+//          }
+
+//          if (!$ctl->checkCatalogById($product_cat)) {
+//             echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+//             die;
+//          }
+
+//          if (!$pa->checkProductAttributeById($product_attr)) {
+//             echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+//             die;
+//          }
+
+//          if (!$p->checkProductById($product_id)) {
+//             echo json_response('error', get_lang_text('ajax_order_invalid_product_selected'));
+//             die;
+//          }
+
+//          if ($order_item_of != 'combo') {
+//             $order_item_of = 'main';
+//             $get_prd = $p->getProduct($product_id, 'attr_id,standart_price,product_bed_dims,product_set_of,product_dims_data');
+//             $prd_attr = $pa->getProductAttribute($get_prd->attr_id);
+//             $bed_dims = json_decode($get_prd->product_bed_dims, true);
+//             // $prd_dims = json_decode($get_prd->product_dims_data, true);
+//             $prd_dims = get_product_dims_data($order_item_of, $product_id);
+//          } else {
+//             $product = $p->getProductShape($product_id, 'product_id, attr_id, shape_name, edge_corner_name, shape_dims_data');
+//             $prd_attr = $pa->getProductAttribute($product->attr_id, 'attr_desc,calculate_type,attr_type,attr_rates');
+//             $prd_dims = get_product_dims_data($order_item_of, $product_id);
+//          }
+
+//          // echo var_dump($prd_dims);
+
+//          $attr_rates = json_decode($prd_attr->attr_rates, true);
+
+//          $selected_attr_rates = $_POST['attr_rates'][$room_level][$index];
+//          $detail_attr_rates = [];
+//          foreach ($selected_attr_rates as $rate_index => $selected_attr_rate) {
+//             if ($selected_attr_rate == '1') {
+//                $arr = [
+//                   'name' => $attr_rates[$rate_index]['name'],
+//                   'type' => $attr_rates[$rate_index]['type'],
+//                   'rate' => $attr_rates[$rate_index]['rate'],
+//                ];
+//                $detail_attr_rates[$rate_index] = $arr;
+//             }
+//          }
+
+
+//          $pre_order_detail_attrs = [
+//             'attr_bed_dim' => 0,
+//             'attr_dims' => '',
+//             'attr_rates' => json_encode($detail_attr_rates, JSON_UNESCAPED_UNICODE),
+//          ];
+//          // echo var_dump($detail_attr_rates);
+
+//          $set_dims = [];
+//          $all_curtain_data = [];
+//          $order_prd_price = 0;
+//          $product_base_price = 0;
+//          if ($attr->attr_type != 'bed' && $attr->attr_type != 'curtain') {
+//             foreach ($prd_dims as $i => $prd_dim) {
+//                $set_level = $i + 1;
+//                $set_default_dims = $prd_dims[$i];
+
+//                $set_width = '';
+//                $set_length = '';
+//                $set_length_a = '';
+//                $set_length_b = '';
+//                $set_height = '';
+
+//                $get_set_width = clear_input($_POST['attr_width'][$room_level][$index][$i]);
+//                $get_set_height = clear_input($_POST['attr_height'][$room_level][$index][$i] ?? 0);
+
+//                if ($order_item_of != 'combo') {
+//                   $get_set_length = clear_input($_POST['attr_length'][$room_level][$index][$i]);
+//                   $set_dims[$i] = order_dimensions_gemrate($prd_attr, $get_set_width, $get_set_length, $get_set_height, $set_default_dims);
+//                } else {
+//                   // For combo products, calculate length based on length_a and length_b
+//                   $get_set_length = clear_input($_POST['attr_length'][$room_level][$index][$i]);
+//                   if ($get_set_length == '') {
+//                      $get_set_length_a = clear_input($_POST['attr_length_a'][$room_level][$index][$i]);
+//                      $get_set_length_b = clear_input($_POST['attr_length_b'][$room_level][$index][$i]);
+//                      $get_set_length = $get_set_length_a + $get_set_length_b;
+//                   }
+
+//                   $set_dims[$i] = order_dimensions_gemrate($prd_attr, $get_set_width, $get_set_length, $get_set_height, $set_default_dims, $get_set_length_a, $get_set_length_b);
+//                }
+//             }
+//          } else if ($attr->attr_type == 'curtain') {
+//             foreach ($_POST['attr_curtain_length1'][$room_level][$index] as $set_level => $dim_item) {
+//                // $set_level = $set_level+1;
+//                // echo $set_level;
+//                // $curtain_data[$set_level] = [
+//                //    'curtain1' => [
+//                //       'length' => clear_input($_POST['attr_curtain_length1'][$room_level][$index][$set_level]),
+//                //       'height' => clear_input($_POST['attr_curtain_height1'][$room_level][$index][$set_level]),
+//                //       'fabric' => clear_input($_POST['order_fabric_images1'][$room_level][$index][$set_level][0]),
+//                //       'unit_price' => 0,
+//                //       'price' => 0,
+//                //    ],
+//                //    'curtain2' => [
+//                //       'length' => clear_input($_POST['attr_curtain_length2'][$room_level][$index][$set_level]),
+//                //       'height' => clear_input($_POST['attr_curtain_height2'][$room_level][$index][$set_level]),
+//                //       'fabric' => clear_input($_POST['order_fabric_images2'][$room_level][$index][$set_level][0]),
+//                //       'unit_price' => 0,
+//                //       'price' => 0,
+//                //    ],
+//                //    'curtain3' => [
+//                //       'length' => clear_input($_POST['attr_curtain_length3'][$room_level][$index][$set_level]),
+//                //       'height' => clear_input($_POST['attr_curtain_height3'][$room_level][$index][$set_level]),
+//                //       'fabric' => clear_input($_POST['order_fabric_images3'][$room_level][$index][$set_level][0]),
+//                //       'unit_price' => 0,
+//                //       'price' => 0,
+//                //    ],
+//                //    'curtain4' => [
+//                //       'length' => clear_input($_POST['attr_curtain_length4'][$room_level][$index][$set_level]),
+//                //       'height' => clear_input($_POST['attr_curtain_height4'][$room_level][$index][$set_level]),
+//                //       'fabric' => clear_input($_POST['order_fabric_images4'][$room_level][$index][$set_level][0]),
+//                //       'unit_price' => 0,
+//                //       'price' => 0,
+//                //    ],
+//                //    'curtain5' => [
+//                //       'length' => clear_input($_POST['attr_curtain_length5'][$room_level][$index][$set_level]),
+//                //       'height' => clear_input($_POST['attr_curtain_height5'][$room_level][$index][$set_level]),
+//                //       'fabric' => clear_input($_POST['order_fabric_images5'][$room_level][$index][$set_level][0]),
+//                //       'unit_price' => 0,
+//                //       'price' => 0,
+//                //    ],
+//                // ];
+
+//                $curtain_data[$set_level] = [];
+//                //old
+//                // for ($i = 1; $i <= 10; $i++) {
+//                //    $lengthKey = "attr_curtain_length{$i}";
+//                //    $heightKey = "attr_curtain_height{$i}";
+//                //    $fabricKey = "order_fabric_images{$i}";
+
+//                //    $hasLength = isset($_POST[$lengthKey][$room_level][$index][$set_level]);
+//                //    $hasHeight = isset($_POST[$heightKey][$room_level][$index][$set_level]);
+//                //    $hasFabric = isset($_POST[$fabricKey][$room_level][$index][$set_level][0]);
+
+//                //    // Only process if at least one of the inputs exists in the payload
+//                //    if ($hasLength || $hasHeight || $hasFabric) {
+//                //       $length = clear_input($hasLength ? $_POST[$lengthKey][$room_level][$index][$set_level] : '');
+//                //       $height = clear_input($hasHeight ? $_POST[$heightKey][$room_level][$index][$set_level] : '');
+//                //       $fabric = clear_input($hasFabric ? $_POST[$fabricKey][$room_level][$index][$set_level][0] : '');
+
+//                //       $curtain_data[$set_level]["curtain{$i}"] = [
+//                //          'length' => $length,
+//                //          'height' => $height,
+//                //          'fabric' => $fabric,
+//                //          'unit_price' => 0,
+//                //          'price' => 0,
+//                //       ];
+//                //    }
+//                // }
+
+//                //new
+//                for ($i = 1; $i <= 10; $i++) {
+//                   $lengthKey = "attr_curtain_length{$i}";
+//                   $heightKey = "attr_curtain_height{$i}";
+//                   $fabricKey = "order_fabric_images{$i}";
+
+//                   $hasLength = isset($_POST[$lengthKey][$room_level][$index][$set_level]);
+//                   $hasHeight = isset($_POST[$heightKey][$room_level][$index][$set_level]);
+//                   $hasFabric = isset($_POST[$fabricKey][$room_level][$index][$set_level][0]);
+
+//                   // Only process if at least one of the inputs exists in the payload
+//                   if ($hasLength || $hasHeight || $hasFabric) {
+//                      $length = clear_input($hasLength ? $_POST[$lengthKey][$room_level][$index][$set_level] : '');
+//                      $height = clear_input($hasHeight ? $_POST[$heightKey][$room_level][$index][$set_level] : '');
+//                      $fabric = clear_input($hasFabric ? $_POST[$fabricKey][$room_level][$index][$set_level][0] : '');
+
+//                      $curtain_data[$set_level]["curtain{$i}"] = [
+//                         'length' => $length,
+//                         'height' => $height,
+//                         'fabric' => $fabric,
+//                         'unit_price' => 0,
+//                         'price' => 0
+//                      ];
+//                   }
+//                }
+
+//                // Accessory/extra curtain config (once per set_level, not per curtain)
+//                $curtain_opening_direction = !empty($_POST['curtain_opening_direction'][$room_level][$index][$set_level])
+//                   ? clear_input($_POST['curtain_opening_direction'][$room_level][$index][$set_level]) : '';
+
+//                $curtain_open_with = !empty($_POST['curtain_open_with'][$room_level][$index][$set_level])
+//                   ? clear_input($_POST['curtain_open_with'][$room_level][$index][$set_level]) : '';
+
+//                $curtain_rail_width = !empty($_POST['curtain_rail_width'][$room_level][$index][$set_level])
+//                   ? clear_input($_POST['curtain_rail_width'][$room_level][$index][$set_level]) : '';
+
+//                // $curtain_blackout = !empty($_POST['curtain_blackout'][$room_level][$index][$set_level])
+//                //     ? clear_input($_POST['curtain_blackout'][$room_level][$index][$set_level]) : '';
+
+//                $curtain_installation = !empty($_POST['curtain_installation'][$room_level][$index][$set_level])
+//                   ? clear_input($_POST['curtain_installation'][$room_level][$index][$set_level]) : '';
+
+//                $accessory_types = !empty($_POST['accessory_type'][$room_level][$index][$set_level])
+//                   ? $_POST['accessory_type'][$room_level][$index][$set_level] : [];
+
+//                $accessory_ids = !empty($_POST['accessory_ids'][$room_level][$index][$set_level])
+//                   ? $_POST['accessory_ids'][$room_level][$index][$set_level] : [];
+
+//                $sanitized_accessory_types = array_map('clear_input', $accessory_types);
+//                $sanitized_accessory_ids = array_map('clear_input', $accessory_ids);
+
+//                if ($curtain_open_with == 'motor') {
+//                   $motorData = $as->getAccessories("*", null, [['accessory_type', '=', 'motor']]);
+//                   $motorPrice = 0;
+//                   if (count($motorData) > 0) {
+//                      $motorPrice = $motorData[0]->price;
+//                      if ($curtain_opening_direction == 'two') {
+//                         $motorPrice = $motorPrice * 2; // If it's a two-way opening, double the motor price
+//                      }
+//                   }
+//                } else {
+//                   $motorPrice = 0;
+//                }
+
+//                $curtain_data[$set_level]["Accessory"] = [
+//                   'curtain_opening_direction' => $curtain_opening_direction,
+//                   'curtain_open_with' => $curtain_open_with,
+//                   'curtain_motor_price' => $motorPrice,
+//                   'curtain_rail_width' => $curtain_rail_width,
+//                   //   'curtain_blackout' => $curtain_blackout,
+//                   'curtain_installation' => $curtain_installation,
+//                   'curtain_installation_price' => '+200',
+//                   'accessory_type' => $sanitized_accessory_types,
+//                   'accessory_ids' => $sanitized_accessory_ids
+//                ];
+
+//                $accessory_prices_map        = [];
+//                $accessory_price_types_map   = [];
+//                $accessory_price_depend_on   = [];
+//                $accessory_total_price_map   = [];
+
+//                if (!empty($sanitized_accessory_ids)) {
+//                   $accessories = $as->getAccessories("*", null, [['deleted', '=', 0]], null, null, null, ['accessory_id', $sanitized_accessory_ids]);
+
+//                   foreach ($accessories as $acc) {
+//                      $accessory_id    = $acc->accessory_id;
+//                      $price           = (float)$acc->price;
+//                      $price_type      = $acc->price_type;               // 'per_piece' or 'per_meter'
+//                      $depends_on      = $acc->price_depends_on ?? '';    // 'length', 'length_and_height', or ''
+
+//                      $accessory_prices_map[$accessory_id]      = $price;
+//                      $accessory_price_types_map[$accessory_id] = $price_type;
+//                      $accessory_price_depend_on[$accessory_id] = $depends_on;
+
+//                      // Get first curtain item in this set to extract dimensions
+//                      $curtain_item = null;
+//                      foreach ($curtain_data[$set_level] as $item_key => $item_val) {
+//                         if (strpos($item_key, 'curtain') === 0 && !empty($item_val['length']) && !empty($item_val['height'])) {
+//                            $curtain_item = $item_val;
+//                            break;
+//                         }
+//                      }
+
+//                      $length_cm = isset($curtain_item['length']) ? (float)$curtain_item['length'] : 0;
+//                      $height_cm = isset($curtain_item['height']) ? (float)$curtain_item['height'] : 0;
+
+
+
+//                      // Default total price
+//                      $total_price = 0;
+
+//                      if ($price_type === 'Per Piece') {
+//                         $total_price = $price;
+//                      } elseif ($price_type === 'Per Meter') {
+//                         if ($depends_on === 'length') {
+//                            $total_price = ($length_cm / 100) * $price;
+//                         } elseif ($depends_on === 'length and height') {
+//                            $total_price = ($length_cm / 100) * ($height_cm / 100) * $price;
+//                         }
+//                      }
+
+//                      $accessory_total_price_map[$accessory_id] = round($total_price, 2);
+//                   }
+//                }
+
+//                $curtain_data[$set_level]["Accessory"]['accessory_prices']           = $accessory_prices_map;
+//                $curtain_data[$set_level]["Accessory"]['accessory_price_types']      = $accessory_price_types_map;
+//                $curtain_data[$set_level]["Accessory"]['accessory_price_depends_on'] = $accessory_price_depend_on;
+//                $curtain_data[$set_level]["Accessory"]['accessory_total_prices']     = $accessory_total_price_map;
+//                $curtain_data[$set_level]["Accessory"]['curtain_rail_width']         = $length_cm . "cm";
+
+
+
+
+//                // if (isset($_POST['curtain_opening_direction']) && is_array($_POST['curtain_opening_direction'])) {
+//                //    foreach ($_POST['curtain_opening_direction'] as $room_level => $curtains) {
+//                //       foreach ($curtains as $index => $value) {
+//                //          // Sanitize and assign with default fallback
+//                //          $curtain_opening_direction = !empty($_POST['curtain_opening_direction'][$room_level][$index][$set_level])
+//                //             ? clear_input($_POST['curtain_opening_direction'][$room_level][$index][$set_level]) : '';
+
+//                //          $curtain_open_with = !empty($_POST['curtain_open_with'][$room_level][$index][$set_level])
+//                //             ? clear_input($_POST['curtain_open_with'][$room_level][$index][$set_level]) : '';
+
+//                //          $curtain_rail_width = !empty($_POST['curtain_rail_width'][$room_level][$index][$set_level])
+//                //             ? clear_input($_POST['curtain_rail_width'][$room_level][$index][$set_level]) : '';
+
+//                //          $curtain_blackout = !empty($_POST['curtain_blackout'][$room_level][$index][$set_level])
+//                //             ? clear_input($_POST['curtain_blackout'][$room_level][$index][$set_level]) : '';
+
+//                //          $curtain_installation = !empty($_POST['curtain_installation'][$room_level][$index][$set_level])
+//                //             ? clear_input($_POST['curtain_installation'][$room_level][$index][$set_level]) : '';
+
+//                //          $accessory_types = !empty($_POST['accessory_type'][$room_level][$index][$set_level])
+//                //             ? $_POST['accessory_type'][$room_level][$index][$set_level] : [];
+
+//                //          $accessory_ids = !empty($_POST['accessory_ids'][$room_level][$index][$set_level])
+//                //             ? $_POST['accessory_ids'][$room_level][$index][$set_level] : [];
+
+//                //          $sanitized_accessory_types = array_map('clear_input', $accessory_types);
+//                //          $sanitized_accessory_ids = array_map('clear_input', $accessory_ids);
+//                //          // Only add to final array if opening direction is not empty
+//                //          if (!empty($curtain_opening_direction)) {
+//                //             $all_curtain_data[$room_level][$index][$set_level] = [
+//                //                'curtain_opening_direction' => $curtain_opening_direction,
+//                //                'curtain_open_with' => $curtain_open_with,
+//                //                'curtain_rail_width' => $curtain_rail_width,
+//                //                'curtain_blackout' => $curtain_blackout,
+//                //                'curtain_installation' => $curtain_installation,
+//                //                'accessory_type' => $sanitized_accessory_types,
+//                //                'accessory_ids' => $sanitized_accessory_ids
+//                //             ];
+//                //          }
+//                //       }
+//                //    }
+//                // }
+//             }
+//          }
+
+//          //   echo var_dump($all_curtain_data);
+
+//          //old
+//          // $selected_curtain_count = 0;
+//          // foreach ($curtain_data as $curain_key => $curtain_item) {
+//          //    if ($curtain_item['fabric'] != '') {
+//          //       if ($curtain_item['length'] == '' || $curtain_item['height'] == '') {
+//          //          echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+//          //          die;
+//          //       }
+
+//          //       // if (!$m->checkMaterialById($curtain_item['fabric'], 'fabric', 'curtain')) {
+//          //       //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//          //       //    die;
+//          //       // }
+
+//          //       $selected_curtain_count++;
+//          //    }
+//          // }
+
+//          // if ($attr->attr_type == 'curtain') {
+//          //    if ($selected_curtain_count < 1) {
+//          //       echo json_response('error', get_lang_text('ajax_order_invalid_material_curtain_selected'));
+//          //       die;
+//          //    }
+//          // }
+
+//          //new
+//          $selected_curtain_count = 0;
+
+//          foreach ($curtain_data as $set_level => $curtain_set) {
+//             foreach ($curtain_set as $curtain_key => $curtain_item) {
+//                if (!empty($curtain_item['fabric'])) {
+//                   // if (empty($curtain_item['length']) || empty($curtain_item['height'])) {
+//                   //    echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+//                   //    die;
+//                   // }
+
+//                   // Optional fabric validation (uncomment if needed)
+//                   // if (!$m->checkMaterialById($curtain_item['fabric'], 'fabric', 'curtain')) {
+//                   //     echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                   //     die;
+//                   // }
+
+//                   $selected_curtain_count++;
+//                }
+//             }
+//          }
+
+//          if ($attr->attr_type === 'curtain') {
+//             if ($selected_curtain_count < 1) {
+//                echo json_response('error', get_lang_text('ajax_order_invalid_material_curtain_selected'));
+//                die;
+//             }
+//          }
+
+//          //old
+//          // if ($attr->attr_type == 'curtain') {
+//          //    foreach ($curtain_data as $curtain_key => $curtain_item) {
+//          //       if ($curtain_item['fabric'] != '') {
+//          //          $fabric_item = $m->getMaterial($curtain_item['fabric'], 'material_price');
+//          //          $unit_price = formatExcelPrice($fabric_item->material_price, 10, '.', '');
+
+//          //          $curtain_dims = $curtain_item['length'] * 3;
+//          //          $curtain_dims = ceil($curtain_dims / CURTAIN_PRICE_MULTIPLIER) * 100;
+//          //          $curtain_dims = $curtain_dims * $curtain_item['height'] * 0.0001;
+
+//          //          $material_divider = $curtain_dims;
+//          //          $curtain_price = $curtain_dims * $unit_price;
+
+//          //          $curtain_data[$curtain_key]['unit_price'] = $unit_price;
+//          //          $curtain_data[$curtain_key]['price'] = $curtain_price;
+//          //          $product_base_price += $curtain_price;
+//          //       }
+//          //    }
+//          //    // $order_prd_price = $product_base_price;
+//          // }
+
+//          //new
+//          if ($attr->attr_type == 'curtain') {
+//             foreach ($curtain_data as $set_level => $curtain_set) {
+//                foreach ($curtain_set as $curtain_key => $curtain_item) {
+//                   if (!empty($curtain_item['fabric'])) {
+//                      $fabric_item = $m->getMaterial($curtain_item['fabric'], 'material_price');
+//                      $unit_price = formatExcelPrice($fabric_item->material_price, 10, '.', '');
+
+//                      $curtain_dims = $curtain_item['length'] * 3;
+//                      $curtain_dims = ceil($curtain_dims / CURTAIN_PRICE_MULTIPLIER) * 100;
+//                      $curtain_dims = $curtain_dims * $curtain_item['height'] * 0.0001;
+
+//                      $material_divider = $curtain_dims;
+//                      $curtain_price = $curtain_dims * $unit_price;
+
+//                      $curtain_data[$set_level][$curtain_key]['unit_price'] = $unit_price;
+//                      $curtain_data[$set_level][$curtain_key]['price'] = $curtain_price;
+
+//                      $product_base_price += $curtain_price;
+//                   }
+//                }
+//             }
+
+
+
+
+//             // $order_prd_price = $product_base_price;
+//          } else if ($attr->attr_type == 'bed') {
+//             $tmp_dims_arr = [];
+//             if ($prd_attr->calculate_type == 'boy') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / $bed_dims['180200']['length'], 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['length'];
+//                $material_divider = $bed_dims['180200']['length'];
+//             } else if ($prd_attr->calculate_type == 'en') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / $bed_dims['180200']['width'], 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['width'];
+//                $material_divider = $bed_dims['180200']['width'];
+//             } else if ($prd_attr->calculate_type == 'yuksek') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / $bed_dims['180200']['height'], 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['height'];
+//                $material_divider = $bed_dims['180200']['height'];
+//             } else if ($prd_attr->calculate_type == 'enboy') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / ($bed_dims['180200']['width'] * $bed_dims['180200']['length']), 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['width'] * $bed_dims['180200']['length'];
+//                $material_divider = ($bed_dims['180200']['width'] * $bed_dims['180200']['length']);
+//             } else if ($prd_attr->calculate_type == 'yukseken') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / ($bed_dims['180200']['width'] * $bed_dims['180200']['height']), 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['width'] * $bed_dims['180200']['height'];
+//                $material_divider = ($bed_dims['180200']['width'] * $bed_dims['180200']['height']);
+//             } else if ($prd_attr->calculate_type == 'yuksekboy') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / ($bed_dims['180200']['length'] * $bed_dims['180200']['height']), 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['length'] * $bed_dims['180200']['height'];
+//                $material_divider = ($bed_dims['180200']['length'] * $bed_dims['180200']['height']);
+//             } else if ($prd_attr->calculate_type == 'hepsi') {
+//                $unit_price = formatExcelPrice($get_prd->standart_price / ($bed_dims['180200']['width'] * $bed_dims['180200']['length'] * $bed_dims['180200']['height']), 10, '.', '');
+//                $product_base_price = $unit_price * $bed_dims['180200']['width'] * $bed_dims['180200']['length'] * $bed_dims['180200']['height'];
+//                $material_divider = ($bed_dims['180200']['width'] * $bed_dims['180200']['length'] * $bed_dims['180200']['height']);
+//             } else {
+//                /* standart price */
+//                $product_base_price = $get_prd->standart_price;
+//                $order_prd_price = $product_base_price;
+//                $unit_price = formatExcelPrice($get_prd->standart_price / ($bed_dims['180200']['width'] * $bed_dims['180200']['length'] * $bed_dims['180200']['height']), 10, '.', '');
+//                $material_divider = ($bed_dims['180200']['width'] * $bed_dims['180200']['length'] * $bed_dims['180200']['height']);
+//             }
+
+//             if ($product_bed_dim === '200200') {
+//                $product_base_price = (($product_base_price / 100) * 15) + $product_base_price;
+//             } else if ($product_bed_dim === '180200') {
+//                $product_base_price = $get_prd->standart_price;
+//             } else if ($product_bed_dim === '160200') {
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//             } else if ($product_bed_dim === '140200') {
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//             } else if ($product_bed_dim === '120200') {
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//                $product_base_price = $product_base_price - (($product_base_price / 100) * 15);
+//             }
+//             // $order_prd_price = $product_base_price;
+//             $tmp_dims_arr[0] = [
+//                'width' => $bed_dims[$product_bed_dim]['width'],
+//                'length' => $bed_dims[$product_bed_dim]['length'],
+//                'height' => $bed_dims[$product_bed_dim]['height'],
+//                'standart_width' => $bed_dims['180200']['width'],
+//                'standart_length' => $bed_dims['180200']['length'],
+//                'standart_height' => $bed_dims['180200']['height'],
+//                'standart_price' => $get_prd->standart_price,
+//                'unit_price' => $unit_price,
+//             ];
+//             // $pre_order_detail_attrs['attr_dims'] = json_encode($tmp_dims_arr);
+//             $pre_order_detail_attrs['attr_bed_dim'] = $product_bed_dim;
+//          } else {
+//             $tmp_dims_arr = [];
+//             if ($order_item_of != 'combo') {
+//                foreach ($set_dims as $set_level => $dim_item) {
+//                   if ($prd_attr->calculate_type == 'standart') {
+//                      /* ürün fiyatı standart */
+//                      $product_base_price += $dim_item['standart_price'];
+//                      $tmp_dims_arr[$set_level] = [
+//                         'width' => $dim_item['standart_width'],
+//                         'length' => $dim_item['standart_length'],
+//                         'height' => $dim_item['standart_height'],
+//                         'standart_width' => $dim_item['standart_width'],
+//                         'standart_length' => $dim_item['standart_length'],
+//                         'standart_height' => $dim_item['standart_height'],
+//                         'standart_price' => $dim_item['standart_price'],
+//                         'width_a' => $dim_item['standart_width_a'],
+//                         'length_a' => $dim_item['standart_length_a'],
+//                         'width_b' => $dim_item['standart_width_b'],
+//                         'length_b' => $dim_item['standart_length_b'],
+//                         'width_c' => $dim_item['standart_width_c'],
+//                         'length_c' => $dim_item['standart_length_c'],
+//                         'standart_width_a' => $dim_item['standart_width_a'],
+//                         'standart_length_a' => $dim_item['standart_length_a'],
+//                         'standart_width_b' => $dim_item['standart_width_b'],
+//                         'standart_length_b' => $dim_item['standart_length_b'],
+//                         'standart_width_c' => $dim_item['standart_width_c'],
+//                         'standart_length_c' => $dim_item['standart_length_c'],
+//                      ];
+//                   } else {
+//                      /* ürün fiyatı standart değil */
+//                      if ($prd_attr->calculate_type == 'boy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_length'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['length'];
+//                         $material_divider = $dim_item['standart_length'];
+//                      } else if ($prd_attr->calculate_type == 'en') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_width'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'];
+//                         $material_divider = $dim_item['standart_width'];
+//                      } else if ($prd_attr->calculate_type == 'yuksek') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_height'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['height'];
+//                         $material_divider = $dim_item['standart_height'];
+//                      } else if ($prd_attr->calculate_type == 'enboy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_length']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['length'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_length']);
+//                      } else if ($prd_attr->calculate_type == 'yukseken') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_height']);
+//                      } else if ($prd_attr->calculate_type == 'yuksekboy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_length'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['length'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_length'] * $dim_item['standart_height']);
+//                      } else if ($prd_attr->calculate_type == 'hepsi') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_length'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['length'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_length'] * $dim_item['standart_height']);
+//                      } else {
+//                         $unit_price = 0;
+//                         $product_base_price += 0;
+//                      }
+
+//                      $tmp_dims_arr[$set_level] = [
+//                         'width' => $dim_item['width'],
+//                         'length' => $dim_item['length'],
+//                         'height' => $dim_item['height'],
+//                         'standart_width' => $dim_item['standart_width'],
+//                         'standart_length' => $dim_item['standart_length'],
+//                         'standart_height' => $dim_item['standart_height'],
+//                         'standart_price' => $dim_item['standart_price'],
+//                         'unit_price' => $unit_price,
+//                         'material_divider' => formatExcelPrice($material_divider, 10, '.', ''),
+//                         'main_standart_price' => $dim_item['standart_price'],
+//                         'width_a' => $dim_item['standart_width_a'],
+//                         'length_a' => $dim_item['standart_length_a'],
+//                         'width_b' => $dim_item['standart_width_b'],
+//                         'length_b' => $dim_item['standart_length_b'],
+//                         'width_c' => $dim_item['standart_width_c'],
+//                         'length_c' => $dim_item['standart_length_c'],
+//                         'standart_width_a' => $dim_item['standart_width_a'],
+//                         'standart_length_a' => $dim_item['standart_length_a'],
+//                         'standart_width_b' => $dim_item['standart_width_b'],
+//                         'standart_length_b' => $dim_item['standart_length_b'],
+//                         'standart_width_c' => $dim_item['standart_width_c'],
+//                         'standart_length_c' => $dim_item['standart_length_c'],
+//                      ];
+//                   }
+//                }
+//             } else {
+//                foreach ($set_dims as $set_level => $dim_item) {
+//                   if ($prd_attr->calculate_type == 'standart') {
+//                      /* ürün fiyatı standart */
+
+
+//                      $product_base_price += $dim_item['standart_price'];
+//                      $tmp_dims_arr[$set_level] = [
+//                         'width' => $dim_item['standart_width'],
+//                         'length' => $dim_item['standart_length'],
+//                         'height' => $dim_item['standart_height'],
+//                         'standart_width' => $dim_item['standart_width'],
+//                         'standart_length' => $dim_item['standart_length'],
+//                         'standart_height' => $dim_item['standart_height'],
+//                         'standart_price' => $dim_item['standart_price'],
+//                      ];
+//                   } else {
+//                      /* ürün fiyatı standart değil */
+//                      if ($prd_attr->calculate_type == 'boy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_length'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['length'];
+//                         $material_divider = $dim_item['standart_length'];
+//                      } else if ($prd_attr->calculate_type == 'en') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_width'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'];
+//                         $material_divider = $dim_item['standart_width'];
+//                      } else if ($prd_attr->calculate_type == 'yuksek') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / $dim_item['standart_height'], 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['height'];
+//                         $material_divider = $dim_item['standart_height'];
+//                      } else if ($prd_attr->calculate_type == 'enboy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_length']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['length'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_length']);
+//                      } else if ($prd_attr->calculate_type == 'yukseken') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_height']);
+//                      } else if ($prd_attr->calculate_type == 'yuksekboy') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_length'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['length'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_length'] * $dim_item['standart_height']);
+//                      } else if ($prd_attr->calculate_type == 'hepsi') {
+//                         $unit_price = formatExcelPrice($dim_item['standart_price'] / ($dim_item['standart_width'] * $dim_item['standart_length'] * $dim_item['standart_height']), 10, '.', '');
+//                         $product_base_price += $unit_price * $dim_item['width'] * $dim_item['length'] * $dim_item['height'];
+//                         $material_divider = ($dim_item['standart_width'] * $dim_item['standart_length'] * $dim_item['standart_height']);
+//                      } else {
+//                         $unit_price = 0;
+//                         $product_base_price += 0;
+//                      }
+
+//                      $tmp_dims_arr[$set_level] = [
+//                         'width' => $dim_item['width'],
+//                         'length' => $dim_item['length'],
+//                         'length_a' => $dim_item['length_a'],
+//                         'length_b' => $dim_item['length_b'],
+//                         'height' => $dim_item['height'],
+//                         'standart_width' => $dim_item['standart_width'],
+//                         'standart_length' => $dim_item['standart_length'],
+//                         'standart_length_a' => $dim_item['standart_length_a'],
+//                         'standart_length_b' => $dim_item['standart_length_b'],
+//                         'standart_height' => $dim_item['standart_height'],
+//                         'standart_price' => $dim_item['standart_price'],
+//                         'unit_price' => $unit_price,
+//                         'material_divider' => formatExcelPrice($material_divider, 10, '.', ''),
+//                         'main_standart_price' => $dim_item['standart_price'],
+//                      ];
+//                   }
+//                }
+//             }
+//          }
+
+//          $product_sets_name = [];
+//          foreach ($set_dims as $i => $dim_item) {
+//             $set_level = $i + 1;
+//             $product_sets_name[] = $set_level;
+//             // Loop through each material type
+//             $materials = ['metal', 'wood', 'marble', 'glass', 'fabric', 'pillow'];
+//             $selected_product_images_main = [];
+//             $selected_product_images_optional = [];
+//             $material_set_price = 0;
+//             $material_old_set_price = 0;
+
+
+//             foreach ($materials as $material) {
+//                // Retrieve POST data for main and optional images
+//                // echo var_dump($item_stock_data[$get_room_level][$product_order_no]['material_images'][$material]);
+//                if (!empty($item_stock_data[$get_room_level][$product_order_no]['material_images'][$material])) {
+//                   $pillow_face = $pillow_back = $pillow_piping = [];
+//                   $images_datas = $item_stock_data[$get_room_level][$product_order_no]['material_images'][$material] ?? [];
+//                   $labels = $images = $opt_labels = $opt_images = $replace_mt = [];
+
+//                   foreach ($images_datas as $id => $images_data) {
+//                      if ($material != 'pillow') {
+//                         if (is_object($images_data)) {  // Ensure it's an object before accessing properties
+//                            if (empty($images_data->mt_type) || $images_data->mt_type == 'main') {
+//                               $labels[] = $images_data->ref_label ?? 'A';
+//                               $images[] = $images_data->material_id ?? '';
+//                               $replace_mt[] = $images_data->replacement ?? '';
+//                            } elseif ($images_data->mt_type == 'optional') {
+//                               $opt_labels[] = $images_data->ref_label ?? 'A';
+//                               $opt_images[] = $images_data->material_id ?? '';
+//                            }
+//                         }
+//                      } else {
+//                         // echo'<pre>',var_dump($images_data),'</pre>';
+//                         foreach ($images_data as $ref_label =>  $data) {
+//                            $labels[] = $ref_label ?? '1';
+//                            $pillow_face[$ref_label] = $data['face'] ?? '';
+//                            $pillow_back[$ref_label] = $data['back'] ?? '';
+//                            $pillow_piping[$ref_label] = $data['piping'] ?? '';
+//                         }
+//                      }
+//                   }
+//                }
+//                //  else if (!empty($item_combi_data[$get_room_level][$product_order_no]['material_images'][$material])) {
+//                //    $images_data = $item_combi_data[$get_room_level][$product_order_no]['material_images'][$material];
+//                //    $labels = $images = $replace_mt = [];
+//                //    $labels = $images = $opt_labels = $opt_images = $replace_mt = [];
+//                //    foreach ($images_data as $ref_label => $data) {
+//                //       if ($material != 'pillow') {
+//                //          $labels[] = $ref_label;
+//                //          $images[] = $data['material_id'];
+//                //       } else {
+//                //          $labels[] = $ref_label ?? '1';
+//                //          $pillow_face[$ref_label] = $data['face'] ?? '';
+//                //          $pillow_back[$ref_label] = $data['back'] ?? '';
+//                //          $pillow_piping[$ref_label] = $data['piping'] ?? '';
+//                //       }
+//                //    }
+//                // }
+//                else {
+//                   $labels = $_POST["order_{$material}_label"][$room_level][$index][$set_level] ?? [];
+//                   $images = $_POST["order_{$material}_images"][$room_level][$index][$set_level] ?? [];
+//                   $prices = $_POST["order_{$material}_price"][$room_level][$index][$set_level] ?? [];
+//                   $old_prices = $_POST["order_{$material}_old_price"][$room_level][$index][$set_level] ?? [];
+
+
+
+
+//                   $opt_labels = $_POST["order_{$material}_opt_label"][$room_level][$index][$set_level] ?? [];
+//                   $opt_images = $_POST["order_{$material}_optional"][$room_level][$index][$set_level] ?? [];
+//                   $replace_mt = $_POST["order_{$material}_replace"][$room_level][$index][$set_level] ?? [];
+
+//                   if ($material == 'pillow') {
+//                      // echo $material;
+//                      $pillow_face = $_POST["order_{$material}_face"][$room_level][$index][$set_level] ?? [];
+//                      $face_price = $_POST["order_{$material}_face_price"][$room_level][$index][$set_level] ?? [];
+//                      $face_old_price = $_POST["order_{$material}_old_face_price"][$room_level][$index][$set_level] ?? [];
+//                      // echo '<pre>', var_dump($face_old_price), '</pre>';
+
+//                      $pillow_back = $_POST["order_{$material}_back"][$room_level][$index][$set_level] ?? [];
+//                      $back_price = $_POST["order_{$material}_back_price"][$room_level][$index][$set_level] ?? [];
+//                      $back_old_price = $_POST["order_{$material}_old_back_price"][$room_level][$index][$set_level] ?? [];
+//                      // echo '<pre>', var_dump($back_old_price), '</pre>';
+
+//                      $pillow_piping = $_POST["order_{$material}_piping"][$room_level][$index][$set_level] ?? [];
+//                      $piping_price = $_POST["order_{$material}_piping_price"][$room_level][$index][$set_level] ?? [];
+//                      $piping_old_price = $_POST["order_{$material}_old_piping_price"][$room_level][$index][$set_level] ?? [];
+//                      // echo '<pre>', var_dump($piping_old_price), '</pre>';
+
+//                      $pillow_default = $_POST["order_{$material}_default"][$room_level][$index][$set_level] ?? [];
+//                   }
+//                }
+
+//                // echo '<pre>', var_dump($_POST["order_{$material}_label"][$room_level][$index]), '</pre>';
+//                // echo '<pre>', var_dump($_POST["order_{$material}_images"][$room_level][$index]), '</pre>';
+//                // echo '<pre>new material =>', var_dump($prices), '</pre>';
+
+
+
+//                foreach ($labels as $label_index => $label) {
+//                   if (isset($images[$label_index])) {
+//                      $img_id = clear_input($images[$label_index]);
+//                      $replace_mt = clear_input($replace_mt[$label_index]);
+
+//                      $price = clear_input($prices[$label_index]);
+//                      $old_price = clear_input($old_prices[$label_index]);
+//                      if ($price == '' || $old_price == '') {
+//                         $price = 0;
+//                         $old_price = 0;
+//                      }
+
+//                      // // Validate material with checkMaterialById function
+//                      // if (!$m->checkMaterialById($img_id, $image_key)) {
+//                      //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                      //    die;
+//                      // }
+
+//                      // // Special case: Fabric handling when attr_type is 'carpet'
+//                      // if ($attr->attr_type == 'carpet' && $image_key == 'fabric') {
+//                      //    if (!$m->checkMaterialById($img_id, 'fabric', 'carpet') && $selected_curtain_count < 1) {
+//                      //       echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                      //       die;
+//                      //    }
+//                      // }
+
+//                      // if (!$m->checkMaterialById($img_id, $image_key)) {
+//                      //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                      //    die;
+//                      // }
+
+//                      // if ($attr->attr_type == 'carpet' && $image_key == 'fabric' && !$m->checkMaterialById($img_id, 'fabric', 'carpet')) {
+//                      //    if ($selected_curtain_count < 1) {
+//                      //       echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                      //       die;
+//                      //    }
+//                      // }
+
+//                      // echo 'new priceeeeeeeeeeeeeeeeee';
+//                      // echo var_dump($price);
+//                      $material_set_price += $price;
+//                      $material_old_set_price += $old_price;
+
+//                      // Add to main array
+//                      $image_key = clear_input($material);
+//                      $selected_product_images_main[$image_key][] = [$label, $img_id, $replace_mt];
+//                   } else {
+//                      $image_key = $material === 'pillow' ? 'fabric' : clear_input($material);
+
+//                      $pillow_face_id = $pillow_face[$label];
+
+//                      if (empty($pillow_face_id)) {
+//                         echo json_response('error', 'Please Select Pillow Face Material');
+//                         die;
+//                      }
+//                      $pillow_back_id = $pillow_back[$label];
+
+//                      if (empty($pillow_back_id)) {
+//                         echo json_response('error', 'Please Select Pillow back Material');
+//                         die;
+//                      }
+//                      $pillow_piping_id = $pillow_piping[$label];
+//                      // echo '<pre>', var_dump($face_old_price), '</pre>';
+//                      if ($pillow_face_id != '' || $pillow_back_id != '') {
+//                         $pillow_face_price = isset($face_price[$label]) ? $face_price[$label] : 0;
+//                         $pillow_face_old_price = isset($face_old_price[$label]) ? $face_old_price[$label] : 0;
+
+//                         $pillow_back_price = isset($back_price[$label]) ? $back_price[$label] : 0;
+//                         $pillow_back_old_price = isset($back_old_price[$label]) ? $back_old_price[$label] : 0;
+
+//                         $pillow_piping_price = isset($piping_price[$label]) ? $piping_price[$label] : 0;
+//                         $pillow_piping_old_price = isset($piping_old_price[$label]) ? $piping_old_price[$label] : 0;
+
+//                         $price = $pillow_face_price + $pillow_back_price + $pillow_piping_price;
+//                         $price_old = $pillow_face_old_price + $pillow_back_old_price + $pillow_piping_old_price;
+
+
+//                         // if (!$m->checkMaterialById($pillow_face_id, $image_key)) {
+//                         //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                         //    die;
+//                         // }
+//                         // if (!$m->checkMaterialById($pillow_back_id, $image_key)) {
+//                         //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                         //    die;
+//                         // }
+//                         // if (!$m->checkMaterialById($pillow_piping_id, $image_key)) {
+//                         //    echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                         //    die;
+//                         // }
+
+//                         $image_key = clear_input($material);
+//                         $labels = array_column($selected_product_images_main[$image_key], 0);
+
+
+//                         // Check if $label is in the extracted labels array
+//                         if (!in_array($label, $labels)) {
+
+//                            // echo '<pre> face =>', var_dump($pillow_face_old_price), '</pre>';
+//                            // echo '<pre> back =>', var_dump($pillow_back_old_price), '</pre>';
+//                            // echo '<pre> paiping', var_dump($pillow_piping_old_price), '</pre>';
+
+//                            $material_set_price += $pillow_face_price + $pillow_back_price + $pillow_piping_price;
+//                            $material_old_set_price += $pillow_face_old_price + $pillow_back_old_price + $pillow_piping_old_price;
+
+//                            $selected_product_images_main[$image_key][] = [$label, ['face' => $pillow_face_id, 'back' => $pillow_back_id, 'piping' => $pillow_piping_id]];
+//                         }
+//                      } else {
+//                         // Validate material with checkMaterialById function
+//                         $pillow_default_id = clear_input($pillow_default[$label_index]);
+//                         if ($pillow_default_id != '') {
+//                            if (!$m->checkMaterialById($pillow_default_id, $image_key)) {
+//                               echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                               die;
+//                            }
+//                            $image_key = clear_input($material);
+//                            $selected_product_images_main[$image_key][] = [$label, ['default' => $pillow_default_id]];
+//                         }
+//                      }
+//                   }
+//                }
+
+//                // Handle 'optional' images and labels
+//                foreach ($opt_labels as $opt_index => $opt_label) {
+//                   if (isset($opt_images[$opt_index])) {
+//                      $img_id = clear_input($opt_images[$opt_index]);
+//                      $image_key = $material === 'pillow' ? 'fabric' : clear_input($material);
+
+//                      if (!$m->checkMaterialById($img_id, $image_key)) {
+//                         echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                         die;
+//                      }
+
+//                      // Special case: Fabric handling when attr_type is 'carpet'
+//                      if ($attr->attr_type == 'carpet' && $image_key == 'fabric') {
+//                         if (!$m->checkMaterialById($img_id, 'fabric', 'carpet') && $selected_curtain_count < 1) {
+//                            echo json_response('error', get_lang_text('ajax_order_invalid_material_selected'));
+//                            die;
+//                         }
+//                      }
+
+//                      $image_key = clear_input($material);
+//                      $selected_product_images_optional[$image_key][] = [$opt_label, $img_id];
+//                   }
+//                }
+//             }
+
+//             // echo '<pre>', var_dump($selected_product_images_main), '</pre>';
+//             // Store selected images
+//             if (count($selected_product_images_main) > 0 || count($selected_product_images_optional) > 0) {
+//                $selected_product_images[$set_level] = [
+//                   'main' => $selected_product_images_main,
+//                   'optional' => $selected_product_images_optional,
+//                ];
+//             } else {
+//                $selected_product_images[$set_level] = [];
+//             }
+
+//             // echo '<pre>', var_dump($selected_product_images), '</pre>';
+
+//             $set_material_price = set_dfl_item_materials_price($product_id);
+//             $old_materials_price = $material_old_set_price; // Store old price separately
+//             $standard_price = $tmp_dims_arr[$i]['standart_price'] ?? 0;
+//             $unit_price = $tmp_dims_arr[$i]['unit_price'] ?? null; // May not exist
+
+//             // echo '<pre> Unit price old', var_dump($unit_price), '</pre>';
+//             $updated_price = ($standard_price - $old_materials_price) + $material_set_price;
+
+//             // Update unit price if it exists
+//             if ($unit_price !== null) {
+//                $material_divider = $tmp_dims_arr[$i]['material_divider']; // Default to 1 if not set
+//                // Prevent division by zero
+//                if ((int)$material_divider > 0) {
+//                   $unit_price = $updated_price / $material_divider;
+//                   $tmp_dims_arr[$i]['unit_price'] = $unit_price;
+//                }
+//             } else {
+//                $standard_price = $tmp_dims_arr[$i]['standart_price'] = $updated_price;
+//             }
+
+//             // Debugging outputs
+//             // echo '<pre> set name', var_dump($set_level), '</pre><br><br><br>';
+//             // echo '<pre> old set =>', var_dump($standard_price), '</pre>';
+//             // echo '<pre>old_material=>', var_dump($old_materials_price), '</pre>';
+//             // echo '<pre>new material =>', var_dump($material_set_price), '</pre>';
+//             // echo '<pre>unit price =>', var_dump($tmp_dims_arr[$i]['unit_price'] ?? 'N/A'), '</pre>'; // Avoid undefined error
+//             // echo '<pre>standerd price =>', var_dump($tmp_dims_arr[$i]['standart_price']), '</pre>';
+//          }
+
+//          $pre_order_detail_attrs['attr_dims'] = json_encode($tmp_dims_arr, JSON_UNESCAPED_UNICODE);
+//          // echo '<pre> set_data =>',var_dump($pre_order_detail_attrs),'<pre>';
+
+//          $order_prd_price = ($product_base_price - $old_materials_price) + $material_set_price;
+
+//          if ($order_prd_price > 0) {
+//             $base_order_price = $order_prd_price;
+
+//             // echo '<pre> set_data =>',var_dump($pre_order_detail_attrs),'<pre>';
+//             $order_percent_price = $base_order_price / 100;
+//             if (count($detail_attr_rates) > 0) {
+//                foreach ($detail_attr_rates as $rate_index => $detail_attr_rate) {
+//                   $rated_price = $order_percent_price * $detail_attr_rate['rate'];
+//                   if ($detail_attr_rate['type'] == 'minus') {
+//                      $rated_price = $rated_price * -1;
+//                   }
+//                   $order_prd_price += $rated_price;
+//                }
+//             }
+
+//             if ($_POST['order_prd_discount'][$room_level][$index] > 0) {
+//                $discount_amount = ($order_prd_price / 100) * clear_input($_POST['order_prd_discount'][$room_level][$index]);
+//             } else {
+//                $discount_amount = 0;
+//             }
+
+//             $order_total_price += $product_qty * ($order_prd_price - $discount_amount);
+//          }
+
+//          if ($_POST['order_prd_discount'][$room_level][$index] != '') {
+//             $order_prd_discount = clear_input($_POST['order_prd_discount'][$room_level][$index]);
+//          } else {
+//             $order_prd_discount = 0;
+//          }
+
+//          $order_prd_notes_tr = html_ent($_POST['order_prd_notes_tr'][$room_level][$index]);
+//          $order_prd_notes_en = html_ent($_POST['order_prd_notes_en'][$room_level][$index]);
+//          $order_details[] = [
+//             'product_edited'                => 0,
+//             'product_id'                    => $product_id,
+//             'product_order_no'              => $product_order_no,
+//             'product_room_index'            => $room_level,
+//             'product_room_img'              => $new_image_name,
+//             'product_set_names'              => $product_sets_name,
+//             'product_cat'                   => $product_cat,
+//             'product_base_category'         => $order_product_base_category,
+//             'product_category'              => $order_product_category,
+//             'product_qty'                   => $product_qty,
+//             'product_price'                 => $order_prd_price,
+//             'product_base_price'            => $product_base_price,
+//             'product_discount'              => $order_prd_discount,
+//             'product_notes_tr'              => $order_prd_notes_tr,
+//             'product_notes_en'              => $order_prd_notes_en,
+//             'product_room_data'             => $product_floor_room_data,
+//             'calculate_type'                => $prd_attr->calculate_type,
+//             'selected_product_images'       => $selected_product_images,
+//             'detail_attr'                   => $pre_order_detail_attrs,
+//             'product_curtain_data'          => json_encode($curtain_data),
+//             'sponge_type'                   => $product_sponge,
+//             'person_weight'                 => $person_weight,
+//             'order_behavior'                => 'new',
+//          ];
+
+//          if (!empty($product_stock_id)) {
+//             $order_details[count($order_details) - 1]['use_stock_from_id'] = $product_stock_id;
+//          }
+
+//          if (!empty($product_combination_id) || !empty($product_combination_id)) {
+//             $order_details[count($order_details) - 1]['combination_use_id'] = $product_combination_id;
+//          }
+
+//          $product_ids[] = "'" . $product_id . "'";
+//       }
+//       $product_quantities[$product_id] = $product_qty;
+//    }
+
+//    $get_currencies = getCurrencies(['TRY']);
+//    $order_usd_price = formatExcelPrice($get_currencies['TRY']['rate'], 4, '.', '');
+//    $add_date = date('Y-m-d H:i:s');
+
+//    $order_data = [
+//       'order_date' => $order_date,
+//       'customer_id' => $customer_id,
+//       'branch_id' => $get_agr->branch_id,
+//       'address_id' => $customer_address_id,
+//       'country_id' => $customer_address->adr_country,
+//       'address_text' => $customer_full_address_text,
+//       'order_arcs' => $order_arcs,
+//       'order_price' => $order_total_price,
+//       'order_usd_price' => $order_usd_price,
+//       // 'order_customer_comm' => $get_customer->customer_comm_rate,
+//       'order_customer_comm' => ($get_customer->customer_comm_rate) ? $get_customer->customer_comm_rate : 0,
+//       'agreement_id' => $order_agreement,
+//       'agreement_text' => $order_agreement_text,
+//       'agreement_extra' => $order_extra_agreement,
+//       'agreement_extra_tr' => $order_extra_agreement_tr,
+//       'agreement_extra_en' => $order_extra_agreement_en,
+//       'order_notes' => $order_notes,
+//       'order_tax' => $order_tax,
+//       'order_export_registered' => $order_export_registered,
+//       'added_user_id' => $logged->user_id,
+//       'order_add_date' => $add_date,
+//       'order_behavior' => 'new',
+//       'order_curtain_data' => json_encode($all_curtain_data),
+//    ];
+
+//    if ($order_comm_amount != '') {
+//       $order_data['order_comm_amount'] = $order_comm_amount;
+//    }
+
+//    if ($order_comm_rate != '') {
+//       $order_data['order_comm_rate'] = $order_comm_rate;
+//    }
+
+//    $insert = $o->addOrder($order_data);
+//    if ($insert) {
+//       $order_id = $insert;
+//       if ($order_comm_amount != '') {
+//          $update_col = $o->updateOrderColAsNull('order_comm_rate', $order_id);
+//       }
+
+//       if ($order_comm_rate != '') {
+//          $update_col = $o->updateOrderColAsNull('order_comm_amount', $order_id);
+//       }
+
+//       $update_order_delivery_date = $o->updateOrderDeliveryDate($order_id, $order_delivery_date);
+//       foreach ($order_details as $indis => $detail) {
+
+//          // echo '<pre>',var_dump($detail['selected_product_images']),'</pre><br><br>';
+
+//          $detailData = [
+//             'order_id'            => $order_id,
+//             'product_id'          => $detail['product_id'],
+//             'product_row_number'  => $detail['product_order_no'],
+//             'product_room_index'  => $detail['product_room_index'],
+//             'product_room_img'    => $detail['product_room_img'],
+//             'product_cat'         => $detail['product_cat'],
+//             'product_base_category' => $detail['product_base_category'],
+//             'product_category'      => $detail['product_category'],
+//             'product_room_data'   => $detail['product_room_data'],
+//             'calculate_type'      => $detail['calculate_type'],
+//             'product_qty'         => $detail['product_qty'],
+//             'product_price'       => $detail['product_price'],
+//             'product_base_price'  => $detail['product_base_price'],
+//             'product_discount'    => $detail['product_discount'],
+//             'product_curtain_data' => $detail['product_curtain_data'],
+//             'product_notes_tr'    => $detail['product_notes_tr'],
+//             'product_notes_en'    => $detail['product_notes_en'],
+//             'product_edited'      => $detail['product_edited'],
+//             'sponge_type'         => $detail['sponge_type'],
+//             'person_weight'       => $detail['person_weight'],
+//             'order_behavior'      => $detail['order_behavior'],
+//          ];
+
+//          if (isset($detail['use_stock_from_id']) && !empty($detail['use_stock_from_id'])) {
+//             $detailData['use_stock_from_id'] = $detail['use_stock_from_id'];
+//             if (!isset($item_stock_data[$detail['product_room_index']][$detail['product_order_no']])) {
+//                echo json_response('error', 'Stock data not found. Please check the order details.');
+//                die;
+//             }
+
+//             $item_stock = $item_stock_data[$detail['product_room_index']][$detail['product_order_no']];
+
+//             // Validate stock values
+//             if (
+//                empty($item_stock['order_id']) || empty($item_stock['detail_id']) ||
+//                !isset($item_stock['order_prd_qty'], $item_stock['order_qty']) ||
+//                !is_numeric($item_stock['order_prd_qty']) || !is_numeric($item_stock['order_qty'])
+//             ) {
+//                echo json_response('error', 'Invalid stock data. Please check and try again.');
+//                die;
+//             }
+//          }
+
+//          if (isset($detail['combination_use_id']) && !empty($detail['combination_use_id'])) {
+//             $detailData['combination_use_id'] = $detail['combination_use_id'];
+//          }
+
+//          // echo '<pre>',var_dump($detail),'</pre>';
+//          $insert_details_id = $o->addOrderDetails($detailData);
+//          if ($insert_details_id) {
+//             $room_img_file = $_FILES['order_product_room_img'];
+//             $upload_path = PATH . '/uploads/order-room/' . $detail['product_room_img'];
+//             move_uploaded_file($room_img_file['tmp_name'][$detail['product_room_index']], $upload_path);
+//          }
+//          $add_plan_data = $plan->addPlan($order_id, $insert_details_id);
+
+//          if (count($detail['product_set_names']) > 0) {
+//             $product_sets_name = $detail['product_set_names'];
+//             foreach ($product_sets_name as $set_level) {
+//                if (count($detail['selected_product_images'][$set_level]) > 0) {
+//                   foreach ($detail['selected_product_images'][$set_level] as $material_type => $data_set) {
+//                      foreach ($data_set as $image_type => $img_sets) {
+//                         foreach ($img_sets as $img_details) {
+//                            if ($image_type == 'pillow') {
+//                               $label = $img_details[0];
+//                               $pillows = $img_details[1];
+//                               // echo '<pre>', var_dump($pillows), '</pre>';
+//                               if (is_array($pillows)) {
+//                                  foreach ($pillows as $key => $pillow) {
+
+//                                     $data_pillow = [
+//                                        "order_id"     => $order_id,
+//                                        "detail_id"    => $insert_details_id,
+//                                        "set_id" => $set_level,
+//                                        "ref_label"    => $label,
+//                                        "material_id"  => $pillow,
+//                                        "image_type"   => $image_type,
+//                                        "mt_type"      => $material_type,
+//                                        "pillow_mt"    => $key,
+//                                     ];
+//                                     // echo '<pre>', var_dump($data_pillow), '</pre>';
+//                                     if (!empty($data_pillow['material_id'])) {
+//                                        $o->addOrderDetailImageWithLabel($data_pillow);
+//                                     }
+//                                  }
+//                               } else {
+//                                  $data_pillow = [
+//                                     "order_id"     => $order_id,
+//                                     "detail_id"    => $insert_details_id,
+//                                     "set_id" => $set_level,
+//                                     "ref_label"    => $label,
+//                                     "material_id"  => $pillows,
+//                                     "image_type"   => $image_type,
+//                                     "mt_type"      => $material_type,
+//                                     "pillow_mt"    => 'face',
+//                                  ];
+//                                  // echo '<pre>', var_dump($data_pillow), '</pre>';
+//                                  if (!empty($data_pillow['material_id'])) {
+//                                     $o->addOrderDetailImageWithLabel($data_pillow);
+//                                  }
+//                               }
+//                            } else {
+//                               list($label, $img_id, $replace_mt) = $img_details;
+//                               // Build data array
+//                               $data = [
+//                                  "order_id"     => $order_id,
+//                                  "detail_id"    => $insert_details_id,
+//                                  "set_id" => $set_level,
+//                                  "ref_label"    => $label,
+//                                  "material_id"  => $img_id,
+//                                  "image_type"   => $image_type,
+//                                  "mt_type"      => $material_type,
+//                                  "replacement"  => isset($replace_mt) ? $replace_mt : '',
+//                               ];
+//                               // echo '<pre>', var_dump($data), '</pre>';
+//                               $o->addOrderDetailImageWithLabel($data);
+//                            }
+//                         }
+//                      }
+//                   }
+//                }
+//             }
+//             // echo '<pre>', var_dump($detail['selected_product_images']), '</pre>';
+//          }
+
+//          $detail_attrs = $detail['detail_attr'];
+//          $insert_detail_attr = $o->addOrderDetailAttr($detail_attrs, $order_id, $insert_details_id);
+//       }
+
+
+//       $product_ids_string = implode(',', $product_ids);
+//       $product_ids_string = trim($product_ids_string, "'");
+//       $customer_email = $get_customer->customer_email;
+
+//       echo json_response('success', get_lang_text('ajax_orderadd_success'));
+//       // include PATH . '/pages/generate_ppt.php';
+//       die;
+//    } else {
+//       echo json_response('error', get_lang_text('ajax_orderadd_error'));
+//       die;
+//    }
+// }
