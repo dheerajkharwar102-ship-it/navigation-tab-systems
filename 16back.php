@@ -527,6 +527,7 @@ if (isset($_POST['get_product'])) {
     $get_attr = $pa->getProductAttribute($product->attr_id);
     $product->type = $get_attr->attr_type;
     $product->calculate_type = $get_attr->calculate_type;
+    $product->attr_rates = $get_attr->attr_rates;
 
     $dims = [];
     if (!empty($product->product_dims_data)) {
@@ -614,6 +615,7 @@ if (isset($_POST['get_product_variants'])) {
         $get_attr = $pa->getProductAttribute($product->attr_id);
         $product->type = $get_attr->attr_type;
         $product->calculate_type = $get_attr->calculate_type;
+        $product->attr_rates = $get_attr->attr_rates;
 
         $dims = [];
         if (!empty($product->product_dims_data)) {
