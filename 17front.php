@@ -4016,7 +4016,10 @@ $togle_temp_count = 0;
       </div>
    </div>
 </div>
-
+<script>
+   var product_shipping_data = []; //product_shipping_data for delivery data calculation
+   var shit_capa = ['26', '63', '129']; // Use JavaScript array for seating capacity for sofa
+</script>
 <?php
 define('inc_panel_footer', true);
 include PATH . '/inc/footer.php';
