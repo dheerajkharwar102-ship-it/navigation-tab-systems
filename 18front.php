@@ -4298,21 +4298,28 @@ include PATH . '/inc/footer.php';
 
          console.log('Detected product type:', productType);
 
+         const $variantsSection = $productContent.find('.product-variants-section');
+         const $variantsRadioContainer = $productContent.find('.variant-radio-container');
+
          // Use a single check for product type instead of multiple if-else
          switch (productType) {
                case 'fitout':
                   total = calculateFitoutProductTotal($productContent, productId, roomId);
                   break;
                case 'curtain':
-                  total = calculateCurtainProductTotal($productContent, productId, roomId);
+                  // Check if it's a variant-based product
+                  if ($variantsSection.length > 0) {
+                     total = calculateCurtainVariantTotal($productContent, productId, roomId);
+                  } else {
+                     total = calculateCurtainProductTotal($productContent, productId, roomId);
+                  }
                   break;
                default:
                   // Check if it's a variant-based product
-                  const $variantsSection = $productContent.find('.product-variants-section');
-                  if ($variantsSection.length > 0) {
+                  if ($variantsSection.length > 0 && $variantsRadioContainer.length == 0) {
                      total = calculateVariantBasedProductTotal($productContent, productId, roomId, productType);
                   } else {
-                     total = calculateSimpleProductTotal($productContent, productId, roomId, productType);
+                     total = calculateStandardProductTotal($productContent, productId, roomId);
                   }
          }
 
@@ -4400,21 +4407,6 @@ include PATH . '/inc/footer.php';
       return materialTotal;
    }
 
-   // Calculate simple products
-   function calculateSimpleProductTotal($productContent, productId, roomId, productType) {
-      let total = 0;
-
-      if (productType === 'fitout') {
-         total += calculateFitoutProductTotal($productContent, productId, roomId);
-      } else if (productType === 'curtain') {
-         total += calculateCurtainProductTotal($productContent, productId, roomId);
-      } else {
-         total += calculateStandardProductTotal($productContent, productId, roomId);
-      }
-
-      return total;
-   }
-
    // Update the product total display
    function updateProductTotalDisplay(productId, roomId, total) {
       const $productTotal = $(`#product-total-${productId}-room${roomId}`);
@@ -4429,12 +4421,9 @@ include PATH . '/inc/footer.php';
    function calculateVariantBasedProductTotal($productContent, productId, roomId, productType) {
       let total = 0;
 
-      // Calculate active variant
-      const $activeVariant = $productContent.find('.product-variant-content.active');
-      if ($activeVariant.length) {
-         // Pass productType to calculateVariantTotal
-         total += calculateVariantTotal($activeVariant, productId, roomId, productType);
-      }
+      $productContent.find('.product-variant-content').each(function() {
+            total += calculateVariantTotal($(this), productId, roomId);
+      });
 
       return total;
    }
@@ -4447,6 +4436,7 @@ include PATH . '/inc/footer.php';
       const hasVariants = $productContent.find('.product-variants-section').length > 0;
 
       if (hasVariants) {
+         // $productContent.find('.product-variant-content.active').each(function() {});
          // Calculate total for all variants
          $productContent.find('.product-variant-content.active').each(function() {
             total += calculateVariantTotal($(this), productId, roomId);
@@ -4459,15 +4449,7 @@ include PATH . '/inc/footer.php';
       return total;
    }
 
-   // Enhanced calculateVariantTotal with curtain support
-   function calculateVariantTotal($variantContent, productId, roomId, productType = 'product') {
-      // Check if this is a curtain variant
-      const isCurtainVariant = $variantContent.find('.curtain-options-section').length > 0;
-      
-      if (isCurtainVariant) {
-         return calculateCurtainVariantTotal($variantContent, productId, roomId);
-      }
-
+   function calculateVariantTotal($variantContent, productId, roomId) {
       let variantTotal = 0;
 
       // Get dimensions and quantity
@@ -4481,6 +4463,7 @@ include PATH . '/inc/footer.php';
       const basePrice = (parseFloat($variantContent.find('.unit-price').val()) || 0);
       const productDiscount = (parseFloat($variantContent.find('.product-discount').val()) || 0);
       
+      // Calculate product price based on dimensions and calculation type
       const productPrice = calculatePrice(calculateType, basePrice, width, length, height, quantity);
 
       // Calculate material costs
@@ -4488,7 +4471,7 @@ include PATH . '/inc/footer.php';
 
       // Calculate variant total
       variantTotal = productPrice + materialCost;
-      const variantTotalDiscount = variantTotal * productDiscount/100;
+      const variantTotalDiscount = variantTotal * productDiscount / 100;
       variantTotal -= variantTotalDiscount;
 
       console.log('Standard variant total calculation:', {
@@ -4497,66 +4480,59 @@ include PATH . '/inc/footer.php';
          height,
          quantity,
          basePrice,
+         calculateType,
+         productPrice,
          materialCost,
+         productDiscount,
+         variantTotalDiscount,
          variantTotal
       });
 
       return variantTotal;
    }
 
-   // Add this function to handle curtain variant calculations
-   function calculateCurtainVariantTotal($variantContent, productId, roomId) {
+   // Function to handle curtain variant calculations
+   function calculateCurtainVariantTotal($productContent, productId, roomId) {
       console.log('Calculating curtain variant total for:', productId, 'room:', roomId);
-      
       let total = 0;
-
-      // Get base values once
-      const quantity = parseFloat($variantContent.find('.product-qty').val()) || 1;
-      const basePrice = parseFloat($variantContent.find('.unit-price').val()) || 0;
-      const productDiscount = parseFloat($variantContent.find('.product-discount').val()) || 0;
-
-      // Calculate base cost
-      total += (basePrice * quantity);
-
-      // Calculate material costs
-      const materialCost = calculateMaterialCosts($variantContent);
-      total += materialCost;
-
-      // Calculate motor charge
-      const $openWithSelect = $variantContent.find('.open-with');
-      if ($openWithSelect.length && $openWithSelect.val() === 'motor') {
-         total += 300; // $300 charge for motor
-      }
-
-      // Calculate installation charge
-      const $installationCheckbox = $variantContent.find('.curtain-installation-needed-checkbox');
-      if ($installationCheckbox.length && $installationCheckbox.is(':checked')) {
-         total += 200; // $200 charge for installation
-      }
-
-      // Calculate accessories cost for curtain variant
-      let accessoriesTotal = 0;
-      $variantContent.find('.accessory-tab').each(function() {
-         const accessoryId = $(this).data('accessory-id');
-         const accessoryTotal = calculateAccessoryTotal($(this), quantity);
-         accessoriesTotal += accessoryTotal;
+      // First calculate the standard variant total (like other products)
+      // $productContent.find('.product-variant-content.active').each(function() {});
+      $productContent.find('.product-variant-content').each(function() {
+         total += calculateVariantTotal($(this), productId, roomId);
+         console.log('Curtain variant base total:', total);
+      
+         // Then add curtain-specific charges
+         const quantity = parseFloat($(this).find('.product-qty').val()) || 1;
+         
+         // Calculate motor charge
+         const $openWithSelect = $(this).find('.open-with');
+         if ($openWithSelect.length && $openWithSelect.val() === 'motor') {
+            const motorCharge = 300 * quantity;
+            total += motorCharge;
+            console.log('Motor charge added:', motorCharge);
+         }
+         
+         // Calculate installation charge
+         const $installationCheckbox = $(this).find('.curtain-installation-needed-checkbox');
+         if ($installationCheckbox.length && $installationCheckbox.is(':checked')) {
+            const installationCharge = 200 * quantity;
+            total += installationCharge;
+            console.log('Installation charge added:', installationCharge);
+         }
+         
+         // Calculate accessories cost for curtain variant
+         let accessoriesTotal = 0;
+         $(this).find('.accessory-tab').each(function() {
+            const accessoryId = $(this).data('accessory-id');
+            const accessoryTotal = calculateAccessoryTotal($(this), quantity);
+            accessoriesTotal += accessoryTotal;
+         });
+         
+         total += accessoriesTotal;
+         console.log('Accessories total:', accessoriesTotal);
+         console.log('Final curtain variant total:', total);
       });
-      total += accessoriesTotal;
-
-      // Apply discount
-      const totalDiscount = total * productDiscount / 100;
-      total -= totalDiscount;
-
-      console.log('Curtain variant total breakdown:', {
-         base: (basePrice * quantity),
-         materialCost,
-         motorCharge: $openWithSelect.val() === 'motor' ? 300 : 0,
-         installationCharge: $installationCheckbox.is(':checked') ? 200 : 0,
-         accessoriesTotal,
-         totalDiscount,
-         total
-      });
-
+      
       return total;
    }
 
@@ -4602,55 +4578,52 @@ include PATH . '/inc/footer.php';
    function calculateCurtainProductTotal($productContent, productId, roomId) {
       console.log('Calculating curtain product total for:', productId, 'room:', roomId);
       
+      // First calculate as standard product
       let total = 0;
-
-      // Get base values once
-      const quantity = parseFloat($productContent.find('.product-qty').val()) || 1;
-      const basePrice = parseFloat($productContent.find('.unit-price').val()) || 0;
-      const productDiscount = parseFloat($productContent.find('.product-discount').val()) || 0;
-
-      // Calculate base cost
-      // total += (basePrice * quantity);
-
+      const productDiscount = (parseFloat($productContent.find('.product-discount').val()) || 0);
       // Calculate material costs
       const materialCost = calculateMaterialCosts($productContent);
-      total += materialCost;
 
-      // Calculate motor charge (optimized - check once)
+      // Calculate total (base price × area × quantity + material costs)
+      total += materialCost;
+      
+      console.log('Curtain product base total:', total);
+      
+      // Then add curtain-specific charges
+      const quantity = parseFloat($productContent.find('.product-qty').val()) || 1;
+      
+      // Calculate motor charge
       const $openWithSelect = $productContent.find('.open-with');
       if ($openWithSelect.length && $openWithSelect.val() === 'motor') {
-         total += 300; // $300 charge for motor
+         const motorCharge = 300 * quantity;
+         total += motorCharge;
+         console.log('Motor charge added:', motorCharge);
       }
-
-      // Calculate installation charge (optimized - check once)
+      
+      // Calculate installation charge
       const $installationCheckbox = $productContent.find('.curtain-installation-needed-checkbox');
       if ($installationCheckbox.length && $installationCheckbox.is(':checked')) {
-         total += 200; // $200 charge for installation
+         const installationCharge = 200 * quantity;
+         total += installationCharge;
+         console.log('Installation charge added:', installationCharge);
       }
-
-      // Calculate accessories cost - OPTIMIZED
+      
+      // Calculate accessories cost
       let accessoriesTotal = 0;
       $productContent.find('.accessory-tab').each(function() {
          const accessoryId = $(this).data('accessory-id');
          const accessoryTotal = calculateAccessoryTotal($(this), quantity);
          accessoriesTotal += accessoryTotal;
       });
+      
       total += accessoriesTotal;
+      console.log('Accessories total:', accessoriesTotal);
 
-      // Apply discount
       const totalDiscount = total * productDiscount / 100;
+      console.log('Discount:', totalDiscount);
       total -= totalDiscount;
-
-      console.log('Curtain total breakdown:', {
-         base: (basePrice * quantity),
-         materialCost,
-         motorCharge: $openWithSelect.val() === 'motor' ? 300 : 0,
-         installationCharge: $installationCheckbox.is(':checked') ? 200 : 0,
-         accessoriesTotal,
-         totalDiscount,
-         total
-      });
-
+      console.log('Final curtain product total:', total);
+      
       return total;
    }
 
@@ -4663,21 +4636,22 @@ include PATH . '/inc/footer.php';
       const parentId = $parentContent.attr('id');
       
       let accessoryContentId;
+      let $accessoryContent;
       
       if ($parentContent.hasClass('variant-details')) {
          // This is a variant accessory
          const productId = $parentContent.closest('.product-content').attr('id').replace('product-', '').replace(/-room\d+$/, '');
-         const variantId = $parentContent.find('.dimension-width').first().data('variant');
+         const variantId = $parentContent.find('.product-qty').first().data('variant');
          const roomId = $parentContent.closest('[id*="room"]').attr('id').match(/room(\d+)/)[1];
          accessoryContentId = `accessory-${accessoryId}-${productId}-${variantId}-room${roomId}`;
+         $accessoryContent = $parentContent.find(`#${accessoryContentId}`);
       } else {
          // This is a regular product accessory
          const productId = parentId.replace('product-', '').replace(/-room\d+$/, '');
          const roomId = parentId.match(/room(\d+)/)[1];
          accessoryContentId = `accessory-${accessoryId}-${productId}-room${roomId}`;
+         $accessoryContent = $parentContent.find(`#${accessoryContentId}`);
       }
-      
-      const $accessoryContent = $parentContent.find(`#${accessoryContentId}`);
       
       if (!$accessoryContent.length) {
          console.log('Accessory content not found:', accessoryContentId);
@@ -4687,12 +4661,22 @@ include PATH . '/inc/footer.php';
       // Get selected accessory option and its price
       const $selectedOption = $accessoryContent.find('.accessory-options-select option:selected');
       const accessoryPrice = parseFloat($selectedOption.data('price')) || 0;
+      const priceType = $selectedOption.data('price-type') || 'fixed'; // fixed or per_unit
 
-      const accessoryTotal = accessoryPrice * productQuantity;
+      let accessoryTotal = 0;
+      
+      if (priceType === 'per_unit') {
+         // Price is per unit, multiply by product quantity
+         accessoryTotal = accessoryPrice * productQuantity;
+      } else {
+         // Fixed price regardless of quantity
+         accessoryTotal = accessoryPrice;
+      }
 
       console.log('Accessory calculation:', {
          accessoryId,
          accessoryPrice,
+         priceType,
          productQuantity,
          accessoryTotal
       });
@@ -7630,7 +7614,6 @@ include PATH . '/inc/footer.php';
 
             $content.append(totalsHTML);
          }
-         calculateProductTotal(product.product_id, roomId, product.type);
       }
 
       // Load product with variants
@@ -7684,7 +7667,6 @@ include PATH . '/inc/footer.php';
             $(`#variant-${productId}-${variantId}-room${roomId}`).addClass('active');
 
             updateVariantStatus(productId, roomId, variantId, 'size', product.type);
-            calculateProductTotal(productId, roomId, product.type);
          });
 
          // Setup calculations for variants
@@ -9725,6 +9707,9 @@ include PATH . '/inc/footer.php';
 
                   if (selectedProductData) {
                      addProductTab(roomId, selectedProductData);
+                     setTimeout(() => {
+                        calculateProductTotal(selectedProductId, roomId);
+                     }, 2000);
                      hideProductSelectModal();
                   } else {
                      console.error('Could not find selected product');
@@ -9780,7 +9765,9 @@ include PATH . '/inc/footer.php';
 
                   if (selectedItem) {
                      addItemToProduct(roomId, productId, selectedItem);
-                     calculateProductTotal(productId, roomId, 'fitout');
+                     setTimeout(() => {
+                        calculateProductTotal(productId, roomId, 'fitout');
+                     }, 1000);
                      hideItemSelectionModal();
                   } else {
                      console.error('Could not find selected item');
