@@ -1,4 +1,5 @@
 <?php
+
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
@@ -906,7 +907,6 @@ if (isset($_POST['get_products'])) {
 }
 
 if (isset($_POST['add_order_with_newlayout'])) {
-
     $user = new User();
     $logged = $user->getLogged('user_id,user_auth,user_branch');
     $logged_auth = $logged->user_auth;
@@ -918,13 +918,18 @@ if (isset($_POST['add_order_with_newlayout'])) {
         die;
     }
 
-    // ADD THESE MISSING VARIABLES:
-    $o = new Order(); // Add Order class instance
-    $p = new Product(); // Add Product class instance  
-    $pa = new ProductAttribute(); // Add ProductAttribute class instance
-    $m = new Material(); // Add Material class instance
+    set_time_limit(0);
 
-    // Add other required variables from your original code
+    // Initialize required classes
+    $o = new Order();
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $m = new Material();
+    $c = new Customer();
+    $a = new Agreement();
+    $plan = new Plan();
+
+    // Validate and sanitize input data
     $order_date = date('Y-m-d', strtotime(clear_input($_POST['order_date'])));
     $order_delivery_date = date('Y-m-d', strtotime(clear_input($_POST['order_delivery_date'])));
     $customer_id = clear_input($_POST['customer_id']);
@@ -935,54 +940,134 @@ if (isset($_POST['add_order_with_newlayout'])) {
     $order_tax = clear_input($_POST['order_tax']);
     $order_export_registered = clear_input($_POST['order_export_registered']);
     $order_notes = html_ent(nl2br($_POST['order_notes']));
+    $order_comm_rate = clear_input($_POST['order_comm_rate'] ?? '');
+    $order_comm_amount = clear_input($_POST['order_comm_amount'] ?? '');
 
+    // Validation checks from old code
+    if (
+        $order_date == '' || $customer_id == '' || $customer_address_id == '' || $order_arcs == '' ||
+        $order_agreement == '' || $order_agreement_text == '' || $order_tax == '' || $order_export_registered == '' || $order_delivery_date == ''
+    ) {
+        echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+        die;
+    }
+
+    if (DateTime::createFromFormat('Y-m-d', $order_date) === false) {
+        echo json_response('error', get_lang_text('ajax_order_date_error'));
+        die;
+    }
+
+    if (DateTime::createFromFormat('Y-m-d', $order_delivery_date) === false) {
+        echo json_response('error', get_lang_text('ajax_order_delivery_date_error'));
+        die;
+    }
+
+    $order_date_time = strtotime($order_date);
+    $order_delivery_date_time = strtotime($order_delivery_date);
+
+    if ($order_date_time > $order_delivery_date_time) {
+        echo json_response('error', get_lang_text('ajax_order_date_invalid'));
+        die;
+    }
+
+    if ($o->isOrderDeliveryDateFull($order_delivery_date)) {
+        echo json_response('error', get_lang_text('ajax_order_delivery_date_invalid'));
+        die;
+    }
+
+    if (!$c->checkCustomerById($customer_id) || !$c->checkCustomerAddressById($customer_address_id) || !$a->checkAgreementById($order_agreement)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+        die;
+    }
+
+    if ($order_comm_rate != '' && $order_comm_amount != '') {
+        echo json_response('error', get_lang_text('ajax_order_comm_rate_amount_error'));
+        die;
+    }
+
+    if ($order_comm_rate != '' && !is_numeric($order_comm_rate)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_comm_rate'));
+        die;
+    }
+
+    if ($order_comm_amount != '' && !is_numeric($order_comm_amount)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_comm_amount'));
+        die;
+    }
+
+    // Get customer and agreement data
+    $customer = $c->getCustomer($customer_id, 'customer_id,customer_name,customer_email,customer_comm_rate');
+    $customer_address = $c->getCustomerAddress($customer_address_id, $customer_id, 'adr_country,adr_text');
+    $customer_address_country = Country::getCountry($customer_address->adr_country, 'country_name');
+    $customer_full_address_text = $customer_address->adr_text . ' - ' . $customer_address_country->country_name;
+
+    $get_agr = $a->getAgreement($order_agreement, 'branch_id');
+    if ($logged_auth == 'user') {
+        if ($logged->user_branch != $get_agr->branch_id) {
+            echo json_response('error', get_lang_text('ajax_invalid_request'));
+            die;
+        }
+    }
+
+    // Process order details
     $order_total_price = 0;
     $order_details = [];
+    $room_counter = 0;
 
-    // Process rooms data
     if (isset($_POST['rooms']) && is_array($_POST['rooms'])) {
         foreach ($_POST['rooms'] as $roomIndex => $roomData) {
-            $roomId = $roomData['room_id'];
+            $room_counter++;
+            $roomNo = $room_counter;
             $floorName = clear_input($roomData['floor_name']);
             $roomName = clear_input($roomData['room_name']);
 
-            // Process room image if uploaded
+            // Process room image
             $roomImageName = '';
             if (
                 isset($_FILES['rooms']['name'][$roomIndex]['room_image']) &&
                 !empty($_FILES['rooms']['name'][$roomIndex]['room_image'])
             ) {
-                $roomImageFile = $_FILES['rooms']['tmp_name'][$roomIndex]['room_image'];
-                $roomImageName = uploadRoomImage($roomImageFile, $roomId);
+                $roomImageFile = [
+                    'name' => $_FILES['rooms']['name'][$roomIndex]['room_image'],
+                    'type' => $_FILES['rooms']['type'][$roomIndex]['room_image'],
+                    'tmp_name' => $_FILES['rooms']['tmp_name'][$roomIndex]['room_image'],
+                    'error' => $_FILES['rooms']['error'][$roomIndex]['room_image'],
+                    'size' => $_FILES['rooms']['size'][$roomIndex]['room_image']
+                ];
+                $roomImageName = uploadRoomImage($roomImageFile, $roomNo);
             }
 
             $roomInfo = [
-                'room_id' => $roomId,
                 'floor_name' => $floorName,
                 'room_name' => $roomName,
+                'room_no' => $roomNo,
                 'room_image' => $roomImageName
-            ]; 
+            ];
 
             // Process products in this room
             if (isset($roomData['products']) && is_array($roomData['products'])) {
+                $product_counter = 0;
                 foreach ($roomData['products'] as $productIndex => $productData) {
-                    $productDetail = processProductData($productData, $roomId, $roomInfo);
-                    $order_details[] = $productDetail;
-                    $order_total_price += $productDetail['total_price'];
+                    $product_counter++;
+                    $productDetail = processProductDataNewLayout($productData, $roomNo, $roomInfo, $product_counter);
+                    if ($productDetail) {
+                        $order_details[] = $productDetail;
+                        $order_total_price += $productDetail['total_price'];
+                    }
                 }
             }
         }
     }
 
-    // Continue with your existing order creation logic...
-    $c = new Customer();
-    $get_customer = $c->getCustomer($customer_id, 'customer_comm_rate,customer_email');
-    $customer_address = $c->getCustomerAddress($customer_address_id, $customer_id, 'adr_country,adr_text');
-    $customer_address_country = Country::getCountry($customer_address->adr_country, 'country_name');
-    $customer_full_address_text = $customer_address->adr_text . ' - ' . $customer_address_country->country_name;
+    if (count($order_details) === 0) {
+        echo json_response('error', get_lang_text('ajax_order_no_products'));
+        die;
+    }
 
-    $a = new Agreement();
-    $get_agr = $a->getAgreement($order_agreement, 'branch_id');
+    // Prepare order data
+    $get_currencies = getCurrencies(['TRY']);
+    $order_usd_price = formatExcelPrice($get_currencies['TRY']['rate'], 4, '.', '');
+    $add_date = date('Y-m-d H:i:s');
 
     $order_data = [
         'order_date' => $order_date,
@@ -993,35 +1078,399 @@ if (isset($_POST['add_order_with_newlayout'])) {
         'address_text' => $customer_full_address_text,
         'order_arcs' => $order_arcs,
         'order_price' => $order_total_price,
-        'order_usd_price' => 0, // You might need to calculate this
-        'order_customer_comm' => $get_customer->customer_comm_rate ?? 0,
+        'order_usd_price' => $order_usd_price,
+        'order_customer_comm' => $customer->customer_comm_rate ?? 0,
         'agreement_id' => $order_agreement,
         'agreement_text' => $order_agreement_text,
         'order_notes' => $order_notes,
         'order_tax' => $order_tax,
         'order_export_registered' => $order_export_registered,
         'added_user_id' => $logged->user_id,
-        'order_add_date' => date('Y-m-d H:i:s'),
+        'order_add_date' => $add_date,
         'order_behavior' => 'new_system'
     ];
 
+    // Handle commission fields
+    if ($order_comm_amount != '') {
+        $order_data['order_comm_amount'] = $order_comm_amount;
+    } elseif ($order_comm_rate != '') {
+        $order_data['order_comm_rate'] = $order_comm_rate;
+    }
+
+    // Insert order
     $insert = $o->addOrder($order_data);
     if ($insert) {
         $order_id = $insert;
 
+        // Update delivery date
+        $update_order_delivery_date = $o->updateOrderDeliveryDate($order_id, $order_delivery_date);
+
+        // Handle commission field cleanup
+        if ($order_comm_amount != '') {
+            $o->updateOrderColAsNull('order_comm_rate', $order_id);
+        } elseif ($order_comm_rate != '') {
+            $o->updateOrderColAsNull('order_comm_amount', $order_id);
+        }
+
         // Save order details
-        foreach ($order_details as $detail) {
-            saveOrderDetail($o, $order_id, $detail);
+        foreach ($order_details as $detail_index => $detail) {
+            $detail_id = saveOrderDetailNewLayout($o, $order_id, $detail, $detail_index + 1);
+            if ($detail_id) {
+                // Add to planning
+                $add_plan_data = $plan->addPlan($order_id, $detail_id);
+
+                // Save room image if uploaded
+                if (!empty($detail['room_image'])) {
+                    // Room image is already handled in uploadRoomImage function
+                }
+
+                // Save materials
+                if (isset($detail['materials']) && is_array($detail['materials'])) {
+                    saveOrderMaterialsNewLayout($o, $order_id, $detail_id, $detail['materials']);
+                }
+            }
         }
 
         echo json_response('success', get_lang_text('ajax_orderadd_success'));
+        die;
     } else {
         echo json_response('error', get_lang_text('ajax_orderadd_error'));
+        die;
     }
 }
 
+function saveOrderMaterialsNewLayout($o, $orderId, $detailId, $materials)
+{
+    foreach ($materials as $material) {
+        $o->addOrderDetailImage($orderId, $detailId, $material['type'], $material['material_id']);
+    }
+}
+
+// Enhanced processProductData function for new layout
+function processProductDataNewLayout($productData, $roomNo, $roomInfo, $product_order_no)
+{
+    $p = new Product();
+    $pa = new ProductAttribute();
+    $m = new Material();
+
+    $productId = clear_input($productData['product_id']);
+    $quantity = floatval($productData['quantity']);
+    $discount = floatval($productData['discount'] ?? 0);
+
+    // Validate product
+    if (!$p->checkProductById($productId)) {
+        throw new Exception(get_lang_text('ajax_order_invalid_product_selected'));
+    }
+
+    $product = $p->getProduct($productId);
+    $productAttr = $pa->getProductAttribute($product->attr_id);
+
+    // Calculate base price
+    $basePrice = calculateProductBasePrice($product, $productData, $productAttr);
+
+    // Calculate material costs
+    $materialCost = 0;
+    $selected_materials = [];
+    if (isset($productData['materials']) && is_array($productData['materials'])) {
+        $materialResult = calculateMaterialCostsNewLayout($productData['materials'], $productAttr);
+        $materialCost = $materialResult['cost'];
+        $selected_materials = $materialResult['materials'];
+    }
+
+    // Calculate surcharges/rates
+    $surchargeTotal = 0;
+    $detail_attr_rates = [];
+    if (isset($productData['surcharges']) && is_array($productData['surcharges'])) {
+        $surchargeResult = calculateSurchargesNewLayout($productData['surcharges'], $basePrice + $materialCost, $productAttr);
+        $surchargeTotal = $surchargeResult['total'];
+        $detail_attr_rates = $surchargeResult['rates'];
+    }
+
+    // Calculate total before discount
+    $subtotal = $basePrice + $materialCost + $surchargeTotal;
+
+    // Apply discount
+    $discountAmount = $subtotal * ($discount / 100);
+    $finalPrice = $subtotal - $discountAmount;
+
+    // Calculate total for quantity
+    $totalPrice = $finalPrice * $quantity;
+
+    // Prepare product dimensions data
+    $attr_dims = prepareProductDimensions($product, $productData, $productAttr);
+
+    return [
+        'product_id' => $productId,
+        'product_order_no' => $product_order_no,
+        'product_room_index' => $roomNo,
+        'product_room_img' => $roomInfo['room_image'] ?? '',
+        'product_cat' => $product->product_supplier ?? '',
+        'product_room_data' => json_encode($roomInfo, JSON_UNESCAPED_UNICODE),
+        'detail_of' => 'main',
+        'calculate_type' => $productAttr->calculate_type,
+        'product_qty' => $quantity,
+        'product_price' => $finalPrice,
+        'product_base_price' => $basePrice,
+        'product_discount' => $discount,
+        'product_notes_tr' => $productData['notes_tr'] ?? '',
+        'product_notes_en' => $productData['notes_en'] ?? '',
+        'product_edited' => 0,
+        'sponge_type' => $productData['sponge_type'] ?? '',
+        'person_weight' => $productData['person_weight'] ?? '',
+        'wholesale_percentage' => $product->mfg_cost_percent ?? 0,
+        'total_price' => $totalPrice,
+        'materials' => $selected_materials,
+        'attr_dims' => $attr_dims,
+        'attr_rates' => $detail_attr_rates,
+        'product_curtain_data' => isset($productData['curtain_data']) ? json_encode($productData['curtain_data']) : '{}'
+    ];
+}
+
+// Enhanced price calculation functions
+function calculateProductBasePrice($product, $productData, $productAttr)
+{
+    $calculateType = $productAttr->calculate_type;
+    $width = floatval($productData['width'] ?? 0);
+    $length = floatval($productData['length'] ?? 0);
+    $height = floatval($productData['height'] ?? 0);
+
+    // Handle different product types
+    if ($productAttr->attr_type == 'bed') {
+        return calculateBedPrice($product, $productData, $productAttr);
+    } elseif ($productAttr->attr_type == 'curtain') {
+        return calculateCurtainPrice($productData, $productAttr);
+    } else {
+        return calculateStandardPrice($calculateType, $product, $width, $length, $height);
+    }
+}
+
+function calculateBedPrice($product, $productData, $productAttr)
+{
+    $bed_dim = clear_input($productData['bed_dim'] ?? '180200');
+    $bed_dims = json_decode($product->product_bed_dims, true);
+
+    if (!isset($bed_dims[$bed_dim])) {
+        throw new Exception('Invalid bed dimension');
+    }
+
+    $dim_data = $bed_dims[$bed_dim];
+    $standart_price = $product->standart_price;
+
+    // Calculate based on dimension ratios (similar to old code)
+    $price_multiplier = 1.0;
+    switch ($bed_dim) {
+        case '200200':
+            $price_multiplier = 1.15;
+            break;
+        case '160200':
+            $price_multiplier = 0.85;
+            break;
+        case '140200':
+            $price_multiplier = 0.7225;
+            break; // 0.85 * 0.85
+        case '120200':
+            $price_multiplier = 0.614125;
+            break; // 0.85 * 0.85 * 0.85
+        default:
+            $price_multiplier = 1.0;
+    }
+
+    return $standart_price * $price_multiplier;
+}
+
+function calculateCurtainPrice($productData, $productAttr)
+{
+    $m = new Material();
+    $total_price = 0;
+
+    if (isset($productData['curtain_data']) && is_array($productData['curtain_data'])) {
+        foreach ($productData['curtain_data'] as $curtain) {
+            if (!empty($curtain['fabric']) && !empty($curtain['length']) && !empty($curtain['height'])) {
+                $fabric_item = $m->getMaterial($curtain['fabric'], 'material_price');
+                $unit_price = formatExcelPrice($fabric_item->material_price, 10, '.', '');
+
+                $curtain_dims = $curtain['length'] * 3;
+                $curtain_dims = ceil($curtain_dims / 100) * 100; // CURTAIN_PRICE_MULTIPLIER assumed as 100
+                $curtain_dims = $curtain_dims * $curtain['height'] * 0.0001;
+                $curtain_price = $curtain_dims * $unit_price;
+
+                $total_price += $curtain_price;
+            }
+        }
+    }
+
+    return $total_price;
+}
+
+function calculateStandardPrice($calculateType, $product, $width, $length, $height)
+{
+    $standart_price = $product->standart_price;
+
+    switch ($calculateType) {
+        case 'boy':
+            return ($standart_price / 100) * $length; // Assuming 100 as base length
+        case 'en':
+            return ($standart_price / 100) * $width; // Assuming 100 as base width
+        case 'yuksek':
+            return ($standart_price / 100) * $height; // Assuming 100 as base height
+        case 'enboy':
+            return ($standart_price / 10000) * ($width * $length);
+        case 'yukseken':
+            return ($standart_price / 10000) * ($width * $height);
+        case 'yuksekboy':
+            return ($standart_price / 10000) * ($length * $height);
+        case 'hepsi':
+            return ($standart_price / 1000000) * ($width * $length * $height);
+        case 'standart':
+        default:
+            return $standart_price;
+    }
+}
+
+function calculateMaterialCostsNewLayout($materials, $productAttr)
+{
+    $m = new Material();
+    $total_cost = 0;
+    $selected_materials = [];
+
+    foreach ($materials as $materialType => $materialList) {
+        if (is_array($materialList)) {
+            foreach ($materialList as $materialId) {
+                if (!empty($materialId)) {
+                    $material = $m->getMaterial($materialId);
+                    if ($material) {
+                        // Calculate material cost based on type and usage
+                        $material_cost = calculateSingleMaterialCost($material, $materialType, $productAttr);
+                        $total_cost += $material_cost;
+
+                        $selected_materials[] = [
+                            'type' => $materialType,
+                            'material_id' => $materialId,
+                            'cost' => $material_cost
+                        ];
+                    }
+                }
+            }
+        }
+    }
+
+    return [
+        'cost' => $total_cost,
+        'materials' => $selected_materials
+    ];
+}
+
+function calculateSingleMaterialCost($material, $materialType, $productAttr)
+{
+    // Implement material cost calculation based on your business rules
+    // This is a simplified version - adapt based on your actual requirements
+    return $material->material_price ?? 0;
+}
+
+function calculateSurchargesNewLayout($surcharges, $baseAmount, $productAttr)
+{
+    $total_surcharge = 0;
+    $rates_data = [];
+
+    foreach ($surcharges as $surcharge) {
+        if ($surcharge['applied'] && is_numeric($surcharge['rate'])) {
+            $surcharge_amount = $baseAmount * ($surcharge['rate'] / 100);
+
+            if ($surcharge['type'] === 'minus') {
+                $surcharge_amount = -$surcharge_amount;
+            }
+
+            $total_surcharge += $surcharge_amount;
+
+            $rates_data[] = [
+                'name' => $surcharge['name'] ?? '',
+                'type' => $surcharge['type'],
+                'rate' => floatval($surcharge['rate'])
+            ];
+        }
+    }
+
+    return [
+        'total' => $total_surcharge,
+        'rates' => $rates_data
+    ];
+}
+
+function prepareProductDimensions($product, $productData, $productAttr)
+{
+    $dims_data = [];
+
+    if ($productAttr->attr_type == 'bed') {
+        $bed_dims = json_decode($product->product_bed_dims, true);
+        $bed_dim = $productData['bed_dim'] ?? '180200';
+
+        if (isset($bed_dims[$bed_dim])) {
+            $dims_data[] = $bed_dims[$bed_dim];
+        }
+    } else {
+        // Handle other product types dimensions
+        $width = floatval($productData['width'] ?? 0);
+        $length = floatval($productData['length'] ?? 0);
+        $height = floatval($productData['height'] ?? 0);
+
+        $dims_data[] = [
+            'width' => $width,
+            'length' => $length,
+            'height' => $height,
+            'standart_width' => $width,
+            'standart_length' => $length,
+            'standart_height' => $height,
+            'standart_price' => $product->standart_price
+        ];
+    }
+
+    return $dims_data;
+}
+
+function saveOrderDetailNewLayout($o, $orderId, $detail, $row_number)
+{
+    $detailData = [
+        'order_id' => $orderId,
+        'product_id' => $detail['product_id'],
+        'product_row_number' => $row_number,
+        'product_room_index' => $detail['product_room_index'],
+        'product_room_img' => $detail['product_room_img'],
+        'product_cat' => $detail['product_cat'],
+        'product_room_data' => $detail['product_room_data'],
+        'detail_of' => $detail['detail_of'],
+        'calculate_type' => $detail['calculate_type'],
+        'product_qty' => $detail['product_qty'],
+        'product_price' => $detail['product_price'],
+        'product_base_price' => $detail['product_base_price'],
+        'product_discount' => $detail['product_discount'],
+        'product_curtain_data' => $detail['product_curtain_data'],
+        'product_notes_tr' => $detail['product_notes_tr'],
+        'product_notes_en' => $detail['product_notes_en'],
+        'product_edited' => $detail['product_edited'],
+        'sponge_type' => $detail['sponge_type'],
+        'person_weight' => $detail['person_weight'],
+        'wholesale_percentage' => $detail['wholesale_percentage'],
+        'order_behavior' => 'new_system'
+    ];
+
+    $detail_id = $o->addOrderDetails($detailData);
+
+    if ($detail_id) {
+        // Save attribute data
+        $attr_data = [
+            'attr_dims' => json_encode($detail['attr_dims'], JSON_UNESCAPED_UNICODE),
+            'attr_rates' => json_encode($detail['attr_rates'], JSON_UNESCAPED_UNICODE),
+            'attr_bed_dim' => $detail['attr_dims'][0]['bed_dim'] ?? ''
+        ];
+
+        $o->addOrderDetailAttr($attr_data, $orderId, $detail_id);
+    }
+
+    return $detail_id;
+}
+
 // Helper function to process product data
-function processProductData($productData, $roomId, $roomInfo)
+function processProductData($productData, $roomNo, $roomInfo)
 {
     $p = new Product();
     $pa = new ProductAttribute();
@@ -1082,7 +1531,7 @@ function processProductData($productData, $roomId, $roomInfo)
         'product_id' => $productId,
         'product_type' => $productType,
         'available_in' => $availableIn,
-        'room_id' => $roomId,
+        'room_no' => $roomNo,
         'room_info' => json_encode($roomInfo),
         'quantity' => $quantity,
         'base_price' => $basePrice,
@@ -1210,7 +1659,7 @@ function saveOrderDetail($o, $orderId, $detail)
         'order_id' => $orderId,
         'product_id' => $detail['product_id'],
         'product_row_number' => 1, // You might want to calculate this
-        'product_room_index' => $detail['room_id'],
+        'product_room_index' => $detail['room_no'],
         'product_room_img' => $roomInfo['room_image'] ?? '',
         'product_cat' => $detail['product_type'], // Use product_type as category
         'product_room_data' => $detail['room_info'], // Store full room info as JSON
@@ -1222,7 +1671,7 @@ function saveOrderDetail($o, $orderId, $detail)
         'product_curtain_data' => $detail['product_data'], // Store full product config
         'product_notes_tr' => '',
         'product_notes_en' => '',
-        'product_edited' => 0, 
+        'product_edited' => 0,
         'order_behavior' => 'new_system',
         'wholesale_percentage' => $detail['wholesale_percentage']
     ];
@@ -1243,7 +1692,7 @@ function saveOrderDetail($o, $orderId, $detail)
 }
 
 // Upload room image
-function uploadRoomImage($file, $roomId)
+function uploadRoomImage($file, $roomNo)
 {
     $allowed_ext = getAllowedImageTypes('ext');
     $allowed_mimes = getAllowedImageTypes('mime');
@@ -1265,9 +1714,12 @@ function uploadRoomImage($file, $roomId)
     $new_image_name = md5($file['name'] . $now) . sha1($file['name'] . $now) . rand(1, 999) . '.jpg';
 
     $upload_path = PATH . '/uploads/' . $new_image_name;
-    move_uploaded_file($file['tmp_name'], $upload_path);
 
-    return $new_image_name;
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        return $new_image_name;
+    }
+
+    return '';
 }
 
 function saveOrderMaterials($o, $orderId, $detailId, $materials)
@@ -1285,33 +1737,33 @@ function saveOrderVariants($o, $orderId, $detailId, $variants)
 // Add this to your API handler
 if (isset($_POST['get_order_for_edit'])) {
     $order_id = clear_input($_POST['order_id']);
-    
+
     $user = new User();
     $logged = $user->getLogged('user_id,user_auth,user_branch');
     $logged_auth = $logged->user_auth;
-    
+
     $page_auth = ['admin', 'manager', 'graphic_and_media', 'user', 'sales', 'ordermngr', 'partner', 'encounter'];
     if (!in_array($logged_auth, $page_auth)) {
         echo json_response('error', get_lang_text('ajax_unauthorized_access'));
         die;
     }
-    
+
     $o = new Order();
     $order = $o->getOrder($order_id);
-    
+
     if (!$order) {
         echo json_response('error', 'Order not found');
         die;
     }
-    
+
     // Get order details with room and product data
     $order_details = $o->getOrderDetails($order_id);
-    
+
     $order_data = [
         'order_info' => $order,
         'order_details' => []
     ];
-    
+
     foreach ($order_details as $detail) {
         $detail_data = [
             'detail_id' => $detail->id,
@@ -1325,17 +1777,17 @@ if (isset($_POST['get_order_for_edit'])) {
             'calculate_type' => $detail->calculate_type,
             'product_room_index' => $detail->product_room_index
         ];
-        
+
         $order_data['order_details'][] = $detail_data;
     }
-    
+
     echo json_response('success', 'Order data retrieved', $order_data);
     die;
 }
 
-if (isset($_POST['update_order_with_newlayout'])) {
+if (isset($_POST['update_order_with_newlayout'])) { 
     $order_id = clear_input($_POST['order_id']);
-    
+
     $user = new User();
     $logged = $user->getLogged('user_id,user_auth,user_branch');
     $logged_auth = $logged->user_auth;
@@ -1347,19 +1799,30 @@ if (isset($_POST['update_order_with_newlayout'])) {
         die;
     }
 
+    set_time_limit(0);
+
+    // Initialize classes
     $o = new Order();
     $p = new Product();
     $pa = new ProductAttribute();
     $m = new Material();
+    $c = new Customer();
+    $a = new Agreement();
+    $plan = new Plan();
 
-    // Get existing order to preserve some data
+    // Check if order exists and user has permission
     $existing_order = $o->getOrder($order_id);
     if (!$existing_order) {
         echo json_response('error', 'Order not found');
         die;
     }
 
-    // Update order basic info
+    if ($logged_auth == 'user' && $logged->user_branch != $existing_order->branch_id) {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+
+    // Validate and sanitize input (similar to add order)
     $order_date = date('Y-m-d', strtotime(clear_input($_POST['order_date'])));
     $order_delivery_date = date('Y-m-d', strtotime(clear_input($_POST['order_delivery_date'])));
     $customer_id = clear_input($_POST['customer_id']);
@@ -1370,60 +1833,147 @@ if (isset($_POST['update_order_with_newlayout'])) {
     $order_tax = clear_input($_POST['order_tax']);
     $order_export_registered = clear_input($_POST['order_export_registered']);
     $order_notes = html_ent(nl2br($_POST['order_notes']));
+    $order_status = clear_input($_POST['order_status'] ?? 'quotation');
+    $order_comm_rate = clear_input($_POST['order_comm_rate'] ?? '');
+    $order_comm_amount = clear_input($_POST['order_comm_amount'] ?? '');
+    $dlv_date_modified = clear_input($_POST['dlv_date_modified'] ?? '0');
 
+    // Validation (similar to add order)
+    $valid_status = ['completed', 'quotation', 'revized', 'cancel'];
+    if (!in_array($order_status, $valid_status)) {
+        echo json_response('error', get_lang_text('ajax_invalid_request'));
+        die;
+    }
+
+
+    // Validation checks from old code
+    if (
+        $order_date == '' || $customer_id == '' || $customer_address_id == '' || $order_arcs == '' ||
+        $order_agreement == '' || $order_agreement_text == '' || $order_tax == '' || $order_export_registered == '' || $order_delivery_date == ''
+    ) {
+        echo json_response('error', get_lang_text('ajax_fill_required_fields'));
+        die;
+    }
+
+    if (DateTime::createFromFormat('Y-m-d', $order_date) === false) {
+        echo json_response('error', get_lang_text('ajax_order_date_error'));
+        die;
+    }
+
+    if (DateTime::createFromFormat('Y-m-d', $order_delivery_date) === false) {
+        echo json_response('error', get_lang_text('ajax_order_delivery_date_error'));
+        die;
+    }
+
+    $order_date_time = strtotime($order_date);
+    $order_delivery_date_time = strtotime($order_delivery_date);
+
+    if ($order_date_time > $order_delivery_date_time) {
+        echo json_response('error', get_lang_text('ajax_order_date_invalid'));
+        die;
+    }
+
+    if ($o->isOrderDeliveryDateFull($order_delivery_date)) {
+        echo json_response('error', get_lang_text('ajax_order_delivery_date_invalid'));
+        die;
+    }
+
+    if (!$c->checkCustomerById($customer_id) || !$c->checkCustomerAddressById($customer_address_id) || !$a->checkAgreementById($order_agreement)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_input_error'));
+        die;
+    }
+
+    if ($order_comm_rate != '' && $order_comm_amount != '') {
+        echo json_response('error', get_lang_text('ajax_order_comm_rate_amount_error'));
+        die;
+    }
+
+    if ($order_comm_rate != '' && !is_numeric($order_comm_rate)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_comm_rate'));
+        die;
+    }
+
+    if ($order_comm_amount != '' && !is_numeric($order_comm_amount)) {
+        echo json_response('error', get_lang_text('ajax_order_invalid_comm_amount'));
+        die;
+    }
+
+    // Get customer and agreement data
+    $customer = $c->getCustomer($customer_id, 'customer_id,customer_name,customer_email,customer_comm_rate');
+    $customer_address = $c->getCustomerAddress($customer_address_id, $customer_id, 'adr_country,adr_text');
+    $customer_address_country = Country::getCountry($customer_address->adr_country, 'country_name');
+    $customer_full_address_text = $customer_address->adr_text . ' - ' . $customer_address_country->country_name;
+
+    $get_agr = $a->getAgreement($order_agreement, 'branch_id');
+    if ($logged_auth == 'user') {
+        if ($logged->user_branch != $get_agr->branch_id) {
+            echo json_response('error', get_lang_text('ajax_invalid_request'));
+            die;
+        }
+    }
+
+    // Process order details (similar to add order)
     $order_total_price = 0;
     $order_details = [];
+    $room_counter = 0;
 
-    // Process rooms data (same as creation)
     if (isset($_POST['rooms']) && is_array($_POST['rooms'])) {
         foreach ($_POST['rooms'] as $roomIndex => $roomData) {
-            $roomId = $roomData['room_id'];
+            $room_counter++;
+            $roomNo = $room_counter;
             $floorName = clear_input($roomData['floor_name']);
             $roomName = clear_input($roomData['room_name']);
 
-            // Process room image if uploaded
+            // Process room image
             $roomImageName = '';
             if (
                 isset($_FILES['rooms']['name'][$roomIndex]['room_image']) &&
                 !empty($_FILES['rooms']['name'][$roomIndex]['room_image'])
             ) {
-                $roomImageFile = $_FILES['rooms']['tmp_name'][$roomIndex]['room_image'];
-                $roomImageName = uploadRoomImage($roomImageFile, $roomId);
+                $roomImageFile = [
+                    'name' => $_FILES['rooms']['name'][$roomIndex]['room_image'],
+                    'type' => $_FILES['rooms']['type'][$roomIndex]['room_image'],
+                    'tmp_name' => $_FILES['rooms']['tmp_name'][$roomIndex]['room_image'],
+                    'error' => $_FILES['rooms']['error'][$roomIndex]['room_image'],
+                    'size' => $_FILES['rooms']['size'][$roomIndex]['room_image']
+                ];
+                $roomImageName = uploadRoomImage($roomImageFile, $roomNo);
             } else {
-                // Keep existing image if available
-                $existingDetail = findExistingRoomDetail($order_id, $roomId);
-                if ($existingDetail && !empty($existingDetail->product_room_img)) {
-                    $roomImageName = $existingDetail->product_room_img;
-                }
+                // Try to find existing image
+                $existingImage = findExistingRoomImage($order_id, $roomNo);
+                $roomImageName = $existingImage;
             }
 
             $roomInfo = [
-                'room_id' => $roomId,
                 'floor_name' => $floorName,
                 'room_name' => $roomName,
+                'room_no' => $roomNo,
                 'room_image' => $roomImageName
             ];
 
-            // Process products in this room
+            // Process products
             if (isset($roomData['products']) && is_array($roomData['products'])) {
+                $product_counter = 0;
                 foreach ($roomData['products'] as $productIndex => $productData) {
-                    $productDetail = processProductData($productData, $roomId, $roomInfo);
-                    $order_details[] = $productDetail;
-                    $order_total_price += $productDetail['total_price'];
+                    $product_counter++;
+                    $productDetail = processProductDataNewLayout($productData, $roomNo, $roomInfo, $product_counter);
+                    if ($productDetail) {
+                        $order_details[] = $productDetail;
+                        $order_total_price += $productDetail['total_price'];
+                    }
                 }
             }
         }
     }
 
-    // Update customer info
-    $c = new Customer();
-    $get_customer = $c->getCustomer($customer_id, 'customer_comm_rate,customer_email');
+    // Update order data
+    $customer = $c->getCustomer($customer_id, 'customer_comm_rate,customer_email');
     $customer_address = $c->getCustomerAddress($customer_address_id, $customer_id, 'adr_country,adr_text');
     $customer_address_country = Country::getCountry($customer_address->adr_country, 'country_name');
     $customer_full_address_text = $customer_address->adr_text . ' - ' . $customer_address_country->country_name;
 
-    $a = new Agreement();
     $get_agr = $a->getAgreement($order_agreement, 'branch_id');
+    $update_date = date('Y-m-d H:i:s');
 
     $order_data = [
         'order_date' => $order_date,
@@ -1434,44 +1984,97 @@ if (isset($_POST['update_order_with_newlayout'])) {
         'address_text' => $customer_full_address_text,
         'order_arcs' => $order_arcs,
         'order_price' => $order_total_price,
-        'order_usd_price' => 0,
-        'order_customer_comm' => $get_customer->customer_comm_rate ?? 0,
+        'order_customer_comm' => $customer->customer_comm_rate ?? 0,
         'agreement_id' => $order_agreement,
         'agreement_text' => $order_agreement_text,
         'order_notes' => $order_notes,
         'order_tax' => $order_tax,
         'order_export_registered' => $order_export_registered,
-        'order_edit_date' => date('Y-m-d H:i:s'),
-        'edited_user_id' => $logged->user_id
+        'order_update_date' => $update_date,
+        'order_status' => $order_status,
+        'dlv_date_modified' => $dlv_date_modified
     ];
 
+    // Handle commission fields
+    if ($order_comm_amount != '') {
+        $order_data['order_comm_amount'] = $order_comm_amount;
+    } elseif ($order_comm_rate != '') {
+        $order_data['order_comm_rate'] = $order_comm_rate;
+    }
+
     // Update order
-    $update = $o->updateOrder($order_id, $order_data);
-    
+    $update = $o->updateOrder($order_data, $order_id);
+
     if ($update) {
-        // Remove existing details and add new ones
-        $o->deleteAllOrderDetails($order_id);
-        
-        // Save order details
-        foreach ($order_details as $detail) {
-            saveOrderDetail($o, $order_id, $detail);
+        // Add order edit log
+        $add_order_edit_log = $o->addOrderLog($order_id, $logged->user_id, $update_date);
+
+        // Handle commission field cleanup
+        if ($order_comm_amount != '') {
+            $o->updateOrderColAsNull('order_comm_rate', $order_id);
+        } elseif ($order_comm_rate != '') {
+            $o->updateOrderColAsNull('order_comm_amount', $order_id);
         }
 
-        echo json_response('success', get_lang_text('ajax_orderupdate_success'));
+        // Update delivery date
+        $update_order_delivery_date = $o->updateOrderDeliveryDate($order_id, $order_delivery_date);
+
+        // Remove existing details and add new ones
+        $o->deleteAllOrderDetails($order_id);
+
+        // Save new order details
+        foreach ($order_details as $detail_index => $detail) {
+            $detail_id = saveOrderDetailNewLayout($o, $order_id, $detail, $detail_index + 1);
+            if ($detail_id) {
+                $add_plan_data = $plan->addPlan($order_id, $detail_id);
+
+                // Save materials
+                if (isset($detail['materials']) && is_array($detail['materials'])) {
+                    saveOrderMaterialsNewLayout($o, $order_id, $detail_id, $detail['materials']);
+                }
+            }
+        }
+
+        // Update order product row count
+        updateOrderProductRowCount($order_id);
+
+        // Handle delivery date calculation if not manually modified
+        if ($dlv_date_modified == '0') {
+            $calculated_delivery_date = calculateOrderDeliveryDays($order_id);
+            $update_order_delivery_date = $o->updateOrderDeliveryDate($order_id, $calculated_delivery_date);
+        }
+
+        echo json_response('success', get_lang_text('ajax_orderedit_success'));
+        die;
     } else {
-        echo json_response('error', get_lang_text('ajax_orderupdate_error'));
+        echo json_response('error', get_lang_text('ajax_orderedit_error'));
+        die;
     }
-    die;
+}
+
+function findExistingRoomImage($order_id, $room_no)
+{
+    $o = new Order();
+    $details = $o->getOrderDetails($order_id);
+
+    foreach ($details as $detail) {
+        $room_data = json_decode($detail->product_room_data, true);
+        if ($room_data && isset($room_data['room_no']) && $room_data['room_no'] == $room_no) {
+            return $detail->product_room_img;
+        }
+    }
+    return '';
 }
 
 // Helper function to find existing room detail
-function findExistingRoomDetail($order_id, $room_id) {
+function findExistingRoomDetail($order_id, $room_no)
+{
     $o = new Order();
     $details = $o->getOrderDetails($order_id);
-    
+
     foreach ($details as $detail) {
         $room_data = json_decode($detail->product_room_data, true);
-        if ($room_data && isset($room_data['room_id']) && $room_data['room_id'] == $room_id) {
+        if ($room_data && isset($room_data['room_no']) && $room_data['room_no'] == $room_no) {
             return $detail;
         }
     }
