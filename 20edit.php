@@ -6011,7 +6011,6 @@ include PATH . '/inc/footer.php';
     // Function to collect order data for update
     function collectOrderDataForUpdate() {
         const orderData = collectOrderData();
-        orderData.update_order_with_newlayout = 1;
         orderData.order_id = <?php echo $order_id; ?>;
         return orderData;
     }
@@ -6050,7 +6049,7 @@ include PATH . '/inc/footer.php';
     // Initialize edit mode
     function initializeEditMode() {
         // Update form submission for edit
-        $('#edit_order_btn').off('click').on('click', function(e) {
+        $('#edit_order_btn').on('click', function(e) {
             e.preventDefault();
             submitUpdatedOrder();
         });
@@ -11129,4 +11128,336 @@ include PATH . '/inc/footer.php';
     $('#itemAdvancedFilterModal').on('click', function(e) {
         if (e.target === this) hideItemAdvancedFilterModal();
     });
+</script>
+<script>
+    // Function to collect all order data and submit
+    function collectOrderData() {
+        const orderData = {
+            update_order_with_newlayout: 1,
+            order_date: $('#lblOrderDate').val(),
+            order_delivery_date: $('#lblOrderDeliveryDate').val(),
+            customer_id: $('#lblOrderCustomer').val(),
+            customer_address_id: $('#lblOrderCustomerAddress').val(),
+            order_arcs: $('input[name="order_arcs"]').val(),
+            order_agreement: $('#lblOrderAgreement').val(),
+            order_agreement_text: $('#lblOrderAgreementText').val(),
+            order_tax: $('#lblOrderTax').val(),
+            order_export_registered: $('#lblOrderExportRegistered').val(),
+            order_notes: $('#lblOrderNotes').val(),
+            // New room-based data
+            rooms: []
+        };
+
+        // Collect room data
+        $('.tab-pane').each(function() {
+            const $roomPane = $(this);
+            const roomId = $roomPane.data('room');
+
+            const roomData = {
+                room_id: roomId,
+                floor_name: $(`#floorName-room${roomId}`).val(),
+                room_name: $(`#roomName-room${roomId}`).val(),
+                products: []
+            };
+
+            // Collect products in this room
+            $(`#productTabs-room${roomId} .product-tab`).each(function() {
+                const $productTab = $(this);
+                const productId = $productTab.data('product');
+                const productType = $productTab.data('type');
+                const availableIn = $productTab.data('available-in');
+
+                const productData = collectProductData(productId, roomId, productType, availableIn);
+                if (productData) {
+                    roomData.products.push(productData);
+                }
+            });
+
+            orderData.rooms.push(roomData);
+        });
+
+        return orderData;
+    }
+
+    // Function to collect product data
+    function collectProductData(productId, roomId, productType, availableIn) {
+        const $productContent = $(`#product-${productId}-room${roomId}`);
+        if (!$productContent.length) return null;
+
+        const productData = {
+            product_id: productId,
+            type: productType,
+            available_in: availableIn,
+            quantity: parseFloat($productContent.find('.product-qty').val()) || 1,
+            discount: parseFloat($productContent.find('.product-discount').val()) || 0,
+            unit_price: parseFloat($productContent.find('.unit-price').val()) || 0,
+            calculate_type: $productContent.find('.calculate-type').val() || 'standart'
+        };
+
+        // Collect dimensions
+        const width = parseFloat($productContent.find('.dimension-width').val()) || 0;
+        const length = parseFloat($productContent.find('.dimension-length').val()) || 0;
+        const height = parseFloat($productContent.find('.dimension-height').val()) || 0;
+
+        if (width > 0) productData.width = width;
+        if (length > 0) productData.length = length;
+        if (height > 0) productData.height = height;
+
+        // Collect variants for set products
+        if (availableIn === 'set') {
+            productData.variants = collectVariantsData(productId, roomId);
+        }
+
+        // Collect selected variant for size products
+        if (availableIn === 'size') {
+            const selectedVariant = $productContent.find('.variant-radio-input:checked').val();
+            if (selectedVariant) {
+                productData.selected_variant = collectVariantData(productId, selectedVariant, roomId);
+            }
+        }
+
+        // Collect materials
+        productData.materials = collectMaterialsData(productId, roomId);
+
+        // Collect surcharges
+        productData.surcharges = collectSurchargesData(productId, roomId);
+
+        // Collect curtain-specific data
+        if (productType === 'curtain') {
+            productData.curtain_options = collectCurtainOptionsData(productId, roomId);
+            productData.accessories = collectAccessoriesData(productId, roomId);
+        }
+
+        // Collect fitout items
+        if (productType === 'fitout') {
+            productData.items = collectItemsData(productId, roomId);
+        }
+
+        return productData;
+    }
+
+    // Function to collect variants data
+    function collectVariantsData(productId, roomId) {
+        const variants = [];
+
+        $(`#variants-content-${productId}-room${roomId} .product-variant-content`).each(function() {
+            const $variant = $(this);
+            const variantId = $variant.find('.product-qty').first().data('variant');
+
+            if ($variant.hasClass('active')) {
+                const variantData = collectVariantData(productId, variantId, roomId);
+                variantData.active = true;
+                variants.push(variantData);
+            }
+        });
+
+        return variants;
+    }
+
+    // Function to collect variant data
+    function collectVariantData(productId, variantId, roomId) {
+        const $variant = $(`#variant-${productId}-${variantId}-room${roomId}`);
+
+        return {
+            variant_id: variantId,
+            width: parseFloat($variant.find('.dimension-width').val()) || 0,
+            length: parseFloat($variant.find('.dimension-length').val()) || 0,
+            height: parseFloat($variant.find('.dimension-height').val()) || 0,
+            quantity: parseFloat($variant.find('.product-qty').val()) || 1,
+            discount: parseFloat($variant.find('.product-discount').val()) || 0,
+            unit_price: parseFloat($variant.find('.unit-price').val()) || 0,
+            materials: collectMaterialsData(productId, roomId, variantId),
+            surcharges: collectSurchargesData(productId, roomId, variantId)
+        };
+    }
+
+    // Function to collect materials data
+    function collectMaterialsData(productId, roomId, variantId = null) {
+        const materials = [];
+        const prefix = variantId ? `variant-${productId}-${variantId}` : `product-${productId}`;
+
+        $(`#${prefix}-room${roomId} .material-group, .pillow-material-group`).each(function() {
+            const $material = $(this);
+            const materialType = $material.find('.material-type-select').val();
+            const areaWeight = parseFloat($material.find('.area-weight').val()) || 0;
+            const materialPrice = parseFloat($material.find('.material-type-select option:selected').data('price')) || 0;
+
+            if (materialType && areaWeight > 0) {
+                materials.push({
+                    material_id: materialType,
+                    area_weight: areaWeight,
+                    material_price: materialPrice,
+                    category: $material.data('category') || 'general',
+                    ref_label: $material.data('ref-label') || 'A'
+                });
+            }
+        });
+
+        return materials;
+    }
+
+    // Function to collect curtain options data
+    function collectCurtainOptionsData(productId, roomId) {
+        const $productContent = $(`#product-${productId}-room${roomId}`);
+
+        return {
+            opening_direction: $productContent.find('.opening-direction').val(),
+            open_with: $productContent.find('.open-with').val(),
+            installation_needed: $productContent.find('.curtain-installation-needed-checkbox').is(':checked')
+        };
+    }
+
+    // Function to collect accessories data
+    function collectAccessoriesData(productId, roomId) {
+        const accessories = [];
+
+        $(`#product-${productId}-room${roomId} .accessory-tab`).each(function() {
+            const $accessory = $(this);
+            const accessoryId = $accessory.data('accessory-id');
+            const $accessoryContent = $(`#accessory-${accessoryId}-${productId}-room${roomId}`);
+
+            if ($accessoryContent.length) {
+                const $selectedOption = $accessoryContent.find('.accessory-options-select option:selected');
+
+                accessories.push({
+                    accessory_id: accessoryId,
+                    selected_option: $selectedOption.val(),
+                    option_price: parseFloat($selectedOption.data('price')) || 0,
+                    price_type: $selectedOption.data('price-type') || 'fixed',
+                    price_depends_on: $selectedOption.data('price-depends-on') || ''
+                });
+            }
+        });
+
+        return accessories;
+    }
+
+    // Function to collect items data for fitout products
+    function collectItemsData(productId, roomId) {
+        const items = [];
+
+        $(`#product-${productId}-room${roomId} .items-tab`).each(function() {
+            const $item = $(this);
+            const itemId = $item.data('item-id');
+            const $itemContent = $(`#item-${itemId}-${productId}-room${roomId}`);
+
+            if ($itemContent.length) {
+                items.push({
+                    item_id: itemId,
+                    width: parseFloat($itemContent.find('.item-width').val()) || 0,
+                    length: parseFloat($itemContent.find('.item-length').val()) || 0,
+                    height: parseFloat($itemContent.find('.item-height').val()) || 0,
+                    quantity: parseFloat($itemContent.find('.item-qty').val()) || 1,
+                    discount: parseFloat($itemContent.find('.item-discount').val()) || 0,
+                    unit_price: parseFloat($itemContent.find('.item-unit-price').val()) || 0,
+                    materials: collectMaterialsData(itemId, productId, roomId, true), // true = is item
+                    surcharges: collectSurchargesData(itemId, roomId)
+                });
+            }
+        });
+
+        return items;
+    }
+
+    // Function to collect surcharges data
+    function collectSurchargesData(productId, roomId, variantId = null) {
+        const surcharges = [];
+        const prefix = variantId ? `variant-${productId}-${variantId}` : `product-${productId}`;
+
+        $(`#${prefix}-room${roomId} .surcharge-checkbox:checked`).each(function() {
+            const $surcharge = $(this);
+            surcharges.push({
+                applied: true,
+                name: $surcharge.data('surcharge-name'),
+                type: $surcharge.data('surcharge-type'), // 'plus' or 'minus'
+                rate: parseFloat($surcharge.data('surcharge-rate')) || 0,
+                variant_id: variantId || null
+            });
+        });
+
+        return surcharges;
+    }
+
+    // Update the materials collection function to handle items
+    function collectMaterialsData(productId, roomId, variantId = null, isItem = false) {
+        const materials = [];
+        let prefix;
+
+        if (isItem) {
+            prefix = `item-${productId}-${roomId}`;
+        } else if (variantId) {
+            prefix = `variant-${productId}-${variantId}`;
+        } else {
+            prefix = `product-${productId}`;
+        }
+
+        // Collect regular materials
+        $(`#${prefix}-room${roomId} .material-group`).each(function() {
+            const $material = $(this);
+            const materialType = $material.find('.material-type-select').val();
+            const areaWeight = parseFloat($material.find('.area-weight').val()) || 0;
+            const materialPrice = parseFloat($material.find('.material-type-select option:selected').data('price')) || 0;
+
+            if (materialType && areaWeight > 0) {
+                materials.push({
+                    material_id: materialType,
+                    area_weight: areaWeight,
+                    material_price: materialPrice,
+                    category: $material.closest('.material-tab-content').attr('id').replace(`materialContent-${prefix}-room${roomId}-`, ''),
+                    ref_label: $material.data('ref-label') || 'A'
+                });
+            }
+        });
+
+        // Collect pillow materials
+        $(`#${prefix}-room${roomId} .pillow-material-group`).each(function() {
+            const $pillow = $(this);
+            const refLabel = $pillow.data('ref-label');
+
+            // Collect pillow face material
+            const faceMaterial = $pillow.find('.material-type-select[data-subcategory="pillow_front"]').val();
+            if (faceMaterial) {
+                materials.push({
+                    material_id: faceMaterial,
+                    area_weight: 1, // Default for pillows
+                    material_price: parseFloat($pillow.find('.material-type-select[data-subcategory="pillow_front"] option:selected').data('price')) || 0,
+                    category: 'pillow',
+                    ref_label: refLabel,
+                    subcategory: 'face'
+                });
+            }
+
+            // Collect pillow back material
+            const backMaterial = $pillow.find('.material-type-select[data-subcategory="pillow_back"]').val();
+            if (backMaterial) {
+                materials.push({
+                    material_id: backMaterial,
+                    area_weight: 1, // Default for pillows
+                    material_price: parseFloat($pillow.find('.material-type-select[data-subcategory="pillow_back"] option:selected').data('price')) || 0,
+                    category: 'pillow',
+                    ref_label: refLabel,
+                    subcategory: 'back'
+                });
+            }
+
+            // Add pillow dimensions if available
+            const pillowLength = parseFloat($pillow.find('.pillow-length').val()) || 0;
+            const pillowWidth = parseFloat($pillow.find('.pillow-width').val()) || 0;
+            const pillowQuantity = parseFloat($pillow.find('.pillow-quantity').val()) || 1;
+
+            if (pillowLength > 0 && pillowWidth > 0) {
+                materials.push({
+                    category: 'pillow',
+                    ref_label: refLabel,
+                    dimensions: {
+                        length: pillowLength,
+                        width: pillowWidth,
+                        quantity: pillowQuantity
+                    }
+                });
+            }
+        });
+
+        return materials;
+    }
 </script>
