@@ -4703,15 +4703,29 @@ include PATH . '/inc/footer.php';
         // Get selected accessory option and its price
         const $selectedOption = $accessoryContent.find('.accessory-options-select option:selected');
         const accessoryPrice = parseFloat($selectedOption.data('price')) || 0;
-        const priceType = $selectedOption.data('price-type') || 'fixed'; // fixed or per_unit
+        const priceType = $selectedOption.data('price-type') || ''; // fixed or per_unit
+        const priceDependsOn = $selectedOption.data('price-depends-on') || ''; // e.g., 'quantity', 'length', etc.
 
         let accessoryTotal = 0;
 
-        if (priceType === 'per_unit') {
+        if (priceType === 'Per Piece') {
             // Price is per unit, multiply by product quantity
             accessoryTotal = accessoryPrice * productQuantity;
+        } else if (priceType === 'Per Meter') {
+            $multiplier = 0.2; // Default multiplier
+            if (priceDependsOn === 'length') {
+                $length = parseFloat($parentContent.find('.curtain-fabric-length').val()) || 0;
+                accessoryTotal = accessoryPrice * $length * $multiplier * productQuantity;
+            } else if (priceDependsOn === 'height') {
+                $height = parseFloat($parentContent.find('.curtain-fabric-height').val()) || 0;
+                accessoryTotal = accessoryPrice * $height * $multiplier * productQuantity;
+            } else if (priceDependsOn === 'length and height') {
+                $length = parseFloat($parentContent.find('.curtain-fabric-length').val()) || 0;
+                $height = parseFloat($parentContent.find('.curtain-fabric-height').val()) || 0;
+                accessoryTotal = accessoryPrice * $length * $height * ($multiplier * $multiplier) * productQuantity;
+            }
         } else {
-            // Fixed price regardless of quantity
+            // Default to fixed price
             accessoryTotal = accessoryPrice;
         }
 
@@ -6871,7 +6885,7 @@ include PATH . '/inc/footer.php';
                               <select class="form-control accessory-options-select">
                                  <option value="">Select</option>
                                  ${accessoryOptions.map(option => `
-                                    <option value="${option.accessory_id}" data-price="${option.price}" data-price_type="${option.price_type}" data-price_depends_on="${option.price_depends_on}" data-image="${option.accessory_img}">${option.accessory_name}</option>
+                                    <option value="${option.accessory_id}" data-accessory-type="${accessory.id}" data-price="${option.price}" data-price_type="${option.price_type}" data-price_depends_on="${option.price_depends_on}" data-image="${option.accessory_img}">${option.accessory_name}</option>
                                  `).join('')}
                               </select>
                            </div>
@@ -8424,7 +8438,7 @@ include PATH . '/inc/footer.php';
                            <select class="form-control accessory-options-select">
                               <option value="">Select</option>
                               ${accessoryOptions.map(option => `
-                                 <option value="${option.accessory_id}" data-price="${option.price}" data-price_type="${option.price_type}" data-accessory-type="${accessory.name}" data-price_depends_on="${option.price_depends_on}" data-image="${option.accessory_img}">${option.accessory_name}</option>
+                                 <option value="${option.accessory_id}" data-accessory-type="${accessory.id}" data-price="${option.price}" data-price_type="${option.price_type}" data-accessory-type="${accessory.name}" data-price_depends_on="${option.price_depends_on}" data-image="${option.accessory_img}">${option.accessory_name}</option>
                               `).join('')}
                            </select>
                         </div>
@@ -9329,7 +9343,7 @@ include PATH . '/inc/footer.php';
 
         const $tab = $(this);
         const $variantContent = $tab.closest('.variant-details');
-        const variantId = $variantContent.find('.dimension-width').first().data('variant');
+        const variantId = $variantContent.find('.product-qty').first().data('variant');
         const $productContent = $variantContent.closest('.product-content');
         const productId = $productId = $productContent.attr('id').replace('product-', '').replace(/-room\d+$/, '');
         const roomId = $productContent.attr('id').match(/room(\d+)/)[1];
@@ -10327,14 +10341,6 @@ include PATH . '/inc/footer.php';
         return true;
     }
 
-    // Helper function to calculate curtain price
-    function calculateCurtainPrice(length, height, unitPrice) {
-        const curtainDims = length * 3;
-        const roundedDims = Math.ceil(curtainDims / 100) * 100; // CURTAIN_PRICE_MULTIPLIER as 100
-        const area = roundedDims * height * 0.0001;
-        return area * unitPrice;
-    }
-
     // Function to populate existing accessories data
     function populateAccessoriesData(productId, roomId, accessories) {
         accessories.forEach(accessory => {
@@ -11200,7 +11206,7 @@ include PATH . '/inc/footer.php';
         return items;
     }
 
-    // Function to collect curtain data for product_curtain_data in update
+    // Updated function to collect curtain data for product_curtain_data
     function collectCurtainDataNewLayout(productId, roomId) {
         const $productContent = $(`#product-${productId}-room${roomId}`);
         const curtainData = {};
@@ -11218,65 +11224,163 @@ include PATH . '/inc/footer.php';
                 curtainData[setLevel] = collectCurtainSetData($variant, productId, variantId, roomId);
             });
         } else {
-            // Single curtain product
-            curtainData[1] = collectCurtainSetData($productContent, productId, productId, roomId);
+            // Single curtain product - use the product content directly
+            curtainData[1] = collectCurtainSetData($productContent, productId, null, roomId);
         }
 
         return curtainData;
     }
 
-    // Function to collect curtain set data for update
+    // Fixed function to collect curtain set data
     function collectCurtainSetData($container, productId, variantId, roomId) {
         const curtainSet = {};
+        const fabricMaterials = [];
 
-        // Collect individual curtains (1-10)
-        for (let i = 1; i <= 10; i++) {
-            const curtainKey = `curtain${i}`;
-            const $lengthInput = $container.find(`.curtain-length-${i}`);
-            const $heightInput = $container.find(`.curtain-height-${i}`);
-            const $fabricSelect = $container.find(`.curtain-fabric-${i}`);
+        console.log('Collecting curtain set data for:', {
+            container: $container.attr('id'),
+            productId,
+            variantId,
+            roomId
+        });
 
-            if ($lengthInput.length && $heightInput.length && $fabricSelect.length) {
-                const length = parseFloat($lengthInput.val()) || 0;
-                const height = parseFloat($heightInput.val()) || 0;
-                const fabric = $fabricSelect.val();
+        // First, try to find fabric material groups with ref_labels
+        $container.find('.material-group[data-ref-label]').each(function() {
+            const $materialGroup = $(this);
+            const refLabel = $materialGroup.data('ref-label');
 
-                if (length > 0 && height > 0 && fabric) {
-                    curtainSet[curtainKey] = {
+            // Check if this is a fabric material by looking at the parent tab content
+            const $materialTabContent = $materialGroup.closest('.material-tab-content');
+            const tabContentId = $materialTabContent.attr('id') || '';
+
+            // Check if this is fabric category by ID or by content
+            const isFabric = tabContentId.includes('-fabric') ||
+                $materialGroup.find('.curtain-fabric-length').length > 0 ||
+                $materialGroup.find('.curtain-fabric-height').length > 0;
+
+            if (isFabric) {
+                const materialType = $materialGroup.find('.material-type-select').val();
+                const length = parseFloat($materialGroup.find('.curtain-fabric-length').val()) || 0;
+                const height = parseFloat($materialGroup.find('.curtain-fabric-height').val()) || 0;
+                const $selectedOption = $materialGroup.find('.material-type-select option:selected');
+                const unitPrice = parseFloat($selectedOption.data('price')) || 0;
+
+                console.log('Found fabric material group:', {
+                    refLabel,
+                    materialType,
+                    length,
+                    height,
+                    unitPrice,
+                    isFabric
+                });
+
+                if (materialType && length > 0 && height > 0) {
+                    fabricMaterials.push({
+                        ref_label: refLabel,
+                        material_id: materialType,
                         length: length,
                         height: height,
-                        fabric: fabric,
-                        unit_price: parseFloat($fabricSelect.find('option:selected').data('price')) || 0,
-                        price: calculateCurtainPrice(length, height, parseFloat($fabricSelect.find('option:selected').data('price')) || 0)
-                    };
+                        unit_price: unitPrice,
+                        price: calculateCurtainPrice(length, height, unitPrice)
+                    });
                 }
+            }
+        });
+
+        // If no fabric groups found with ref_labels, check for single fabric input
+        if (fabricMaterials.length === 0) {
+            console.log('No fabric groups found, checking for single fabric input...');
+
+            // Try different possible IDs for the fabric content
+            const possibleFabricIds = [
+                `materialContent-${variantId ? `variant-${productId}-${variantId}` : `product-${productId}`}-room${roomId}-fabric`,
+                `materialContent-${productId}-${variantId || ''}-room${roomId}-fabric`,
+                `materialContent-${productId}-room${roomId}-fabric`
+            ];
+
+            let $fabricContent = null;
+            for (const fabricId of possibleFabricIds) {
+                $fabricContent = $(`#${fabricId}`);
+                if ($fabricContent.length) {
+                    console.log('Found fabric content with ID:', fabricId);
+                    break;
+                }
+            }
+
+            if (!$fabricContent || !$fabricContent.length) {
+                // Try to find any fabric content by searching for curtain-specific inputs
+                $fabricContent = $container.find('.material-tab-content').has('.curtain-fabric-length, .curtain-fabric-height').first();
+            }
+
+            if ($fabricContent && $fabricContent.length) {
+                const materialType = $fabricContent.find('.material-type-select').val();
+                const length = parseFloat($fabricContent.find('.curtain-fabric-length').val()) || 0;
+                const height = parseFloat($fabricContent.find('.curtain-fabric-height').val()) || 0;
+                const $selectedOption = $fabricContent.find('.material-type-select option:selected');
+                const unitPrice = parseFloat($selectedOption.data('price')) || 0;
+
+                console.log('Single fabric input data:', {
+                    materialType,
+                    length,
+                    height,
+                    unitPrice
+                });
+
+                if (materialType && length > 0 && height > 0) {
+                    fabricMaterials.push({
+                        ref_label: 'A', // Default ref_label
+                        material_id: materialType,
+                        length: length,
+                        height: height,
+                        unit_price: unitPrice,
+                        price: calculateCurtainPrice(length, height, unitPrice)
+                    });
+                }
+            } else {
+                console.log('No fabric content found at all');
             }
         }
 
-        // Collect accessory configuration
+        console.log('Final fabric materials collected:', fabricMaterials);
+
+        // Create curtain entries for each fabric material
+        fabricMaterials.forEach((fabric, index) => {
+            const curtainKey = `curtain${index + 1}`;
+            curtainSet[curtainKey] = {
+                ref_label: fabric.ref_label,
+                material_id: fabric.material_id,
+                length: fabric.length,
+                height: fabric.height,
+                unit_price: fabric.unit_price,
+                price: fabric.price
+            };
+        });
+
+        // FIXED: Collect accessory configuration with proper blackout color
         const accessoryConfig = {
             curtain_opening_direction: $container.find('.opening-direction').val() || '',
             curtain_open_with: $container.find('.open-with').val() || '',
-            curtain_rail_width: $container.find('.rail-width').val() || '',
+            curtain_motor_price: $container.find('.open-with').val() === 'motor' ? '300' : '0',
             curtain_installation: $container.find('.curtain-installation-needed-checkbox').is(':checked') ? 'needed' : '',
-            curtain_installation_price: $container.find('.curtain-installation-needed-checkbox').is(':checked') ? '+200' : '',
-            accessory_type: [],
+            curtain_installation_price: $container.find('.curtain-installation-needed-checkbox').is(':checked') ? '200' : '0',
+            accessory_types: [],
             accessory_ids: [],
             accessory_prices: {},
             accessory_price_types: {},
             accessory_price_depends_on: {},
-            accessory_total_prices: {}
+            accessory_total_prices: {},
+            accessory_blackout_color: '' // Initialize as empty string
         };
 
-        // Collect accessories
+        // FIXED: Collect accessories with dynamic blackout color per accessory
         $container.find('.accessory-details').each(function() {
             const $accessoryDetail = $(this);
-            if ($accessoryDetail.length) {
-                const $selectedOption = $accessoryDetail.find('.accessory-options-select option:selected');
+            const $selectedOption = $accessoryDetail.find('.accessory-options-select option:selected');
+
+            if ($selectedOption.length && $selectedOption.val()) {
                 const accessoryType = $selectedOption.data('accessory-type') || '';
-                const accessoryId = $selectedOption.val() || '';
+                const accessoryId = $selectedOption.val();
                 const price = parseFloat($selectedOption.data('price')) || 0;
-                const priceType = $selectedOption.data('price-type') || 'fixed';
+                const priceType = $selectedOption.data('price-type') || '';
                 const dependsOn = $selectedOption.data('price-depends-on') || '';
 
                 accessoryConfig.accessory_types.push(accessoryType);
@@ -11285,39 +11389,67 @@ include PATH . '/inc/footer.php';
                 accessoryConfig.accessory_price_types[accessoryId] = priceType;
                 accessoryConfig.accessory_price_depends_on[accessoryId] = dependsOn;
 
-                // Calculate total price based on type
+                // FIXED: Get blackout color specifically for this accessory if it's a blackout type
+                if (accessoryType === 'black_out' || accessoryType === 'blackout') {
+                    const blackoutColor = $accessoryDetail.find('.accessory-blackout-color').val() || '';
+                    accessoryConfig.accessory_blackout_color = blackoutColor;
+                    console.log('Found blackout color:', blackoutColor, 'for accessory:', accessoryId);
+                }
+
+                // Calculate total price based on type and dependencies
                 let totalPrice = 0;
                 if (priceType === 'Per Piece') {
-                    totalPrice = price;
+                    const productQuantity = parseFloat($container.find('.product-qty').val()) || 1;
+                    totalPrice = price * productQuantity;
                 } else if (priceType === 'Per Meter') {
-                    // Get first curtain for dimensions
-                    const firstCurtain = Object.values(curtainSet).find(curtain => curtain.length && curtain.height);
-                    if (firstCurtain) {
-                        if (dependsOn === 'length') {
-                            totalPrice = (firstCurtain.length / 100) * price;
-                        } else if (dependsOn === 'length and height') {
-                            totalPrice = (firstCurtain.length / 100) * (firstCurtain.height / 100) * price;
-                        }
-                    }
+                    totalPrice = calculateCurtainBaseTotal(curtainSet, price, priceType, dependsOn);
+                } else {
+                    totalPrice = price;
                 }
+
                 accessoryConfig.accessory_total_prices[accessoryId] = Math.round(totalPrice * 100) / 100;
             }
         });
 
-        // Calculate motor price
-        if (accessoryConfig.curtain_open_with === 'motor') {
-            const motorData = $container.find('.accessory-options-select option:selected').filter(function() {
-                return $(this).parent().find('.accessory-tab-name').text().includes('Motor');
-            });
-            if (motorData.length) {
-                const motorPrice = parseFloat(motorData.data('price')) || 0;
-                accessoryConfig.curtain_motor_price = accessoryConfig.curtain_opening_direction === 'two' ? motorPrice * 2 : motorPrice;
-            }
-        }
-
         curtainSet.Accessory = accessoryConfig;
 
         return curtainSet;
+    }
+
+    // Helper function to calculate curtain base total (for percentage calculations)
+    function calculateCurtainBaseTotal(curtainSet, accessoryPrice, priceType, dependsOn) {
+        let baseTotal = 0;
+        let $multiplier = 0.2;
+        // Sum up the lengths of all curtains for 'Per Meter' calculations
+        for (const key in curtainSet) {
+            if (key.startsWith('curtain')) {
+                if (dependsOn === 'length') {
+                    baseTotal += curtainSet[key].length * accessoryPrice;
+                } else if (dependsOn === 'height') {
+                    baseTotal += curtainSet[key].height * accessoryPrice;
+                } else if (dependsOn === 'length and height') {
+                    baseTotal += (curtainSet[key].length * curtainSet[key].height) * accessoryPrice;
+                }
+            }
+        }
+        return baseTotal;
+    }
+
+    // Updated curtain price calculation function
+    function calculateCurtainPrice(length, height, unitPrice) {
+        // For curtains, price is typically: (length × height) × unit price
+        const area = length * height;
+        const totalPrice = area * unitPrice;
+
+        console.log('Curtain price calculation:', {
+            length: length,
+            height: height,
+            area: area,
+            unitPrice: unitPrice,
+            totalPrice: totalPrice
+        });
+
+        return Math.round(totalPrice * 100) / 100;
     }
 
     // Function to collect variant data for update
@@ -11367,6 +11499,8 @@ include PATH . '/inc/footer.php';
     }
 
     // Function to collect materials data with proper structure for update
+    // Update the materials collection in collectProductData to exclude curtain fabrics
+    // since they're now handled separately in curtain_data
     function collectMaterialsDataNewLayout(productId, roomId, variantId = null, isItem = false) {
         const materials = {
             main: {},
@@ -11384,10 +11518,18 @@ include PATH . '/inc/footer.php';
 
         const $container = $(`#${prefix}-room${roomId}`);
 
+        // For curtain products, skip fabric materials as they're handled in curtain_data
+        const isCurtainProduct = $container.closest('.product-content').find('.curtain-options-section').length > 0;
+
         // Collect main materials by category and set level
         $container.find('.material-tab-content').each(function() {
             const $materialTab = $(this);
             const category = $materialTab.attr('id').replace(`materialContent-${prefix}-room${roomId}-`, '');
+
+            // Skip fabric materials for curtain products (handled in curtain_data)
+            if (isCurtainProduct && category === 'fabric') {
+                return;
+            }
 
             // Determine set level (for variants)
             let setLevel = 1;
@@ -11407,7 +11549,7 @@ include PATH . '/inc/footer.php';
 
                 const materialType = $materialGroup.find('.material-type-select').val();
                 const areaWeight = parseFloat($materialGroup.find('.area-weight').val()) || 0;
-                const replacement = $materialGroup.find('.material-replacement').is(':checked') ? '1' : '0';
+                const replacement = $materialGroup.find('.material-replacement').val() || '';
 
                 if (materialType && areaWeight > 0) {
                     if (!materials.main[setLevel][category]) {
